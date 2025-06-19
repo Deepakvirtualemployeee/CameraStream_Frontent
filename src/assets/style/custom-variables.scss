@@ -1,0 +1,44 @@
+/* ----------------------------------
+  1. Define Custom SCSS Variables
+---------------------------------- */
+$enable-negative-margins: true;
+
+$theme1: #FDFCF5;
+$theme2: #F9E2C5;
+$theme3: #A2845E;
+$gray: #667085;
+$sidebar-bg: #064cb8;
+$custom-bg: #e4e7f4;
+
+$primary: #B88746;
+$primary-gradient-start: #B88746;
+$primary-gradient-end: #DEC46A;
+$placeholder-clr: #667085;
+
+$body-color: #344054;
+$btn-border-radius: 0.5rem;
+$input-border-color: #A2845E;
+$input-border-radius: 0.5rem;
+$font-size-base: 0.875rem;
+
+
+/* ----------------------------------
+  2. Import Bootstrap Core SCSS (in correct order)
+---------------------------------- */
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables"; // sets default vars like $indigo, $blue
+@import "~bootstrap/scss/mixins";
+
+
+/* ----------------------------------
+  3. Extend Theme Colors and Utilities (BEFORE importing utilities)
+---------------------------------- */
+$theme-colors: map-merge(
+  $theme-colors,
+  (
+    "theme1": $theme1,
+    "theme2": $theme2,
+    "gray": $gray,
+  )
+);
+

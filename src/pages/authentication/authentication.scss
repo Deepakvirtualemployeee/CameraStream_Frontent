@@ -1,0 +1,65 @@
+@import "../../assets/style/custom-variables.scss";
+
+// Authentication Page CSS
+.auth-page {
+    // background: url('./assets/images/bg-banner5.jpg') no-repeat;
+    background-color: #F2F4F7;
+    background-size: cover;
+
+    .content-wrapper {
+        padding: 2.25rem 1rem;
+
+        @include media-breakpoint-up(sm) {
+            padding: 2.75rem 2.25rem;
+        }
+    }
+
+    .form-control,
+    .form-select {
+        background-color: transparent;
+    }
+
+    .react-tel-input {
+        .form-control {
+            border: 1px solid #A2845E;
+            border-radius: 0.5rem;
+            background-color: transparent;
+        }
+
+        .flag-dropdown {
+            border: 1px solid #A2845E;
+            border-top-left-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+        }
+    }
+}
+
+.stepper-wrapper {
+    max-width: 235px;
+    margin: 0 auto;
+    .stepper-line {
+        background-color: #EAECF0;
+    }
+
+    .step {
+        .step-number {
+            font-size: 12px;
+            height: 24px;
+            width: 24px;
+            background: $white;
+            border: 1px solid #EAECF0;
+            border-radius: 50%;
+            color: $dark;
+            margin: 0 auto;
+        }
+
+        &.completed .step-number {
+            background: $theme3;
+            color: $white;
+        }
+        &.active .step-number {
+            background-image: linear-gradient(45deg, $primary-gradient-start, $primary-gradient-end);
+            color: $white;
+        }
+    }
+}
