@@ -51,7 +51,7 @@ export const LogIn = () => {
                         </div>
 
                         <div className="btn-wrapper">
-                            <Button variant="primary" type="submit" className="btn-custom rounded-pill w-100 py-2">Login</Button>
+                            <Button variant="primary" type="submit" className="w-100 btn-custom font-roboto rounded-pill shadow py-2">Login</Button>
                         </div>
 
                         <div className="text-center fs-12 text-gray mt-4">

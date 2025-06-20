@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import SearchIcon from "../assets/images/search.svg";
+import SearchIcon from "../assets/images/icons/search.svg";
 
 export const Header = () => {
 
@@ -30,18 +30,16 @@ export const Header = () => {
             </svg>
           </Button>
 
-          <div className="icon text-primary d-none d-lg-block">
+          {/* <div className="icon text-primary d-none d-lg-block">
             <div className="searchfield-wrapper">
               <input type="search" className="form-control bg-secondary bg-opacity-10" placeholder="Search keywords..." autoComplete="off" style={{ width: '280px' }}/>
               <img src={SearchIcon} alt="Search Icon" className="position-absolute top-50 end-0 translate-middle-y pe-3" />
             </div>
-          </div>
-
-          {/* <div className="d-none d-md-none d-lg-block">
-            <form className="d-flex align-items-center">
-              <input type="search" className="form-control py-2" placeholder="Search..." style={{ width: '220px' }} />
-            </form>
           </div> */}
+
+          <Link to={'/'} className='sidebar-logo text-decoration-none border-bottom border-white border-opacity-25 d-flex align-items-center' style={{ width: '130px' }}>
+              <img className="img-fluid" src={require('../assets/images/logo.png')} alt="Logo" />
+          </Link>
         </div>
 
         <div className="middle-sec col text-center">

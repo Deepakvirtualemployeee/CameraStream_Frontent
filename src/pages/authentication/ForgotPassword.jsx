@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Form, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 export const ForgotPassword = () => {
+    const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
@@ -38,13 +39,13 @@ export const ForgotPassword = () => {
     };
     return (
         <div className='auth-page forgotPassword-page d-flex justify-content-center align-items-center min-vh-100 py-4'>
-            <div className="container-xl">
-                <div className="card border-0 rounded-3 shadow w-100 mx-auto px-3 px-sm-5 py-5" style={{ maxWidth: '550px' }}>
+            <div className="container-xl" style={{ maxWidth: '525px' }}>
+                <div className="content-wrapper bg-theme1 rounded-3 shadow">
                     {step === 1 && (
                         <Form onSubmit={handleEmailSubmit}>
-                            <div className="heading-wrapper mb-4">
+                            <div className="heading-wrapper text-dark mb-4 pb-2">
                                 <div className="fs-3 fw-bold mb-1">Forgot Password</div>
-                                <div className="small text-muted">Kindly enter the Email Address tied to your account, we would help you to reset your password</div>
+                                <div className="small text-gray">Kindly enter the Email Address tied to your account, we would help you to reset your password</div>
                             </div>
                             <Form.Group className="mb-4" controlId="formEmail">
                                 <Form.Label>Email address<span className="text-danger">*</span></Form.Label>
@@ -55,16 +56,24 @@ export const ForgotPassword = () => {
                                 />
                             </Form.Group>
                             <div className="btn-wrapper">
-                                <Button variant="primary" type="submit" className="btn-custom w-100 mb-3">Send OTP</Button>
-                                <Link to={'/login'} className="w-100 btn btn-outline-primary btn-custom"><i className="bi bi-arrow-left me-2"></i>Back to login</Link>
+                                <Row className="g-2 gx-md-3">
+                                    <Col>
+                                        <Button type="button" variant="outline-primary" className="w-100 fs-12 fw-semibold font-roboto text-dark d-flex align-items-center justify-content-center rounded-pill shadow px-3" onClick={() => navigate('/login')}>
+                                            <i className="bi bi-arrow-left-short fs-3 lh-1"></i> Back to login
+                                        </Button>
+                                    </Col>
+                                    <Col>
+                                        <Button type="submit" variant="primary" className="w-100 fs-12 fw-semibold font-roboto d-flex align-items-center justify-content-center rounded-pill shadow px-3">Send OTP <i className="bi bi-arrow-right-short fs-3 lh-1"></i></Button>
+                                    </Col>
+                                </Row>
                             </div>
                         </Form>
                     )}
                     {step === 2 && (
                         <Form onSubmit={handleOtpSubmit}>
-                            <div className="heading-wrapper mb-4">
+                            <div className="heading-wrapper text-dark mb-4 pb-2">
                                 <div className="fs-3 fw-bold lh-sm mb-1">Enter OTP</div>
-                                <div className="small text-muted">An 4 digit code has been sent to your <span className="text-primary fw-semibold">+91 9083990020</span></div>
+                                <div className="small text-gray">An 4 digit code has been sent to your <span className="text-primary fw-semibold">+91 9083990020</span></div>
                             </div>
                             <Form.Group className="mb-4" controlId="formOtp">
                                 <Form.Label>Enter OTP<span className="text-danger">*</span></Form.Label>
@@ -74,24 +83,26 @@ export const ForgotPassword = () => {
                                     autoComplete="off" required
                                 />
                             </Form.Group>
-                            <Button variant="primary" type="submit" className="btn-custom w-100">Verify OTP</Button>
+                            <div className="btn-wrapper">
+                                <Button variant="primary" type="submit" className="btn-custom font-roboto rounded-pill w-100 py-2">Verify OTP</Button>
+                            </div>
                         </Form>
                     )}
                     {step === 3 && (
                         <Form onSubmit={handleNewPasswordSubmit}>
-                            <div className="heading-wrapper mb-4">
+                            <div className="heading-wrapper text-dark mb-4 pb-2">
                                 <div className="fs-3 fw-bold lh-sm">Reset Password</div>
                             </div>
                             <Form.Group className="mb-4" controlId="formNewPassword">
                                 <Form.Label>New Password<span className="text-danger">*</span></Form.Label>
                                 <div className="position-relative">
-                                    <Form.Control type={passwordVisible ? 'text' : 'password'} placeholder="Enter new password"
+                                    <Form.Control type={passwordVisible ? 'text' : 'password'} placeholder="Please enter the 8 digit password"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
                                         autoComplete='new-password' required
                                     />
                                     <span role="button" className="position-absolute top-50 translate-middle-y text-secondary" onClick={togglePassVisibility} style={{ right: '10px' }}>
-                                        {passwordVisible ? <i className="bi bi-eye-slash-fill"></i> : <i className="bi bi-eye-fill"></i>}
+                                        {passwordVisible ? <i className="bi bi-eye-slash-fill fs-16"></i> : <i className="bi bi-eye-fill fs-16"></i>}
                                     </span>
                                 </div>
                             </Form.Group>
@@ -99,17 +110,19 @@ export const ForgotPassword = () => {
                             <Form.Group className="mb-4" controlId="formConfirmPassword">
                                 <Form.Label>Confirm Password<span className="text-danger">*</span></Form.Label>
                                 <div className="position-relative">
-                                    <Form.Control type={confirmPassVisible ? 'text' : 'password'} placeholder="Enter confirm password"
+                                    <Form.Control type={confirmPassVisible ? 'text' : 'password'} placeholder="Please enter the 8 digit password"
                                         value={confirmPassword}
                                         onChange={(e) => setconfirmPassword(e.target.value)}
                                         autoComplete='new-password' required
                                     />
                                     <span role="button" className="position-absolute top-50 translate-middle-y text-secondary" onClick={toggleConfirmPassVisibility} style={{ right: '10px' }}>
-                                        {confirmPassVisible ? <i className="bi bi-eye-slash-fill"></i> : <i className="bi bi-eye-fill"></i>}
+                                        {confirmPassVisible ? <i className="bi bi-eye-slash-fill fs-16"></i> : <i className="bi bi-eye-fill fs-16"></i>}
                                     </span>
                                 </div>
                             </Form.Group>
-                            <Button variant="primary" type="submit" className="btn-custom w-100">Submit</Button>
+                            <div className="btn-wrapper">
+                                <Button variant="primary" type="submit" className="btn-custom font-roboto rounded-pill w-100 py-2" onClick={()=> navigate('/login')}>Submit</Button>
+                            </div>
                         </Form>
                     )}
                 </div>

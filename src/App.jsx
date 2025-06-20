@@ -3,8 +3,9 @@ import './App.scss';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 // Auth Pages
-import { SignUp } from './pages/authentication/SignUp';
 import { LogIn } from './pages/authentication/LogIn';
+import { SignUp } from './pages/authentication/SignUp';
+import { SignupFinished } from './pages/authentication/SignupFinished';
 import { ForgotPassword } from './pages/authentication/ForgotPassword';
 
 // Main Layout and Pages
@@ -21,17 +22,19 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Auth Routes */}
-        <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<LogIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/signup-finished" element={<SignupFinished />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Main Layout Routes */}
         <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
+          {/* <Route index element={<Dashboard />} /> */}
+          <Route index path="companies-list" element={<CompaniesList />} />
           <Route path="system-users-management" element={<UsersManagement />} />
           <Route path="system-users-management/add-user" element={<AddUser />} />
           <Route path="system-users-management/user-details" element={<UserDetails />} />
-          <Route path="companies-list" element={<CompaniesList />} />
+          
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

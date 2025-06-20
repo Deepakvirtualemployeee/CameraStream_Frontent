@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
+import TableFilter from '../../components/TableFilter';
 import { NoDataComponent } from '../../components/NoDataComponent';
 import { NewSubscription } from './AddCompany';
 
@@ -16,44 +17,48 @@ export const CompaniesList = () => {
 
     const columns = [
         {
-            name: 'Sr. No',
-            selector: (row) => row.id,
-            sortable: true,
-            width: '90px',
-        },
-        {
-            name: 'Subscription Name',
-            selector: (row) => row.subscription_name,
+            name: 'Name',
+            selector: (row) => row.company_name,
             sortable: true,
             minWidth: '200px',
-            cell: (row) => (
-                <div className='d-flex align-items-center gap-2'>
-                    <img src={require('../../assets/images/dummy-user.jpeg')} alt="Client" className='img-fluid border border-white rounded-circle shadow' style={{ height: '35px', width: '35px' }} />
-                    <div className='client-name fw-medium text-capitalize'>{row.subscription_name}</div>
-                </div>
-            ),
+            cell: (row) => (<div className='client-name fw-medium text-capitalize'>{row.company_name}</div>),
         },
         {
-            name: 'Plan Price',
-            selector: (row) => row.plan_price,
+            name: 'Address',
+            selector: (row) => row.address,
             sortable: true,
             minWidth: '170px',
         },
         {
-            name: 'Validity',
-            selector: (row) => row.validity,
+            name: 'Dot Number',
+            selector: (row) => row.dot_number,
             sortable: true,
             minWidth: '150px',
         },
         {
-            name: 'Date',
-            selector: (row) => row.date,
+            name: 'Status',
+            selector: (row) => row.status,
             sortable: true,
             minWidth: '120px',
         },
         {
-            name: 'Time',
-            selector: (row) => row.time,
+            name: 'ID',
+            selector: (row) => row.company_id,
+            sortable: true,
+        },
+        {
+            name: 'Active Vehicles',
+            selector: (row) => row.active_vehicles,
+            sortable: true,
+        },
+        {
+            name: 'Sub. Vehicles',
+            selector: (row) => row.sub_vehicles,
+            sortable: true,
+        },
+        {
+            name: 'Subscription',
+            selector: (row) => row.subscription,
             sortable: true,
         },
         {
@@ -70,115 +75,122 @@ export const CompaniesList = () => {
 
     const data = [
         {
-            id: '#001',
-            subscription_name: 'Deena Cooley',
-            plan_price: '$900',
-            validity: '9 Months',
-            date: '05/23/2024',
-            time: '9:30 AM',
+            company_name: 'ABC Trans LLC',
+            address: '1 Cristina Ln, Oxford PA, 19363',
+            dot_number: '000000',
+            status: 'Active',
+            company_id: 'CompanyID',
+            active_vehicles: '62',
+            sub_vehicles: '62',
+            subscription: 'Paid',
         },
         {
-            id: '#002',
-            subscription_name: 'Jerry Wilcox',
-            plan_price: '$300',
-            validity: '3 Months',
-            date: '08/23/2024',
-            time: '9:45 AM',
+            company_name: 'ABC Trans LLC',
+            address: '1 Cristina Ln, Oxford PA, 19363',
+            dot_number: '000000',
+            status: 'Active',
+            company_id: 'CompanyID',
+            active_vehicles: '62',
+            sub_vehicles: '62',
+            subscription: 'Paid',
         },
         {
-            id: '#003',
-            subscription_name: 'Deena Cooley',
-            plan_price: '$2400',
-            validity: '2 Years',
-            date: '05/23/2024',
-            time: '9:30 AM',
+            company_name: 'ABC Trans LLC',
+            address: '1 Cristina Ln, Oxford PA, 19363',
+            dot_number: '000000',
+            status: 'Active',
+            company_id: 'CompanyID',
+            active_vehicles: '62',
+            sub_vehicles: '62',
+            subscription: 'Paid',
         },
         {
-            id: '#004',
-            subscription_name: 'Jerry Wilcox',
-            plan_price: '$300',
-            validity: '3 Months',
-            date: '08/23/2024',
-            time: '9:45 AM',
+            company_name: 'ABC Trans LLC',
+            address: '1 Cristina Ln, Oxford PA, 19363',
+            dot_number: '000000',
+            status: 'Active',
+            company_id: 'CompanyID',
+            active_vehicles: '62',
+            sub_vehicles: '62',
+            subscription: 'Paid',
         },
         {
-            id: '#005',
-            subscription_name: 'Deena Cooley',
-            plan_price: '$3600',
-            validity: '3 Years',
-            date: '05/23/2024',
-            time: '9:30 AM',
+            company_name: 'ABC Trans LLC',
+            address: '1 Cristina Ln, Oxford PA, 19363',
+            dot_number: '000000',
+            status: 'Active',
+            company_id: 'CompanyID',
+            active_vehicles: '62',
+            sub_vehicles: '62',
+            subscription: 'Paid',
         },
         {
-            id: '#006',
-            subscription_name: 'Jerry Wilcox',
-            plan_price: '$600',
-            validity: '6 Months',
-            date: '08/23/2024',
-            time: '9:45 AM',
-        },
-        {
-            id: '#007',
-            subscription_name: 'Deena Cooley',
-            plan_price: '$1200',
-            validity: '12 Months',
-            date: '05/23/2024',
-            time: '9:30 AM',
-        },
-        {
-            id: '#008',
-            subscription_name: 'Jerry Wilcox',
-            plan_price: '$300',
-            validity: '3 Months',
-            date: '08/23/2024',
-            time: '9:45 AM',
-        },
-        {
-            id: '#009',
-            subscription_name: 'Deena Cooley',
-            plan_price: '$900',
-            validity: '9 Months',
-            date: '05/23/2024',
-            time: '9:30 AM',
-        },
-        {
-            id: '#010',
-            subscription_name: 'Jerry Wilcox',
-            plan_price: '$600',
-            validity: '6 Months',
-            date: '08/23/2024',
-            time: '9:45 AM',
-        },
-        {
-            id: '#011',
-            subscription_name: 'Deena Cooley',
-            plan_price: '$2400',
-            validity: '2 Year',
-            date: '05/23/2024',
-            time: '9:30 AM',
-        },
-        {
-            id: '#012',
-            subscription_name: 'Jerry Wilcox',
-            plan_price: '$1200',
-            validity: '1 Year',
-            date: '08/23/2024',
-            time: '9:45 AM',
+            company_name: 'ABC Trans LLC',
+            address: '1 Cristina Ln, Oxford PA, 19363',
+            dot_number: '000000',
+            status: 'Active',
+            company_id: 'CompanyID',
+            active_vehicles: '62',
+            sub_vehicles: '62',
+            subscription: 'Paid',
         },
     ]
+
+    // Table Filter Code
+    const [searchText, setSearchText] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
+    const [filterGroup, setFilterGroup] = useState('');
+
+    const resetFilters = () => {
+        setSearchText('');
+        setFilterStatus('');
+        setFilterGroup('');
+    };
+
+    const filters = [
+        {
+            value: filterStatus,
+            setValue: setFilterStatus,
+            placeholder: 'Filter by status',
+            options: ['All', 'Active', 'Pending', 'In Process'],
+        },
+        {
+            value: filterGroup,
+            setValue: setFilterGroup,
+            placeholder: 'Filter by group',
+            options: ['All Roles', 'System Administrator', 'System Technician', 'System Super Admin', 'Lab Technician'],
+        },
+    ];
+
+    const filteredData = data.filter(item => {
+        const matchesSearch = Object.values(item).some(val =>
+            val?.toString().toLowerCase().includes(searchText.toLowerCase())
+        );
+
+        const matchesStatus = filterStatus === 'All' || filterStatus === '' || item.user_status === filterStatus;
+        const matchesGroup = filterGroup === 'All Roles' || filterGroup === '' || item.user_role === filterGroup;
+
+        return matchesSearch && matchesStatus && matchesGroup;
+    });
 
     return (
         <div className="CompaniesList-page py-3">
             <div className="container-fluid">
                 <div className="appointments-list-wrapper bg-white rounded-3 p-3">
                     <div className="hrading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                        <h5 className="fw-bold m-0">Companies List - </h5>
+                        <div className="main-heading m-0">Companies (Admin)</div>
                         <Button variant="success" onClick={openSubscriptionModal}><i className="bi bi-person-plus-fill"></i> Add Company</Button>
                     </div>
+                    <TableFilter
+                        searchText={searchText}
+                        setSearchText={setSearchText}
+                        filters={filters}
+                        onReset={resetFilters}
+                    />
                     <div className='table-responsive table-custom-wrapper'>
                         <DataTable
                             columns={columns}
-                            data={data}
+                            data={filteredData}
                             // selectableRows
                             // striped
                             dense

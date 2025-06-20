@@ -8,17 +8,18 @@ const dataTableCustomStyles = {
   },
   headCells: {
     style: {
-      fontSize: "14px",
+      backgroundColor: 'var(--bs-theme2)',
+      color: "#1D2939",
+      fontSize: "12px",
       fontWeight: '700',
       padding: "12px",
-      color: "#fff",
-      backgroundColor: 'var(--bs-primary)',
+      textTransform: 'uppercase',
     },
   },
   cells: {
     style: {
-      color: '#31373d',
-      fontSize: "14px",
+      color: 'var(--bs-body-color)',
+      fontSize: "13px",
       padding: "5px 12px",
     },
   },

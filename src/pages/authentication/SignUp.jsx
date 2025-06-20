@@ -10,7 +10,11 @@ const Stepper = ({ currentStep }) => {
     const steps = [1, 2, 3];
     return (
         <div className="stepper-wrapper position-relative mb-4">
-            <div className="stepper-line position-absolute start-0 end-0 top-50 translate-y-middle z-0" style={{ height: '2px' }} />
+            <div className="stepper-line position-absolute start-0 end-0 top-50 translate-y-middle z-0" />
+            {/* Progress line */}
+            <div className="stepper-line stepper-line-progress position-absolute top-50 translate-middle-y bg-primary z-1"
+                style={{ width: `${(currentStep / (steps.length - 1)) * 100}%`, transition: 'width 0.3s ease', }}
+            />
             <div className="stepper d-flex justify-content-between position-relative z-1">
                 {steps.map((label, index) => (
                     <div key={index} className={`step text-center ${index === currentStep ? "active" : "bg-white"} ${index < currentStep ? "completed" : ""}`}>
@@ -49,7 +53,7 @@ export const SignUp = () => {
 
     const handleNext = () => {
         if (step < 2) setStep(step + 1);
-        else navigate("/confirmation");
+        else navigate("/signup-finished");
     };
 
     const handleBack = () => setStep(step - 1);
@@ -176,13 +180,15 @@ export const SignUp = () => {
                         )}
 
                         <div className="btn-wrapper mt-4">
-                            <Row className="gx-3 gy-2">
+                            <Row className="g-2 gx-md-3">
                                 <Col>
-                                    {step > 0 && <Button type="button" variant="outline-primary" className="w-100 text-dark rounded-pill shadow px-3 py-2" onClick={handleBack}><i className="bi bi-arrow-left"></i> Back</Button>}
+                                    {step > 0 && <Button type="button" variant="outline-primary" className="w-100 fs-12 fw-semibold font-roboto text-dark d-flex align-items-center justify-content-center rounded-pill shadow px-3" onClick={handleBack}>
+                                        <i className="bi bi-arrow-left-short fs-3 lh-1"></i> Back
+                                    </Button>}
                                 </Col>
                                 <Col>
-                                    <Button type="submit" variant="primary" className="w-100 rounded-pill shadow px-3 py-2" onClick={handleNext}>
-                                        {step === 2 ? <span>Create</span> : <span>Next <i className="bi bi-arrow-right"></i></span>}
+                                    <Button type="submit" variant="primary" className="w-100 fs-12 fw-semibold font-roboto rounded-pill shadow px-3" onClick={handleNext}>
+                                        {step === 2 ? <span className="d-flex align-items-center justify-content-center">Create <i className="bi bi-arrow-right-short fs-3 lh-1"></i></span> : <span className="d-flex align-items-center justify-content-center">Next <i className="bi bi-arrow-right-short fs-3 lh-1"></i></span>}
                                     </Button>
                                 </Col>
                             </Row>
