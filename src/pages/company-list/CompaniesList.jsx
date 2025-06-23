@@ -176,30 +176,33 @@ export const CompaniesList = () => {
     return (
         <div className="CompaniesList-page py-3">
             <div className="container-fluid">
-                <div className="appointments-list-wrapper bg-white rounded-3 p-3">
-                    <div className="hrading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <div className="bg-theme4 rounded-2 p-3">
+                    <div className="heading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                         <div className="main-heading m-0">Companies (Admin)</div>
                         <Button variant="success" onClick={openSubscriptionModal}><i className="bi bi-person-plus-fill"></i> Add Company</Button>
                     </div>
-                    <TableFilter
-                        searchText={searchText}
-                        setSearchText={setSearchText}
-                        filters={filters}
-                        onReset={resetFilters}
-                    />
-                    <div className='table-responsive table-custom-wrapper'>
-                        <DataTable
-                            columns={columns}
-                            data={filteredData}
-                            // selectableRows
-                            // striped
-                            dense
-                            pagination
-                            highlightOnHover
-                            responsive
-                            customStyles={dataTableCustomStyles}
-                            noDataComponent={<NoDataComponent />}
+
+                    <div className="table-section">
+                        <TableFilter
+                            searchText={searchText}
+                            setSearchText={setSearchText}
+                            filters={filters}
+                            onReset={resetFilters}
                         />
+                        <div className='table-responsive table-custom-wrapper'>
+                            <DataTable
+                                columns={columns}
+                                data={filteredData}
+                                // selectableRows
+                                // striped
+                                dense
+                                pagination
+                                highlightOnHover
+                                responsive
+                                customStyles={dataTableCustomStyles}
+                                noDataComponent={<NoDataComponent />}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

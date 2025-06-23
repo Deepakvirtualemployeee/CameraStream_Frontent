@@ -72,7 +72,6 @@
 
 html,
 body {
-  background-color: $custom-bg;
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
   overflow-x: hidden;
@@ -395,10 +394,6 @@ input[type="time"]:invalid:before {
 
 /* Small devices (landscape phones, 991px and down) */
 @media (max-width: 991px) {
-  .main-wrapper .sidebar-wrapper {
-    display: none;
-  }
-
   nav .user-name span,
   nav .user-name:after {
     display: none;
@@ -408,86 +403,35 @@ input[type="time"]:invalid:before {
     right: 0;
     left: auto;
   }
-
-  nav .offcanvas {
-    max-width: 230px;
-  }
-}
-
-@media (min-width: 992px) {
-  .main-content {
-    width: calc(100% - 230px);
-    margin-left: 230px;
-  }
 }
 
 // End: Top Header CSS
 
-// Start: Sidebar CSS
-nav .offcanvas {
-  max-width: 300px;
-  background-color: $sidebar-bg;
-  transition: none;
-}
-
-nav .offcanvas.show {
-  transition: var(--bs-offcanvas-transition)
-}
-
-.sidebar-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  max-width: 230px;
-  width: 100%;
-  height: 100%;
-  background-color: $sidebar-bg;
-  overflow-x: hidden;
-  z-index: $zindex-offcanvas;
-
-  .sidebar-logo {
-    img {
-      max-width: 170px;
-    }
-  }
-}
-
-.sidebar {
-  width: 100%;
-  height: 100%;
-}
-
-.sidebar .team-logo {
-  max-width: 150px;
-}
-
-.sidebar-item-cover {
-  li {
-    margin: 0 6px;
-  }
-
+// Start: Common Menubar CSS
+.menubar-wrapper {
   li a {
-    font-size: 15px;
-    color: $white;
-    border-radius: 6px;
-    padding: 8px 12px;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    border-bottom: 3px solid transparent;
+    color: $body-color;
+    padding: 9px 1rem;
     text-align: left;
     text-transform: capitalize;
     transition: .35s ease-out;
+    white-space: nowrap;
 
     &:hover,
     &:focus,
     &:hover img,
     &.active img,
     &:focus img {
-      color: $white;
+      color: $black;
       opacity: 1;
     }
 
     &.active {
-      color: $white;
-      background-color: $primary;
-      padding: 8px 12px;
+      color: $black;
+      border-color: $primary;
     }
 
     img {
