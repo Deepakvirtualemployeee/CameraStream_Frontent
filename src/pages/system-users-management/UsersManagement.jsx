@@ -4,6 +4,13 @@ import { Modal, Button, Badge, Form } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../components/NoDataComponent';
+import TableFilter from '../../components/TableFilter';
+import LogoutIocn from '../../assets/images/icons/logout.svg';
+import FilterIocn from '../../assets/images/icons/filter.svg';
+import ExternalIcon from '../../assets/images/icons/external.svg';
+import EditIcon from '../../assets/images/icons/edit.svg'
+import TrashIcon from '../../assets/images/icons/trash.svg';
+
 
 export const UsersManagement = () => {
     const navigate = useNavigate();
@@ -22,21 +29,11 @@ export const UsersManagement = () => {
 
     const columns = [
         {
-            name: 'Sr No.',
-            selector: (row) => row.id,
-            width: '70px',
-        },
-        {
             name: 'Name',
             selector: (row) => row.user_name,
             sortable: true,
             minWidth: '200px',
-            cell: (row) => (
-                <div className='d-flex align-items-center gap-2'>
-                    <img src={require('../../assets/images/dummy-user.jpeg')} alt="Client" className='img-fluid border border-white rounded-circle shadow' style={{ height: '35px', width: '35px' }} />
-                    <div className='client-name fw-medium text-capitalize'>{row.user_name}</div>
-                </div>
-            ),
+            cell: (row) => (<div className='client-name fw-medium text-capitalize'>{row.user_name}</div>),
         },
         {
             name: 'Email',
@@ -61,16 +58,16 @@ export const UsersManagement = () => {
             selector: (row) => row.user_status,
             sortable: true,
             minWidth: '80px',
-            cell: (row) => <Badge className='' pill text={`${row.user_status === 'In Process' ? 'dark' : ''}`} bg={`${row.user_status === 'Active' ? 'success' : 'primary' && row.user_status === 'Pending' ? 'danger' : 'primary' && row.user_status === 'In Process' ? 'warning' : 'primary'}`}>{row.user_status}</Badge>,
+            cell: (row) => <Badge className='fs-12 fw-medium bg-opacity-25' pill bg={row.user_status === 'Active' ? 'success text-success' : row.user_status === 'Pending' ? 'danger text-danger' : row.user_status === 'In Process' ? 'warning text-dark' : 'primary'}>{row.user_status}</Badge>,
         },
         {
             name: 'Actions',
-            minWidth: '160px',
+            minWidth: '150px',
             cell: (row) => (
-                <div className='action-wrapper d-flex gap-2'>
-                    <Button variant='outline-success' className='focus-ring focus-ring-success rounded-circle' title='View' onClick={() => userDetails(row)}><i className='bi bi-eye-fill fs-18'></i></Button>
-                    <Button variant='outline-warning' className='focus-ring focus-ring-warning rounded-circle' title='Edit'><i className='bi bi-pencil-square'></i></Button>
-                    <Button variant='outline-danger' className='focus-ring focus-ring-danger rounded-circle' title='Delete' onClick={handleShow}><i className='bi bi-trash3-fill'></i></Button>
+                <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
+                    {/* <span className='pointer p-0' title='Details' onClick={() => userDetails(row)}><img src={ExternalIcon} alt="External Icon" /></span> */}
+                    <span className='pointer p-0' title='Edit'><img src={EditIcon} alt="Edit Icon" /></span>
+                    <span className='pointer p-0' title='Delete' onClick={handleShow}><img src={TrashIcon} alt="Trash Icon" /></span>
                 </div>
             ),
         },
@@ -79,34 +76,34 @@ export const UsersManagement = () => {
     const data = [
         {
             id: '01',
-            user_name: 'Deena Cooley',
-            user_email: 'deenacooley123@gmail.com',
+            user_name: 'Jakhongir Khasanov',
+            user_email: 'jack@abctrans.com',
             user_role: 'System Administrator',
-            user_group: 'All Company Access',
+            user_group: 'All Companies',
             user_status: 'Active',
         },
         {
             id: '02',
-            user_name: 'Jerry Wilcox',
-            user_email: 'jerrywilcox786@gmail.com',
-            user_role: 'System Technician',
-            user_group: 'Jahangir Team',
-            user_status: 'Pending',
+            user_name: 'John Smith ',
+            user_email: 'john@abctrans.com',
+            user_role: 'System Administrator',
+            user_group: 'Super Team',
+            user_status: 'Active',
         },
         {
             id: '03',
             user_name: 'Vasheem Ahmad',
             user_email: 'ahmadvasu123@gmail.com',
             user_role: 'System Super Admin',
-            user_group: 'UNI Trans Team',
-            user_status: 'In Process',
+            user_group: 'All Companies',
+            user_status: 'Pending',
         },
         {
             id: '04',
             user_name: 'Carlos Jimenez',
             user_email: 'carlos.jimenez@example.com',
             user_role: 'Lab Technician',
-            user_group: 'Lucid ELD Team',
+            user_group: 'All Companies',
             user_status: 'Active',
         },
         {
@@ -114,7 +111,7 @@ export const UsersManagement = () => {
             user_name: 'Emily Zhang',
             user_email: 'emily.zhang@example.com',
             user_role: 'System Technician',
-            user_group: 'Anwar Khan Team',
+            user_group: 'Super Team',
             user_status: 'Pending',
         },
         {
@@ -122,109 +119,78 @@ export const UsersManagement = () => {
             user_name: 'Liam Thompson',
             user_email: 'liam.thompson@example.com',
             user_role: 'System Administrator',
-            user_group: 'Jahangir Ali Team',
-            user_status: 'In Process',
-        },
-        {
-            id: '07',
-            user_name: 'Vasheem Ahmad',
-            user_email: 'ahmadvasu123@gmail.com',
-            user_role: 'System Super Admin',
-            user_group: 'UNI Trans Team',
-            user_status: 'In Process',
-        },
-        {
-            id: '08',
-            user_name: 'Jerry Wilcox',
-            user_email: 'Shire Horse',
-            user_role: 'Vicki Walsh',
-            user_group: 'Asthma',
-            user_status: 'Pending',
-        },
-        {
-            id: '09',
-            user_name: 'Carlos Jimenez',
-            user_email: 'carlos.jimenez@example.com',
-            user_role: 'Lab Technician',
-            user_group: 'Lucid ELD Team',
+            user_group: 'Super Team',
             user_status: 'Active',
         },
     ];
 
-    // Table Filter Option
+    // Filter state
     const [searchText, setSearchText] = useState('');
-    const [filterStatus, setFilterStatus] = useState('');
-    const [filterGroup, setFilterGroup] = useState('');
+    const [filterGroup, setFilterGroup] = useState('All');
 
+    // Reset filters
+    const resetFilters = () => {
+        setSearchText('');
+        setFilterGroup('');
+    };
+
+    // Dropdown filter options
+    const filters = [
+        {
+            value: filterGroup,
+            setValue: setFilterGroup,
+            placeholder: 'Filter by Group',
+            options: ['All', 'All Companies', 'Super Team'],
+        },
+    ];
+
+    // Filtered data
     const filteredData = data.filter(item => {
         const matchesSearch = Object.values(item).some(val =>
             val?.toString().toLowerCase().includes(searchText.toLowerCase())
         );
 
-        const matchesStatus = filterStatus === 'All' || filterStatus === '' || item.user_status === filterStatus;
-        const matchesGroup = filterGroup === 'All' || filterGroup === '' || item.user_role === filterGroup;
+        const matchesGroup = filterGroup === 'All' || filterGroup === '' || item.user_group === filterGroup;
 
-        return matchesSearch && matchesStatus && matchesGroup;
+        return matchesSearch && matchesGroup;
     });
-
-    const resetFilters = () => {
-        setSearchText('');
-        setFilterStatus('');
-        setFilterGroup('');
-    };
 
     return (
         <div className="UsersManagement-page py-3">
             <div className="container-fluid">
-                <div className="bg-white rounded-3 p-3">
-                    <div className="hrading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-                        <h5 className="fw-bold m-0">System User Management</h5>
-                        <Button variant="success" className="px-3" onClick={addNewUser}><i className="bi bi-plus-circle-dotted me-1"></i> Add User</Button>
-                    </div>
-
-                    <div className="filter-wrapper d-flex flex-column flex-sm-row flex-wrap gap-2 mb-3">
-                        <Form.Group>
-                            <Form.Control type="search" value={searchText} placeholder="Search by name, email, etc..." onChange={e => setSearchText(e.target.value)} style={{ minWidth: '300px' }} />
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ minWidth: '200px' }} required >
-                                <option value="" hidden>Filter by status</option>
-                                <option value="All">All</option>
-                                <option value="Active">Active</option>
-                                <option value="Pending">Pending</option>
-                                <option value="In Process">In Process</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group>
-                            <Form.Select value={filterGroup} onChange={e => setFilterGroup(e.target.value)} style={{ minWidth: '200px' }} required>
-                                <option value="" hidden>Filter by group</option>
-                                <option value="All">All Roles</option>
-                                <option value="System Administrator">System Administrator</option>
-                                <option value="System Technician">System Technician</option>
-                                <option value="System Super Admin">System Super Admin</option>
-                                <option value="Lab Technician">Lab Technician</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Button className="text-secondary bg-primary bg-opacity-10 border d-flex align-items-center justify-content-center px-3" title="Reset Filters" onClick={resetFilters}>
-                            <i className="bi bi-arrow-clockwise fs-18"></i> <span className="ms-1 d-sm-none">Refresh</span>
-                        </Button>
-                    </div>
-                    <div className='table-responsive table-custom-wrapper'>
-                        <DataTable
-                            columns={columns}
-                            data={filteredData}
-                            // selectableRows
-                            // sortIcon={<i className="bi bi-eye-fill"></i>}
-                            onRowClicked={userDetails}
-                            dense
-                            pagination
-                            highlightOnHover
-                            pointerOnHover
-                            responsive
-                            customStyles={dataTableCustomStyles}
-                            noDataComponent={<NoDataComponent />}
-                        // striped
-                        />
+                <div className="bg-theme4 border rounded-2 p-3">
+                    <div className="main-heading mb-3">System Users Management</div>
+                    <div className="table-content-wrapper">
+                        <div className="action-wrapper d-flex flex-wrap justify-content-between gap-2 mb-4">
+                            <TableFilter
+                                searchText={searchText}
+                                setSearchText={setSearchText}
+                                searchPlaceholder="Search by Name or email"
+                                filters={filters}
+                                onReset={resetFilters}
+                            />
+                            <div className="btn-wrapper d-flex flex-wrap gap-2">
+                                <Button variant='primary'><i className="bi bi-plus-lg fs-16"></i> Add User</Button>
+                                <Button variant='white' className="bg-white border-gray"><img src={FilterIocn} alt="Filter Iocn" /> Filter by Status</Button>
+                                <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                            </div>
+                        </div>
+                        <div className='table-responsive table-custom-wrapper'>
+                            <DataTable
+                                columns={columns}
+                                data={filteredData}
+                                // selectableRows
+                                onRowClicked={userDetails}
+                                // dense
+                                pagination
+                                highlightOnHover
+                                pointerOnHover
+                                responsive
+                                customStyles={dataTableCustomStyles}
+                                noDataComponent={<NoDataComponent />}
+                                striped
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

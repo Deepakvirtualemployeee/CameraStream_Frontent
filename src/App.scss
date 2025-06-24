@@ -111,6 +111,14 @@ body {
   font-size: 18px;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
+.btn {
+  min-height: 40px;
+}
+
 .btn-custom {
   font-size: 18px;
   min-height: 54px;
@@ -143,7 +151,7 @@ body {
 .form-select {
   color: var(--bs-body-color);
   font-size: 14px;
-  min-height: 45px;
+  min-height: 40px;
 }
 
 .form-control::placeholder {
@@ -201,13 +209,15 @@ input[type="time"]:invalid:before {
 .searchfield-wrapper {
   position: relative;
 
-  input[type="search"]:focus~img,
-  input[type="search"]:valid~img {
-    display: none;
+  input {
+    padding-left: 42px;
   }
 
-  input[type="search"]:placeholder-shown+img {
-    display: block !important;
+  .icon {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
   }
 }
 
@@ -234,50 +244,7 @@ input[type="time"]:invalid:before {
 // Table style customization
 .table-custom-wrapper {
   border: 1px solid var(--bs-border-color);
-  border-radius: 10px;
-
-  table {
-
-    th,
-    td {
-      color: #31373d;
-      font-size: 14px;
-    }
-
-    thead th {
-      height: 45px;
-      min-width: 100px;
-      vertical-align: middle;
-      color: $white;
-      background-color: $primary;
-
-      &.sr_num {
-        min-width: auto;
-      }
-
-      &.width-custom1 {
-        min-width: 150px;
-      }
-
-      &.width-custom2 {
-        min-width: 200px;
-      }
-    }
-
-    tbody tr:last-child td {
-      border-bottom: 0;
-    }
-  }
-
-  .action-wrapper {
-    button {
-      height: 35px;
-      width: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
+  border-radius: 8px;
 }
 
 // React Quill Customization
@@ -394,6 +361,7 @@ input[type="time"]:invalid:before {
 
 /* Small devices (landscape phones, 991px and down) */
 @media (max-width: 991px) {
+
   nav .user-name span,
   nav .user-name:after {
     display: none;
@@ -412,7 +380,7 @@ input[type="time"]:invalid:before {
   li a {
     font-size: $font-size-base;
     font-weight: $font-weight-medium;
-    border-bottom: 3px solid transparent;
+    border-bottom: 4px solid transparent;
     color: $body-color;
     padding: 9px 1rem;
     text-align: left;

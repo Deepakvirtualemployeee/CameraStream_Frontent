@@ -8,7 +8,7 @@ export const Layout = () => {
     return (
         <>
             {/* Main Header Component */}
-            <Header />
+            {/* <Header /> */}
 
             {/* Common Menubar Component */}
             <div className="container-fluid">

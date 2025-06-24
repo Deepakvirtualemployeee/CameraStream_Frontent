@@ -8,6 +8,8 @@
 
     .form-control,
     .form-select {
+        border-color: $theme3;
+        background-color: transparent;
         min-height: 54px;
     }
 
@@ -24,11 +26,6 @@
         @include media-breakpoint-up(sm) {
             padding: 2.75rem 2.25rem;
         }
-    }
-
-    .form-control,
-    .form-select {
-        background-color: transparent;
     }
 
     .react-tel-input {

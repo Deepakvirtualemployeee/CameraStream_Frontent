@@ -11,15 +11,17 @@ $gray: #667085;
 $sidebar-bg: #064cb8;
 
 $primary: #B88746;
+$success: #027A48;
 $primary-gradient-start: #B88746;
 $primary-gradient-end: #DEC46A;
 $placeholder-clr: #667085;
 
 $body-color: #344054;
 $btn-border-radius: 0.5rem;
-$input-border-color: #A2845E;
+$input-border-color: $gray;
 $input-border-radius: 0.5rem;
 $font-size-base: 0.875rem;
+$btn-padding-x: 1rem;
 
 
 /* ----------------------------------
@@ -38,6 +40,8 @@ $theme-colors: map-merge(
   (
     "theme1": $theme1,
     "theme2": $theme2,
+    "theme3": $theme3,
+    "theme4": $theme4,
     "gray": $gray,
   )
 );
