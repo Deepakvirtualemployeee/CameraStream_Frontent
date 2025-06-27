@@ -65,7 +65,7 @@ export const FmcsaTransfer = () => {
             name: 'File Status',
             selector: (row) => row.file_status,
             minWidth: '120px',
-            cell: (row) => <Badge className='fs-12 fw-medium bg-opacity-25' pill bg={row.file_status === 'Information' ? 'success text-success' : row.file_status === 'Error' ? 'danger text-danger' : row.file_status === 'Warning' ? 'warning text-dark' : 'primary'}>{row.file_status}</Badge>,
+            cell: (row) => <Badge className='fs-12 fw-medium bg-opacity-10' pill bg={row.file_status === 'Information' ? 'success text-success' : row.file_status === 'Error' ? 'danger text-danger' : row.file_status === 'Warning' ? 'warning text-dark' : 'primary'}>{row.file_status}</Badge>,
         },
         {
             name: 'Comment',
@@ -196,7 +196,7 @@ export const FmcsaTransfer = () => {
                 <div className="bg-theme4 border rounded-2 p-3">
                     <div className="main-heading mb-3">FMCSA Transfer Logs</div>
                     <div className="table-content-wrapper">
-                        <div className="action-wrapper d-flex flex-wrap justify-content-between gap-2 mb-4">
+                        <div className="action-wrapper d-flex flex-wrap justify-content-between gap-3 mb-4">
                             <TableFilter
                                 searchText={searchText}
                                 setSearchText={setSearchText}

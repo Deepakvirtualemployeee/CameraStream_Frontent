@@ -16,6 +16,8 @@ import { UsersManagement } from './pages/system-users-management/UsersManagement
 import { UserDetails } from './pages/system-users-management/UserDetails';
 import { FmcsaTransfer } from './pages/fmcsa-transfer/FmcsaTransfer';
 import { PageNotFound } from './pages/PageNotFound';
+import { BillingManagement } from './pages/billing-management/BillingManagement';
+import { GroupManagement } from './pages/group-management/GroupManagement';
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
           <Route path="system-users-management" element={<UsersManagement />} />
           <Route path="system-users-management/user-details" element={<UserDetails />} />
           <Route path="fmcsa-transfer" element={<FmcsaTransfer />} />
+          <Route path="billing-management" element={<BillingManagement />} />
+          <Route path="group-management" element={<GroupManagement />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>
