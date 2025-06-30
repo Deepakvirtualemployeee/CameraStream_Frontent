@@ -18,6 +18,8 @@ import { FmcsaTransfer } from './pages/fmcsa-transfer/FmcsaTransfer';
 import { PageNotFound } from './pages/PageNotFound';
 import { BillingManagement } from './pages/billing-management/BillingManagement';
 import { GroupManagement } from './pages/group-management/GroupManagement';
+import { AppFeedback } from './pages/app-feedback/AppFeedback';
+import { DriversList } from './pages/drivers-list/DriversList';
 
 function App() {
   return (
@@ -39,6 +41,8 @@ function App() {
           <Route path="fmcsa-transfer" element={<FmcsaTransfer />} />
           <Route path="billing-management" element={<BillingManagement />} />
           <Route path="group-management" element={<GroupManagement />} />
+          <Route path="app-feedback" element={<AppFeedback />} />
+          <Route path="drivers-list" element={<DriversList />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>

@@ -13,7 +13,7 @@ export const Menubar = (props) => {
     };
 
     return (
-        <nav className="menubar-wrapper fs-6 text-body bg-theme2 rounded-2 overflow-x-auto mt-4 mb-3">
+        <nav className="menubar-wrapper fs-6 text-body bg-theme2 rounded-2 overflow-x-auto mt-4 mb-xl-3">
             <ul className="list-inline d-flex  m-0">
                 {/* <li className="nav-item">
                     <Link to={'/'} className={`${currentPath === '/' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('/')}>Dashboard</Link>

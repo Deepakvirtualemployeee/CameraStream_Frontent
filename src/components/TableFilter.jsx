@@ -27,7 +27,7 @@ const TableFilter = ({ searchText, setSearchText, searchPlaceholder = 'Search...
             ))}
 
             {/* Reset button */}
-            <Button variant='white' className="bg-white border-gray lh-1" title="Reset Filters" onClick={onReset} >
+            <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset Filters" onClick={onReset} >
                 <img src={ReloadIcon} alt="Reload Icon" className="lh-1" /> <span className="ms-1 d-sm-none">Refresh</span>
             </Button>
         </div>

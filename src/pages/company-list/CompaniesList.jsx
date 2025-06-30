@@ -178,7 +178,7 @@ export const CompaniesList = () => {
                 <div className="bg-theme4 border rounded-2 p-3">
                     <div className="main-heading mb-3">Companies (Admin)</div>
                     <div className="table-content-wrapper">
-                        <div className="action-wrapper d-flex flex-wrap justify-content-between gap-3 mb-4">
+                        <div className="action-wrapper d-flex flex-wrap justify-content-between gap-2 mb-4">
                             <TableFilter
                                 searchText={searchText}
                                 setSearchText={setSearchText}

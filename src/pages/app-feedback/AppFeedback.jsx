@@ -1,113 +1,137 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Modal, Button, Badge, Form } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../components/NoDataComponent';
 import TableFilter from '../../components/TableFilter';
 import LogoutIocn from '../../assets/images/icons/logout.svg';
-import FilterIocn from '../../assets/images/icons/filter.svg';
-import ExternalIcon from '../../assets/images/icons/external.svg';
-import EditIcon from '../../assets/images/icons/edit.svg'
-import TrashIcon from '../../assets/images/icons/trash.svg';
+import FileIcon from '../../assets/images/icons/file.svg';
+import TrashIcon from '../../assets/images/icons/trash.svg'
+import AndroidIcon from '../../assets/images/icons/android.svg'
+import IOSIcon from '../../assets/images/icons/ios.svg'
 
 
-export const GroupManagement = () => {
-    const navigate = useNavigate();
+export const AppFeedback = () => {
     const [show, setShow] = useState(false);
-
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    const addNewUser = () => {
-        navigate('/system-users-management/add-user');
-    }
-
-    const userDetails = (row) => {
-        navigate('/system-users-management/user-details', { state: row });
-    }
-
     const columns = [
         {
-            name: 'Name',
-            selector: (row) => row.user_name,
+            name: 'Date',
+            selector: (row) => row.date,
             sortable: true,
+            minWidth: '180px',
+        },
+        {
+            name: 'Company',
+            selector: (row) => row.company,
+            sortable: true,
+            minWidth: '180px',
+        },
+        {
+            name: 'Vehicle',
+            selector: (row) => row.vehicle,
+            sortable: true,
+        },
+        {
+            name: 'Driver',
+            selector: (row) => row.driver,
+            sortable: true,
+            minWidth: '140px',
+        },
+        {
+            name: 'Device Name',
+            selector: (row) => row.device_name,
             minWidth: '200px',
-            cell: (row) => (<div className='client-name fw-medium text-capitalize'>{row.user_name}</div>),
         },
         {
-            name: 'Users',
-            selector: (row) => row.group_user,
-            sortable: true,
-            minWidth: '200px',
-        },
-        {
-            name: 'Companies',
-            selector: (row) => row.group_companies,
-            sortable: true,
-            minWidth: '170px',
-        },
-        {
-            name: 'Status',
-            selector: (row) => row.group_status,
-            sortable: true,
-            minWidth: '80px',
-            cell: (row) => <Badge className='fs-12 fw-medium bg-opacity-10' pill bg={row.group_status === 'Active' ? 'success text-success' : row.group_status === 'Inactive' ? 'danger text-danger' : 'secondary text-body'}>{row.group_status}</Badge>,
-        },
-        {
-            name: 'Actions',
+            name: 'Software Version',
+            selector: (row) => row.software_version,
             minWidth: '150px',
+        },
+        {
+            name: 'App Version',
+            selector: (row) => row.app_version,
+            minWidth: '120px',
             cell: (row) => (
-                <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    <span className='pointer p-0' title='Edit'><img src={EditIcon} alt="Edit Icon" /></span>
-                    <span className='pointer p-0' title='Delete' onClick={handleShow}><img src={TrashIcon} alt="Trash Icon" /></span>
-                </div>
+                <div className="app-version d-flex align-items-center gap-2"><img src={AndroidIcon} alt="Android Icon" className="img-fluid" /> {row.app_version}</div>
             ),
         },
+        {
+            name: 'File',
+            selector: (row) => row.user_group,
+            width: '65px',
+            cell: () => (<span className='pointer p-0' title='Delete'><img src={FileIcon} alt="File Icon" className="img-fluid" /></span>),
+        },
+        {
+            name: 'Action',
+            selector: (row) => row.user_group,
+            width: '90px',
+            cell: () => (<span className='pointer ms-2 p-0' title='Delete' onClick={handleShow}><img src={TrashIcon} alt="Trash Icon" className="img-fluid" /></span>),
+        }
     ];
 
     const data = [
         {
             id: '01',
-            user_name: 'Super Team',
-            group_user: '10 Users',
-            group_companies: '4 Companies',
-            group_status: 'Active',
+            date: 'Jan 15, 2022 - 11:25 PM',
+            company: 'ABC Trans Inc',
+            vehicle: '7000',
+            driver: 'Corey Goodman',
+            device_name: 'Samsung SM-T307U',
+            software_version: '11',
+            app_version: '1.0.0',
         },
         {
             id: '02',
-            user_name: 'Mango Team',
-            group_user: '3 Users',
-            group_companies: 'All Companies',
-            group_status: 'Active',
+            date: 'Jan 15, 2022 - 11:25 PM',
+            company: 'ABC Trans Inc',
+            vehicle: '7000',
+            driver: 'Corey Goodman',
+            device_name: 'iPad',
+            software_version: '16.2',
+            app_version: '1.0.0',
         },
         {
             id: '03',
-            user_name: 'Mango Team',
-            group_user: '5 Users',
-            group_companies: '7 Companies',
-            group_status: 'Active',
+            date: 'Jan 15, 2022 - 11:25 PM',
+            company: 'ABC Trans Inc',
+            vehicle: '7000',
+            driver: 'Corey Goodman',
+            device_name: 'iPhone',
+            software_version: '16.2',
+            app_version: '1.0.0',
         },
         {
-            id: '04',
-            user_name: 'Super Team',
-            group_user: '10 Users',
-            group_companies: '4 Companies',
-            group_status: 'Active',
+            id: '01',
+            date: 'Jan 15, 2022 - 11:25 PM',
+            company: 'ABC Trans Inc',
+            vehicle: '7000',
+            driver: 'Corey Goodman',
+            device_name: 'Samsung SM-T307U',
+            software_version: '11',
+            app_version: '1.0.0',
         },
         {
-            id: '05',
-            user_name: 'Mango Team',
-            group_user: '3 Users',
-            group_companies: 'All Companies',
-            group_status: 'Active',
+            id: '02',
+            date: 'Jan 15, 2022 - 11:25 PM',
+            company: 'ABC Trans Inc',
+            vehicle: '7000',
+            driver: 'Corey Goodman',
+            device_name: 'iPad',
+            software_version: '16.2',
+            app_version: '1.0.0',
         },
         {
-            id: '06',
-            user_name: 'Mango Team',
-            group_user: '5 Users',
-            group_companies: '7 Companies',
-            group_status: 'Active',
+            id: '03',
+            date: 'Jan 15, 2022 - 11:25 PM',
+            company: 'ABC Trans Inc',
+            vehicle: '7000',
+            driver: 'Corey Goodman',
+            device_name: 'iPhone',
+            software_version: '16.2',
+            app_version: '1.0.0',
         },
     ];
 
@@ -129,20 +153,19 @@ export const GroupManagement = () => {
     });
 
     return (
-        <div className="UsersManagement-page py-3">
+        <div className="FmcsaTransfer-page py-3">
             <div className="container-fluid">
                 <div className="bg-theme4 border rounded-2 p-3">
-                    <div className="main-heading mb-3">Group Management</div>
+                    <div className="main-heading mb-3">App Feedback</div>
                     <div className="table-content-wrapper">
                         <div className="action-wrapper d-flex flex-wrap justify-content-between gap-2 mb-4">
                             <TableFilter
                                 searchText={searchText}
                                 setSearchText={setSearchText}
-                                searchPlaceholder="Search by Group Name"
+                                searchPlaceholder="Search by Company Name or Driver..."
                                 onReset={resetFilters}
                             />
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
-                                <Button variant='primary'><i className="bi bi-plus-lg fs-16"></i> Add Group</Button>
                                 <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
@@ -151,7 +174,7 @@ export const GroupManagement = () => {
                                 columns={columns}
                                 data={filteredData}
                                 // selectableRows
-                                onRowClicked={userDetails}
+                                // onRowClicked={userDetails}
                                 // dense
                                 pagination
                                 highlightOnHover

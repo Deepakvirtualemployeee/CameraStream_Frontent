@@ -1,32 +1,15 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Modal, Button, Badge, Form } from 'react-bootstrap';
+import { Button, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../components/NoDataComponent';
 import TableFilter from '../../components/TableFilter';
 import LogoutIocn from '../../assets/images/icons/logout.svg';
-import FilterIocn from '../../assets/images/icons/filter.svg';
 import FileIcon from '../../assets/images/icons/file.svg';
 import FileLeftIcon from '../../assets/images/icons/file-arrow-left.svg'
 import FileRightIcon from '../../assets/images/icons/file-arrow-right.svg';
 
-
 export const FmcsaTransfer = () => {
-    const navigate = useNavigate();
-    const [show, setShow] = useState(false);
-
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
-
-    const addNewUser = () => {
-        navigate('/system-users-management/add-user');
-    }
-
-    const userDetails = (row) => {
-        navigate('/system-users-management/user-details', { state: row });
-    }
-
     const columns = [
         {
             name: 'Date',
@@ -82,19 +65,19 @@ export const FmcsaTransfer = () => {
             name: 'File',
             selector: (row) => row.user_group,
             width: '65px',
-            cell: () => (<span className='pointer p-0' title='Delete' onClick={handleShow}><img src={FileIcon} alt="File Icon" /></span>),
+            cell: () => (<span className='pointer p-0'><img src={FileIcon} alt="File Icon" /></span>),
         },
         {
             name: 'Sent',
             selector: (row) => row.user_group,
             width: '65px',
-            cell: () => (<span className='pointer p-0' title='Delete' onClick={handleShow}><img src={FileLeftIcon} alt="File Left Icon" /></span>),
+            cell: () => (<span className='pointer p-0'><img src={FileLeftIcon} alt="File Left Icon" /></span>),
         },
         {
             name: 'Response',
             selector: (row) => row.user_group,
             width: '90px',
-            cell: () => (<span className='pointer p-0' title='Delete' onClick={handleShow}><img src={FileRightIcon} alt="File Right Icon" /></span>),
+            cell: () => (<span className='pointer p-0'><img src={FileRightIcon} alt="File Right Icon" /></span>),
         }
     ];
 
@@ -196,7 +179,7 @@ export const FmcsaTransfer = () => {
                 <div className="bg-theme4 border rounded-2 p-3">
                     <div className="main-heading mb-3">FMCSA Transfer Logs</div>
                     <div className="table-content-wrapper">
-                        <div className="action-wrapper d-flex flex-wrap justify-content-between gap-3 mb-4">
+                        <div className="action-wrapper d-flex flex-wrap justify-content-between gap-2 mb-4">
                             <TableFilter
                                 searchText={searchText}
                                 setSearchText={setSearchText}
@@ -212,7 +195,7 @@ export const FmcsaTransfer = () => {
                                 columns={columns}
                                 data={filteredData}
                                 // selectableRows
-                                onRowClicked={userDetails}
+                                // onRowClicked={userDetails}
                                 // dense
                                 pagination
                                 highlightOnHover
@@ -226,20 +209,6 @@ export const FmcsaTransfer = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Delete Table Record Modal */}
-            <Modal show={show} centered onHide={handleClose} dialogClassName='' contentClassName='border-0 rounded-4'>
-                <Modal.Body className="text-center px-md-5 py-5">
-                    <div className="icon-cover d-flex align-items-center justify-content-center bg-danger bg-opacity-10 rounded-circle mx-auto mb-3" style={{ height: '50px', width: '50px' }}>
-                        <i className="bi bi-exclamation-triangle fs-4 text-danger"></i>
-                    </div>
-                    <div className="fs-18 fw-semibold lh-sm mb-3 pb-1">Are you sure you want to delete this report?</div>
-                    <div className="btn-wrapper d-flex flex-wrap justify-content-center gap-2">
-                        <Button variant="secondary" className="px-4 py-2" onClick={handleClose}>Cancel</Button>
-                        <Button variant="danger" className="px-4 py-2" onClick={handleClose}>Delete</Button>
-                    </div>
-                </Modal.Body>
-            </Modal>
         </div>
     )
 }
