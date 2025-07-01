@@ -382,7 +382,7 @@ input[type="time"]:invalid:before {
     font-weight: $font-weight-medium;
     border-bottom: 4px solid transparent;
     color: $body-color;
-    padding: 9px 1rem;
+    padding: 10px 1rem 8px;
     text-align: left;
     text-transform: capitalize;
     transition: .35s ease-out;
