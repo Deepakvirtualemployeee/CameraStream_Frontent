@@ -19,7 +19,8 @@ export const Menubar = (props) => {
                     <Link to={'/'} className={`${currentPath === '/' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('/')}>Dashboard</Link>
                 </li> */}
                 <li className="nav-item">
-                    <Link to={'/companies-list'} className={`${currentPath.includes('companies-list') ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('companies-list')}>Companies List</Link>
+                    <Link to={'//'} className={`${currentPath.includes('/') ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('/')}>Companies List</Link>
+                    {/* <Link to={'/companies-list'} className={`${currentPath.includes('companies-list') ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('companies-list')}>Companies List</Link> */}
                 </li>
                 <li className="nav-item">
                     <Link to={'/system-users-management'} className={`${currentPath.includes('system-users-management') ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('system-users-management')}>System Users Management</Link>
