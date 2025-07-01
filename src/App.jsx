@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.scss';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 
 // Auth Pages
 import { LogIn } from './pages/authentication/LogIn';
@@ -26,6 +26,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Auth Routes */}
+        {/* Redirect root to /login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LogIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signup-finished" element={<SignupFinished />} />
@@ -34,8 +36,7 @@ function App() {
         {/* Main Layout Routes */}
         <Route path="/" element={<Layout />}>
           {/* <Route index element={<Dashboard />} /> */}
-          {/* <Route index path="companies-list" element={<CompaniesList />} /> */}
-          <Route index element={<CompaniesList />} />
+          <Route path="companies-list" element={<CompaniesList />} />
           <Route path="system-users-management" element={<UsersManagement />} />
           <Route path="system-users-management/user-details" element={<UserDetails />} />
           <Route path="fmcsa-transfer" element={<FmcsaTransfer />} />

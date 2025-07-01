@@ -1,12 +1,29 @@
 import React, { useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const LogIn = () => {
+    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
+    };
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+
+        // Replace this with your real login logic
+        const isAuthenticated = email === 'test@example.com' && password === 'Test@123';
+
+        if (isAuthenticated) {
+            // Redirect to home
+            navigate('/companies-list');
+        } else {
+            alert('Invalid credentials');
+        }
     };
 
     return (
@@ -20,16 +37,16 @@ export const LogIn = () => {
                         <div className="fs-1 fw-bold lh-sm">Welcome!</div>
                         <div className="subtitle fs-16">Enter your login details below!</div>
                     </div>
-                    <Form>
+                    <Form onSubmit={handleLogin}>
                         <Form.Group className="mb-3" controlId="userEmailId">
                             <Form.Label>Email ID<span className="text-danger">*</span></Form.Label>
-                            <Form.Control type="email" placeholder="Enter email" autoComplete='off' required />
+                            <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter email" autoComplete='off' required />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Password<span className="text-danger">*</span></Form.Label>
                             <div className="position-relative">
-                                <Form.Control type={passwordVisible ? 'text' : 'password'} className='pe-5'
+                                <Form.Control type={passwordVisible ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} className='pe-5'
                                     placeholder="Enter password" minlength="8"
                                     pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
                                     title="Must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character."
