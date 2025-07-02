@@ -1,6 +1,11 @@
 // src/styles/dataTableCustomStyles.js
 
 const dataTableCustomStyles = {
+  headRow: {
+    style: {
+      minHeight: '44px', // Set your desired min-height here
+    },
+  },
   rows: {
     style: {
       fontSize: "14px",
@@ -12,7 +17,7 @@ const dataTableCustomStyles = {
       color: "#1D2939",
       fontSize: "12px",
       fontWeight: '700',
-      padding: "12px",
+      padding: "10px 12px",
       textTransform: 'uppercase',
     },
   },

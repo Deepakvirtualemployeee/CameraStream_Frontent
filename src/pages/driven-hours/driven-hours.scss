@@ -1,0 +1,41 @@
+@import "../../assets/style/custom-variables.scss";
+
+.DrivenHours-page {}
+
+.custom-accordion {
+
+    .accordion-item,
+    .accordion-button {
+        background-color: #EAECF0;
+    }
+
+    .accordion-item {
+        border: 0;
+        border-radius: 20px;
+
+        .accordion-button {
+            color: $black;
+            font-weight: 500;
+            border-radius: 20px !important;
+            padding: 11px 1rem 11px 2.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 8px;
+            box-shadow: none;
+
+            &:after {
+                position: absolute;
+                left: .875rem;
+            }
+            &:focus {
+                box-shadow: none;
+            }
+        }
+
+        .accordion-body {
+            padding: 1rem;
+            padding-top: 0;
+        }
+    }
+}

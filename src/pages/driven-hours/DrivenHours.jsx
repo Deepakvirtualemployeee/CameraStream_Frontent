@@ -1,69 +1,108 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Modal, Button, Accordion } from 'react-bootstrap';
+import './driven-hours.scss'
+import { Modal, Button, Accordion, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../components/NoDataComponent';
+import FilterIocn from '../../assets/images/icons/filter.svg';
 import TableFilter from '../../components/TableFilter';
 import LogoutIocn from '../../assets/images/icons/logout.svg';
-import AndroidIocn from '../../assets/images/icons/android.svg';
-import IOSIcon from '../../assets/images/icons/ios.svg';
-import EditIcon from '../../assets/images/icons/edit.svg'
+import LoaderIocn from '../../assets/images/icons/loader.svg';
+import InvokeIocn from '../../assets/images/icons/pin-invoke.svg';
 import TrashIcon from '../../assets/images/icons/trash.svg';
 
-
 export const DrivenHours = () => {
-    const navigate = useNavigate();
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    const addNewUser = () => {
-        navigate('/system-users-management/add-user');
-    }
-
-    const userDetails = (row) => {
-        navigate('/system-users-management/user-details', { state: row });
-    }
-
     const columns = [
         {
-            name: 'Description',
-            selector: (row) => row.description,
+            name: 'Vehicle Number',
+            selector: (row) => row.vehicle_number,
             sortable: true,
+            minWidth: '150px',
+        },
+        {
+            name: 'Driver',
+            sortable: true,
+            selector: row => row.driver_name,
+            cell: (row) => <div className="d-flex align-items-center gap-2">{row.driver_name} <img src={InvokeIocn} alt="Invoke Iocn" className="img-fluid" /></div>,
             minWidth: '200px',
         },
         {
-            name: 'File',
-            selector: row => row.type,
-            minWidth: '200px',
-            cell: (row) => {
-                if (row.type === 'Andorid / IOS') {
-                    return (
-                        <div className="d-flex align-items-center gap-2 text-gray">
-                            <span className="d-flex align-items-center gap-2">Andorid <img src={AndroidIocn} alt="Android" className='img-fluid' /></span>
-                            <span className="text-black px-2">|</span>
-                            <span className="d-flex align-items-center gap-2">IOS <img src={IOSIcon} alt="IOS" className='img-fluid' /></span>
-                        </div>
-                    );
-                } else {
-                    return (
-                        <div className="d-flex align-items-center gap-2 text-gray">
-                            <span className="text-capitalize">{row.type}</span>
-                            {row.android && <img src={AndroidIocn} alt="Android" className='img-fluid' />}
-                        </div>
-                    );
-                }
-            },
+            name: 'Status',
+            selector: row => row.status,
+            cell: (row) => <Badge className='fs-12 fw-medium bg-opacity-10' pill bg={row.status === 'Active' ? 'success text-success' : row.status === 'Inactive' ? 'danger text-danger' : 'secondary text-body'}>{row.status}</Badge>,
+            minWidth: '100px',
+        },
+        {
+            name: 'Total Days',
+            selector: row => row.total_days,
+            minWidth: '100px',
+        },
+        {
+            name: 'Total Hours',
+            selector: row => row.total_hours,
+            minWidth: '120px',
+        },
+        {
+            name: 'Jun 1, 2025',
+            selector: row => row.date_value,
+            minWidth: '100px',
+        },
+        {
+            name: 'Jun 2, 2025',
+            selector: row => row.date_value,
+            minWidth: '100px',
+        },
+        {
+            name: 'Jun 3, 2025',
+            selector: row => row.date_value,
+            minWidth: '100px',
+        },
+        {
+            name: 'Jun 4, 2025',
+            selector: row => row.date_value,
+            minWidth: '100px',
+        },
+        {
+            name: 'Jun 5, 2025',
+            selector: row => row.date_value,
+            minWidth: '100px',
+        },
+        {
+            name: 'Jun 6, 2025',
+            selector: row => row.date_value,
+            minWidth: '100px',
+        },
+        {
+            name: 'Jun 7, 2025',
+            selector: row => row.date_value,
+            minWidth: '100px',
+        },
+        {
+            name: 'Jun 8, 2025',
+            selector: row => row.date_value,
+            minWidth: '100px',
+        },
+        {
+            name: 'Jun 9, 2025',
+            selector: row => row.date_value,
+            minWidth: '100px',
+        },
+        {
+            name: 'Jun 10, 2025',
+            selector: row => row.date_value,
+            minWidth: '100px',
         },
         {
             name: 'Actions',
             minWidth: '150px',
             cell: () => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    <span className='pointer p-0' title='Edit'><img src={EditIcon} alt="Edit Icon" /></span>
-                    <span className='pointer p-0' title='Delete' onClick={handleShow}><img src={TrashIcon} alt="Trash Icon" /></span>
+                    <span className='pointer ms-3 p-0' title='Delete' onClick={handleShow}><img src={TrashIcon} alt="Trash Icon" /></span>
                 </div>
             ),
         },
@@ -72,24 +111,39 @@ export const DrivenHours = () => {
     const data = [
         {
             id: '01',
-            description: 'DOT Inspection Lucid ELD DOT Inspection',
-            type: 'Downloads',
-            android: true,
-            ios: false,
+            vehicle_number: '93005',
+            driver_name: 'Botnariuc Eugeniu',
+            status: 'Active',
+            total_days: '30',
+            total_hours: '185',
+            date_value: '4',
         },
         {
             id: '02',
-            description: 'DOT Inspection Lucid ELD DOT Inspection',
-            type: 'Downloads',
-            android: true,
-            ios: false,
+            vehicle_number: '93005',
+            driver_name: 'Victor Ursachi',
+            status: 'Active',
+            total_days: '30',
+            total_hours: '185',
+            date_value: '4',
         },
         {
             id: '03',
-            description: 'DOT Inspection Lucid ELD DOT Inspection',
-            type: 'Andorid / IOS',
-            android: true,
-            ios: true,
+            vehicle_number: 'N/A',
+            driver_name: 'Victor Ursachi',
+            status: 'Active',
+            total_days: '30',
+            total_hours: '185',
+            date_value: '4',
+        },
+        {
+            id: '04',
+            vehicle_number: '3704',
+            driver_name: 'Lahoucine Et Tammamy',
+            status: 'Active',
+            total_days: '30',
+            total_hours: '185',
+            date_value: '4',
         },
     ];
 
@@ -110,16 +164,8 @@ export const DrivenHours = () => {
         return matchesSearch;
     });
 
-    const sectionHeaders = [
-        'User Management',
-        'Company Overview',
-        'Driver Records',
-        'Vehicle Logs',
-        'Violation Reports'
-    ];
-
     return (
-        <div className="UsersManagement-page py-3">
+        <div className="DrivenHours-page py-3">
             <div className="container-fluid">
                 <div className="bg-theme4 border rounded-2 p-3">
                     <div className="main-heading mb-3">Driven Hours</div>
@@ -132,40 +178,144 @@ export const DrivenHours = () => {
                                 onReset={resetFilters}
                             />
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
-                                <Button variant='primary'><i className="bi bi-plus-lg fs-16"></i> Add Resources</Button>
+                                <Button variant='white' className="bg-white border-gray"><img src={FilterIocn} alt="Filter Iocn" /> Filter by Status</Button>
                                 <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
 
-                        <div className="accordion-wrapper bg-secondary bg-opacity-25 rounded-3 p-3">
-                            <Accordion defaultActiveKey="0" flush className='d-flex flex-column gap-2'>
-                                {sectionHeaders.map((title, idx) => (
-                                    <Accordion.Item eventKey={String(idx)} key={idx}>
-                                        <Accordion.Header>{title}</Accordion.Header>
-                                        <Accordion.Body>
-                                            <div className='table-responsive table-custom-wrapper'>
-                                                <DataTable
-                                                    columns={columns}
-                                                    data={filteredData}
-                                                    // selectableRows
-                                                    onRowClicked={userDetails}
-                                                    // dense
-                                                    pagination
-                                                    highlightOnHover
-                                                    pointerOnHover
-                                                    responsive
-                                                    customStyles={dataTableCustomStyles}
-                                                    noDataComponent={<NoDataComponent />}
-                                                    striped
-                                                />
-                                            </div>
-                                        </Accordion.Body>
-                                    </Accordion.Item>
-                                ))}
-                            </Accordion>
+                        <div className="text-black fs-16 fw-semibold font-roboto mb-3">Last 14 days Driver Data</div>
+
+                        <div className="bg-opacity-25 rounded-3 mb-3 p-3" style={{ backgroundColor: '#EBF0F7' }}>
+                            <div className="font-roboto d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                <div className="text-black fs-16 fw-semibold font-roboto">All 513 Comapnies found</div>
+                                <Button variant='primary' className="fs-16 py-2">Download Excel sheet</Button>
+                            </div>
                         </div>
 
-
+                        <div className="accordion-wrapper">
+                            <Accordion defaultActiveKey="0" flush className='custom-accordion d-flex flex-column gap-3'>
+                                <Accordion.Item eventKey="0">
+                                    <Accordion.Header>
+                                        <span>1ST ROAD TRUCKING LLC - 220 - 4075101 - Lucid ELD Team 1 Active Vehicle 1 Drivers icons</span>
+                                        <span className="d-flex align-items-center gap-2">1 Active Vehicle 1 Drivers icons <img src={LoaderIocn} alt="Loader Iocn" className="img-fluid" /></span>
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        <div className='table-responsive table-custom-wrapper'>
+                                            <DataTable
+                                                columns={columns}
+                                                data={filteredData}
+                                                // selectableRows
+                                                // onRowClicked={userDetails}
+                                                // dense
+                                                pagination
+                                                highlightOnHover
+                                                pointerOnHover
+                                                responsive
+                                                customStyles={dataTableCustomStyles}
+                                                noDataComponent={<NoDataComponent />}
+                                                striped
+                                            />
+                                        </div>
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                                <Accordion.Item eventKey="1">
+                                    <Accordion.Header>
+                                        <span>2B EMPIRE INC - 648 - 3410220</span>
+                                        <span className="d-flex align-items-center gap-2">1 Active Vehicle & 1 Driver <img src={LoaderIocn} alt="Loader Iocn" className="img-fluid" /></span>
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        <div className='table-responsive table-custom-wrapper'>
+                                            <DataTable
+                                                columns={columns}
+                                                data={filteredData}
+                                                // selectableRows
+                                                // onRowClicked={userDetails}
+                                                // dense
+                                                pagination
+                                                highlightOnHover
+                                                pointerOnHover
+                                                responsive
+                                                customStyles={dataTableCustomStyles}
+                                                noDataComponent={<NoDataComponent />}
+                                                striped
+                                            />
+                                        </div>
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                                <Accordion.Item eventKey="2">
+                                    <Accordion.Header>
+                                        <span>3 BROTHERS EXPRESS NC LLC</span>
+                                        <span className="d-flex align-items-center gap-2">1 Active Vehicle & 1 Driver <img src={LoaderIocn} alt="Loader Iocn" className="img-fluid" /></span>
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        <div className='table-responsive table-custom-wrapper'>
+                                            <DataTable
+                                                columns={columns}
+                                                data={filteredData}
+                                                // selectableRows
+                                                // onRowClicked={userDetails}
+                                                // dense
+                                                pagination
+                                                highlightOnHover
+                                                pointerOnHover
+                                                responsive
+                                                customStyles={dataTableCustomStyles}
+                                                noDataComponent={<NoDataComponent />}
+                                                striped
+                                            />
+                                        </div>
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                                <Accordion.Item eventKey="3">
+                                    <Accordion.Header>
+                                        <span className="d-flex align-items-center gap-2">DIIDEY TRUCKING LLC (1) <img src={InvokeIocn} alt="Invoke Iocn" className="img-fluid" /></span>
+                                        <span className="d-flex align-items-center gap-2">1 Active Vehicle & 1 Driver <img src={LoaderIocn} alt="Loader Iocn" className="img-fluid" /></span>
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        <div className='table-responsive table-custom-wrapper'>
+                                            <DataTable
+                                                columns={columns}
+                                                data={filteredData}
+                                                // selectableRows
+                                                // onRowClicked={userDetails}
+                                                // dense
+                                                pagination
+                                                highlightOnHover
+                                                pointerOnHover
+                                                responsive
+                                                customStyles={dataTableCustomStyles}
+                                                noDataComponent={<NoDataComponent />}
+                                                striped
+                                            />
+                                        </div>
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                                <Accordion.Item eventKey="4">
+                                    <Accordion.Header>
+                                        <span className="d-flex align-items-center gap-2">DIIDEY TRUCKING LLC (1) <img src={InvokeIocn} alt="Invoke Iocn" className="img-fluid" /></span>
+                                        <span className="d-flex align-items-center gap-2">1 Active Vehicle & 1 Driver <img src={LoaderIocn} alt="Loader Iocn" className="img-fluid" /></span>
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        <div className='table-responsive table-custom-wrapper'>
+                                            <DataTable
+                                                columns={columns}
+                                                data={filteredData}
+                                                // selectableRows
+                                                // onRowClicked={userDetails}
+                                                // dense
+                                                pagination
+                                                highlightOnHover
+                                                pointerOnHover
+                                                responsive
+                                                customStyles={dataTableCustomStyles}
+                                                noDataComponent={<NoDataComponent />}
+                                                striped
+                                            />
+                                        </div>
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                            </Accordion>
+                        </div>
                     </div>
                 </div>
             </div>
