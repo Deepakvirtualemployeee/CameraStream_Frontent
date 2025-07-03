@@ -179,7 +179,7 @@ export const FmcsaTransfer = () => {
                 <div className="bg-theme4 border rounded-2 p-3">
                     <div className="main-heading mb-3">FMCSA Transfer Logs</div>
                     <div className="table-content-wrapper">
-                        <div className="action-wrapper d-flex flex-wrap justify-content-between gap-2 mb-4">
+                        <div className="action-wrapper d-flex flex-column flex-sm-row flex-wrap justify-content-between gap-2 mb-4">
                             <TableFilter
                                 searchText={searchText}
                                 setSearchText={setSearchText}

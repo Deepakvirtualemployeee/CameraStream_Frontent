@@ -19,6 +19,7 @@ import { PageNotFound } from './pages/PageNotFound';
 import { BillingManagement } from './pages/billing-management/BillingManagement';
 import { DrivenHours } from './pages/driven-hours/DrivenHours';
 import { GroupManagement } from './pages/group-management/GroupManagement';
+import { CompanyViolations } from './pages/company-violations/CompanyViolations';
 import { AppFeedback } from './pages/app-feedback/AppFeedback';
 import { Resources } from './pages/resources-section/Resources';
 import { DriversList } from './pages/drivers-list/DriversList';
@@ -45,6 +46,7 @@ function App() {
           <Route path="billing-management" element={<BillingManagement />} />
           <Route path="driven-hours" element={<DrivenHours />} />
           <Route path="group-management" element={<GroupManagement />} />
+          <Route path="company-violations" element={<CompanyViolations />} />
           <Route path="app-feedback" element={<AppFeedback />} />
           <Route path="resource" element={<Resources />} />
           <Route path="drivers-list" element={<DriversList />} />

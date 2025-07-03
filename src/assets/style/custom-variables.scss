@@ -7,6 +7,7 @@ $theme1: #FDFCF5;
 $theme2: #F9E2C5;
 $theme3: #A2845E;
 $theme4: #F9FAFC;
+$theme5: #EAECF0;
 $gray: #667085;
 
 $sidebar-bg: #064cb8;
@@ -44,6 +45,7 @@ $theme-colors: map-merge(
     "theme2": $theme2,
     "theme3": $theme3,
     "theme4": $theme4,
+    "theme5": $theme5,
     "gray": $gray,
   )
 );

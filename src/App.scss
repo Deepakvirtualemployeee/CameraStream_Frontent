@@ -411,4 +411,41 @@ input[type="time"]:invalid:before {
   }
 }
 
-// End: Sidebar CSS
+// End: Common Menubar CSS
+
+
+// Common Tabs Design
+.common-tabs-wrapper.nav-tabs {
+  border: 0;
+
+  li {
+    button {
+      color: $body-color;
+      background-color: $theme2;
+      border: 0;
+      border-radius: 0;
+      min-height: 40px;
+
+      &.active {
+        background-image: linear-gradient(to bottom, $primary-gradient-start, $primary-gradient-end);
+        color: $white;
+        transition: background-image 0.3s ease-in-out;
+        text-shadow: 0px 4px 4px rgba($black, 0.25);
+      }
+
+      &:focus {
+        box-shadow: none !important;
+      }
+    }
+
+    &:first-child button {
+      border-top-left-radius: 0.5rem;
+      border-bottom-left-radius: 0.5rem;
+    }
+
+    &:last-child button {
+      border-top-right-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
+    }
+  }
+}
