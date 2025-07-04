@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Modal, Button, Badge, Form } from 'react-bootstrap';
+import { Modal, Button, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../components/NoDataComponent';
 import TableFilter from '../../components/TableFilter';
 import LogoutIocn from '../../assets/images/icons/logout.svg';
 import FilterIocn from '../../assets/images/icons/filter.svg';
-import ExternalIcon from '../../assets/images/icons/external.svg';
 import EditIcon from '../../assets/images/icons/edit.svg'
 import TrashIcon from '../../assets/images/icons/trash.svg';
 
@@ -66,7 +65,7 @@ export const UsersManagement = () => {
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
                     {/* <span className='pointer p-0' title='Details' onClick={() => userDetails(row)}><img src={ExternalIcon} alt="External Icon" /></span> */}
-                    <span className='pointer p-0' title='Edit'><img src={EditIcon} alt="Edit Icon" /></span>
+                    <span className='pointer p-0' title='Edit' onClick={()=> navigate('/system-users-management/edit-user-info')}><img src={EditIcon} alt="Edit Icon" /></span>
                     <span className='pointer p-0' title='Delete' onClick={handleShow}><img src={TrashIcon} alt="Trash Icon" /></span>
                 </div>
             ),
@@ -170,7 +169,7 @@ export const UsersManagement = () => {
                                 onReset={resetFilters}
                             />
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
-                                <Button variant='primary'><i className="bi bi-plus-lg fs-16"></i> Add User</Button>
+                                <Button variant='primary' onClick={addNewUser}><i className="bi bi-plus-lg fs-16"></i> Add User</Button>
                                 <Button variant='white' className="bg-white border-gray"><img src={FilterIocn} alt="Filter Iocn" /> Filter by Status</Button>
                                 <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>

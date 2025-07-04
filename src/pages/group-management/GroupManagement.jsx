@@ -17,14 +17,6 @@ export const GroupManagement = () => {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    const addNewUser = () => {
-        navigate('/system-users-management/add-user');
-    }
-
-    const userDetails = (row) => {
-        navigate('/system-users-management/user-details', { state: row });
-    }
-
     const columns = [
         {
             name: 'Name',
@@ -140,7 +132,7 @@ export const GroupManagement = () => {
                                 onReset={resetFilters}
                             />
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
-                                <Button variant='primary'><i className="bi bi-plus-lg fs-16"></i> Add Group</Button>
+                                <Button variant='primary' onClick={()=> navigate('/group-management/add-group')}><i className="bi bi-plus-lg fs-16"></i> Add Group</Button>
                                 <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
@@ -148,9 +140,6 @@ export const GroupManagement = () => {
                             <DataTable
                                 columns={columns}
                                 data={filteredData}
-                                // selectableRows
-                                onRowClicked={userDetails}
-                                // dense
                                 pagination
                                 highlightOnHover
                                 pointerOnHover

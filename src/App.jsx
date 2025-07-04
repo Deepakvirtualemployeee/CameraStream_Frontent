@@ -12,13 +12,20 @@ import { ForgotPassword } from './pages/authentication/ForgotPassword';
 import { Layout } from './components/layouts/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { CompaniesList } from './pages/company-list/CompaniesList';
+
 import { UsersManagement } from './pages/system-users-management/UsersManagement';
+import { AddUser } from './pages/system-users-management/AddUser';
+import { EditUserInfo } from './pages/system-users-management/EditUserInfo';
+
 import { UserDetails } from './pages/system-users-management/UserDetails';
 import { FmcsaTransfer } from './pages/fmcsa-transfer/FmcsaTransfer';
 import { PageNotFound } from './pages/PageNotFound';
 import { BillingManagement } from './pages/billing-management/BillingManagement';
 import { DrivenHours } from './pages/driven-hours/DrivenHours';
+
 import { GroupManagement } from './pages/group-management/GroupManagement';
+import { AddGroup } from './pages/group-management/AddGroup';
+
 import { CompanyViolations } from './pages/company-violations/CompanyViolations';
 import { AppFeedback } from './pages/app-feedback/AppFeedback';
 import { Resources } from './pages/resources-section/Resources';
@@ -36,6 +43,11 @@ function App() {
         <Route path="/signup-finished" element={<SignupFinished />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
+        <Route path="system-users-management/add-user" element={<AddUser />} />
+        <Route path="system-users-management/edit-user-info" element={<EditUserInfo />} />
+
+         <Route path="group-management/add-group" element={<AddGroup />} />
+
         {/* Main Layout Routes */}
         <Route path="/" element={<Layout />}>
           {/* <Route index element={<Dashboard />} /> */}
@@ -45,6 +57,7 @@ function App() {
           <Route path="fmcsa-transfer" element={<FmcsaTransfer />} />
           <Route path="billing-management" element={<BillingManagement />} />
           <Route path="driven-hours" element={<DrivenHours />} />
+
           <Route path="group-management" element={<GroupManagement />} />
           <Route path="company-violations" element={<CompanyViolations />} />
           <Route path="app-feedback" element={<AppFeedback />} />

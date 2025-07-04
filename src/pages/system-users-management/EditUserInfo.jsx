@@ -1,28 +1,19 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 
-export const AddUser = () => {
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        role: '',
-        accessToAllCompanies: false,
-        group: '',
+export const EditUserInfo = () => {
+    const [userData, setUserData] = useState({
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        password: 'Test@1234',
+        confirmPassword: 'Test@1234',
+        role: 'System Administrator',
+        accessToAllCompanies: true,
+        group: 'Super Team'
     });
 
-    const {
-        firstName,
-        lastName,
-        email,
-        password,
-        confirmPassword,
-        role,
-        accessToAllCompanies,
-        group,
-    } = formData;
+    const { password, confirmPassword } = userData;
 
     const requirements = {
         length: password.length >= 8,
@@ -32,67 +23,60 @@ export const AddUser = () => {
         special: /[^A-Za-z0-9]/.test(password),
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match.');
+            return;
+        }
+
+        const isPasswordValid = Object.values(requirements).every(Boolean);
+        if (!isPasswordValid) {
+            alert('Password does not meet the required criteria.');
+            return;
+        }
+
+        // Simulate save
+        console.log('Saved user data:', userData);
+        alert('User info updated successfully!');
+    };
+
+    const handleCancel = () => {
+        if (window.confirm("Are you sure you want to cancel? Unsaved changes will be lost.")) {
+            // Reset form to original state or navigate away
+            setUserData({
+                firstName: 'John',
+                lastName: 'Doe',
+                email: 'john.doe@example.com',
+                password: 'Test@1234',
+                confirmPassword: 'Test@1234',
+                role: 'System Administrator',
+                accessToAllCompanies: true,
+                group: 'Super Team'
+            });
+        }
+    };
+
     const renderCheck = (condition) => (
         <span className={`lh-1 ${condition ? 'text-primary' : 'text-gray'}`}>
             <i className="bi bi-check-lg fs-4"></i>
         </span>
     );
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        if (password !== confirmPassword) {
-            alert('Passwords do not match!');
-            return;
-        }
-
-        if (!Object.values(requirements).every(Boolean)) {
-            alert('Password does not meet all requirements!');
-            return;
-        }
-
-        console.log('Submitted data:', formData);
-        alert('User added successfully!');
-    };
-
-    const handleCancel = () => {
-        if (window.confirm('Clear all form data?')) {
-            setFormData({
-                firstName: '',
-                lastName: '',
-                email: '',
-                password: '',
-                confirmPassword: '',
-                role: '',
-                accessToAllCompanies: false,
-                group: '',
-            });
-        }
-    };
-
     return (
-        <div className="addUser-page py-3">
+        <div className="EditUserInfo-page py-3">
             <div className="container-fluid" style={{ maxWidth: 'calc(1000px + 1.5rem)' }}>
                 <div className="heading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-                    <div className="main-heading">Add New User</div>
+                    <div className="main-heading">Edit User Info</div>
                     <div className="btn-wrapper d-flex flex-wrap gap-2">
                         <Button variant='white' className="bg-white border-gray" onClick={handleCancel}>Cancel</Button>
-                        <Button variant='primary' type="submit" form="add-user-form">
-                            <i className="bi bi-plus-lg fs-16"></i> Add User
-                        </Button>
+                        <Button variant='outline-danger' onClick={handleCancel}>Cancel</Button>
+                        <Button variant='primary' type="submit" form="edit-user-form">Save Changes</Button>
                     </div>
                 </div>
-
                 <div className="form-wrapper bg-white w-100 border rounded-4 px-3 px-md-4 py-4">
-                    <Form id="add-user-form" onSubmit={handleSubmit}>
+                    <Form id="edit-user-form" onSubmit={handleSubmit}>
                         <div className="detail-wrapper mb-4">
                             <Row className="g-3 g-xl-4">
                                 <Col sm={6}>
@@ -100,10 +84,9 @@ export const AddUser = () => {
                                         <Form.Label>First Name<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
                                             type="text"
-                                            name="firstName"
-                                            value={firstName}
-                                            onChange={handleChange}
                                             placeholder="Enter name"
+                                            value={userData.firstName}
+                                            onChange={(e) => setUserData({ ...userData, firstName: e.target.value })}
                                             autoComplete='off'
                                             required
                                         />
@@ -114,10 +97,9 @@ export const AddUser = () => {
                                         <Form.Label>Last Name<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
                                             type="text"
-                                            name="lastName"
-                                            value={lastName}
-                                            onChange={handleChange}
                                             placeholder="Enter name"
+                                            value={userData.lastName}
+                                            onChange={(e) => setUserData({ ...userData, lastName: e.target.value })}
                                             autoComplete='off'
                                             required
                                         />
@@ -128,10 +110,9 @@ export const AddUser = () => {
                                         <Form.Label>Email<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
                                             type="email"
-                                            name="email"
-                                            value={email}
-                                            onChange={handleChange}
                                             placeholder="Enter email"
+                                            value={userData.email}
+                                            onChange={(e) => setUserData({ ...userData, email: e.target.value })}
                                             autoComplete='off'
                                             required
                                         />
@@ -142,10 +123,9 @@ export const AddUser = () => {
                                         <Form.Label>Password<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
                                             type="password"
-                                            name="password"
-                                            value={password}
-                                            onChange={handleChange}
                                             placeholder="New Password"
+                                            value={password}
+                                            onChange={(e) => setUserData({ ...userData, password: e.target.value })}
                                             isInvalid={password && !Object.values(requirements).every(Boolean)}
                                             required
                                         />
@@ -156,10 +136,9 @@ export const AddUser = () => {
                                         <Form.Label>Confirm Password<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
                                             type="password"
-                                            name="confirmPassword"
-                                            value={confirmPassword}
-                                            onChange={handleChange}
                                             placeholder="Confirm New Password"
+                                            value={confirmPassword}
+                                            onChange={(e) => setUserData({ ...userData, confirmPassword: e.target.value })}
                                             isInvalid={confirmPassword && password !== confirmPassword}
                                             required
                                         />
@@ -191,9 +170,8 @@ export const AddUser = () => {
                                     <Form.Group controlId="UserRole">
                                         <Form.Label>Role<span className="text-danger">*</span></Form.Label>
                                         <Form.Select
-                                            name="role"
-                                            value={role}
-                                            onChange={handleChange}
+                                            value={userData.role}
+                                            onChange={(e) => setUserData({ ...userData, role: e.target.value })}
                                             required
                                         >
                                             <option value="" disabled hidden>Select Role</option>
@@ -211,17 +189,14 @@ export const AddUser = () => {
                                             <Form.Check
                                                 inline
                                                 type="checkbox"
-                                                name="accessToAllCompanies"
-                                                checked={accessToAllCompanies}
-                                                onChange={handleChange}
+                                                id="AccessCheck"
                                                 className="fs-16 mb-1"
+                                                checked={userData.accessToAllCompanies}
+                                                onChange={(e) => setUserData({ ...userData, accessToAllCompanies: e.target.checked })}
                                                 label={<div className="fs-6 text-dark text-opacity-75">Allow Access to ALL Companies</div>}
                                                 required
                                             />
-                                            <div className="text-gray fw-normal">
-                                                Check the box to allow the user to access to ALL companies.
-                                                System will discard the “Assign Group” form field below.
-                                            </div>
+                                            <div className="text-gray fw-normal">Check the box to allow the user to access ALL companies. System will discard the “Assign Group” field below.</div>
                                         </div>
                                     </Form.Group>
                                 </Col>
@@ -229,9 +204,8 @@ export const AddUser = () => {
                                     <Form.Group controlId="AssignGroup">
                                         <Form.Label>Assign Group<span className="text-danger">*</span></Form.Label>
                                         <Form.Select
-                                            name="group"
-                                            value={group}
-                                            onChange={handleChange}
+                                            value={userData.group}
+                                            onChange={(e) => setUserData({ ...userData, group: e.target.value })}
                                             required
                                         >
                                             <option value="" disabled hidden>Select Group</option>
