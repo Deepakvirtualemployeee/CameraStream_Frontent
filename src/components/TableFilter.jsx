@@ -1,9 +1,8 @@
 // components/TableFilter.jsx
 import React from 'react';
-import { Form, InputGroup, Button } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
 import SearchIcon from '../assets/images/icons/search.svg';
 import ReloadIcon from '../assets/images/icons/reload.svg';
-import FilterIcon from '../assets/images/icons/filter.svg';
 
 const TableFilter = ({ searchText, setSearchText, searchPlaceholder = 'Search...', filters = [], onReset }) => {
     return (

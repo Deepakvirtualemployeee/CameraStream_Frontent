@@ -31,6 +31,10 @@ import { AppFeedback } from './pages/app-feedback/AppFeedback';
 import { Resources } from './pages/resources-section/Resources';
 import { DriversList } from './pages/drivers-list/DriversList';
 
+import { ELDDevice } from './pages/ELD-Devices/ELDDevice';
+import { AddELDDevice } from './pages/ELD-Devices/AddELDDevice';
+import { EditELDDevice } from './pages/ELD-Devices/EditELDDevice';
+
 function App() {
   return (
     <BrowserRouter>
@@ -46,7 +50,11 @@ function App() {
         <Route path="system-users-management/add-user" element={<AddUser />} />
         <Route path="system-users-management/edit-user-info" element={<EditUserInfo />} />
 
-         <Route path="group-management/add-group" element={<AddGroup />} />
+        <Route path="group-management/add-group" element={<AddGroup />} />
+
+        <Route path="eld-devices" element={<ELDDevice />} />
+        <Route path="eld-devices/add-device" element={<AddELDDevice />} />
+        <Route path="eld-devices/edit-device" element={<EditELDDevice />} />
 
         {/* Main Layout Routes */}
         <Route path="/" element={<Layout />}>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Badge, Form } from 'react-bootstrap';
+import { Button, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
 import TableFilter from '../../components/TableFilter';
