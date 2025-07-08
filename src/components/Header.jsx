@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Button, Offcanvas } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import SearchIcon from "../assets/images/icons/search.svg";
+import BellIcon from "../assets/images/icons/bell.svg";
+import BookIcon from "../assets/images/icons/book.svg";
 
 export const Header = () => {
 
@@ -38,7 +39,7 @@ export const Header = () => {
           </div> */}
 
           <Link to={'/'} className='sidebar-logo text-decoration-none border-bottom border-white border-opacity-25 d-flex align-items-center' style={{ width: '130px' }}>
-              <img className="img-fluid" src={require('../assets/images/logo.png')} alt="Logo" />
+            <img className="img-fluid" src={require('../assets/images/logo.png')} alt="Logo" />
           </Link>
         </div>
 
@@ -64,13 +65,28 @@ export const Header = () => {
 
         {/* End: Mobile Sidebar Drawer */}
 
-        <ul className="right-sec col d-flex justify-content-end m-0 p-0">
+        <ul className="right-sec col d-flex align-items-center justify-content-end gap-3 m-0 p-0">
+          <li className="nav-item dropdown">
+            <Link to={'/'}>
+              <img src={BellIcon} alt="Bell Icon" className="img-fluid" />
+            </Link>
+          </li>
+          <li className="nav-item dropdown">
+            <Link to={'/'}>
+              <img src={BookIcon} alt="Book Icon" className="img-fluid" />
+            </Link>
+          </li>
+          <div className="divider vr"></div>
           <li className="nav-item dropdown user-logout">
             <button className="nav-link text-white text-center border-0 bg-transparent p-0" data-bs-toggle="dropdown" aria-expanded="false">
-              <div className="chip-wrapper">
-                <div className="chip-img bg-primary d-flex align-items-center justify-content-center rounded-circle border border-primary overflow-hidden">
-                  {/* <div className="user-shortname text-light">{shortName}</div> */}
-                  <img className="w-100 h-100" src={require("../assets/images/dummy-user.jpeg")} alt="User" />
+              <div className="chip-wrapper d-flex align-items-center gap-2">
+                <div className="chip-img bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center rounded-circle overflow-hidden">
+                  <div className="user-shortname fs-16 fw-medium text-black text-opacity-75 text-uppercase">K</div>
+                  {/* <img className="w-100 h-100" src={require("../assets/images/dummy-user.jpeg")} alt="User" /> */}
+                </div>
+                <div className="user-info text-start">
+                  <div className="username fs-14 fw-medium text-black text-opacity-75 text-capitalize">kapil Prajapati</div>
+                  <div className="user-email fs-12 text-muted text-lowercase">kapil@virtualemployee.com</div>
                 </div>
               </div>
             </button>

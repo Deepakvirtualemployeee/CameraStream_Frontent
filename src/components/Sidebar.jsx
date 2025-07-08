@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import AppointmentsIcon from '../assets/images/appointments-list.svg';
+import ArrowLogoutIcon from '../assets/images/icons/arrow-bar-right.svg';
 
 const Sidebar = (props) => {
+    const [collapsed, setCollapsed] = useState(false);
     const [activepage, setActivepage] = useState('')
+
+    const toggleSidebar = () => setCollapsed(!collapsed);
 
     const handlePageClick = (page) => {
         setActivepage(page)
@@ -20,89 +23,77 @@ const Sidebar = (props) => {
     }
 
     return (
-        <aside className="sidebar d-flex flex-column flex-shrink-0">
-            <Link to={'/'} className='sidebar-logo text-decoration-none border-bottom border-white border-opacity-25 d-flex align-items-center px-3 py-2 mb-2' style={{ minHeight: '61px' }}>
-                <img className="img-fluid" src={require('../assets/images/logo.png')} alt="Logo" />
-            </Link>
+        <aside className={`sidebar d-flex flex-column ${collapsed ? 'collapsed' : ''}`}>
+            <div className="logo-wrapper d-flex align-items-center justify-content-between gap-1 p-2">
+                <Link to={'/'} className='sidebar-logo text-decoration-none'>
+                    <img className="img-fluid" src={require('../assets/images/sidebar-logo.png')} alt="Logo" style={{ width: '55px' }} />
+                </Link>
+                <span className="text-white pointer" onClick={toggleSidebar}><i className={`bi ${!collapsed ? 'bi bi-caret-right-square' : 'bi-caret-left-square'}`}></i></span>
+            </div>
 
-            <ul className="sidebar-item-cover list-inline m-0">
+            <ul className="sidebar-item-cover list-inline overflow-auto m-0">
                 <li className="nav-item">
                     <Link to={'/'} className={`${activepage === '/' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('/')}>
                         <i className="bi bi-house-door"></i>
-                        <span>Dashboard</span>
+                        {!collapsed && <span>Dashboard</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
                     <Link to={'/companies-list'} className={`${activepage === 'companies-list' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('companies-list')}>
-                        <img src={AppointmentsIcon} alt="" className="img-fluid" />
-                        <span>Companies List</span>
+                        <i className="bi bi-clock"></i>
+                        {!collapsed && <span>Deadline</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
                     <Link to={'/system-users-management'} className={`${activepage === 'system-users-management' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('system-users-management')}>
-                        <img src={AppointmentsIcon} alt="" className="img-fluid" />
-                        <span>Sys. Users Management</span>
+                        <i className="bi bi-activity"></i>
+                        {!collapsed && <span>Activity</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
                     <Link to={'/fmcsa-transfer'} className={`${activepage === 'fmcsa-transfer' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('fmcsa-transfer')}>
-                        <i className="bi bi-buildings"></i>
-                        <span>FMCSA Transfer</span>
+                        <i className="bi bi-truck"></i>
+                        {!collapsed && <span>Delivery</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
                     <Link to={'/billing-management'} className={`${activepage === 'billing-management' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('billing-management')}>
-                        <i className="bi bi-person-badge-fill"></i>
-                        <span>Billing Management</span>
+                        <i className="bi bi-wrench"></i>
+                        {!collapsed && <span>Management</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/driven-hours'} className={`${activepage === 'driven-hours' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('driven-hours')}>
-                        {/* <i className="bi bi-journal-text"></i> */}
-                        <img src={require('../assets/images/reports-list.png')} alt="" className="img-fluid" />
-                        <span>Driven Hours</span>
+                    <Link to={'/billing-management'} className={`${activepage === 'billing-management' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('billing-management')}>
+                        <i className="bi bi-layers"></i>
+                        {!collapsed && <span>Layers</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/group-management'} className={`${activepage === 'group-management' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('group-management')}>
-                        {/* <i className="bi bi-journal-text"></i> */}
-                        <img src={require('../assets/images/reports-list.png')} alt="" className="img-fluid" />
-                        <span>Group Management</span>
+                    <Link to={'/billing-management'} className={`${activepage === 'billing-management' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('billing-management')}>
+                        <i className="bi bi-clipboard-data"></i>
+                        {!collapsed && <span>Reports</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/company-violations'} className={`${activepage === 'company-violations' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('company-violations')}>
-                        {/* <i className="bi bi-journal-text"></i> */}
-                        <img src={require('../assets/images/reports-list.png')} alt="" className="img-fluid" />
-                        <span>Company Violations</span>
+                    <Link to={'/billing-management'} className={`${activepage === 'billing-management' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('billing-management')}>
+                        <i className="bi bi-chat"></i>
+                        {!collapsed && <span>Message</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/app-feedback'} className={`${activepage === 'app-feedback' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('app-feedback')}>
-                        {/* <i className="bi bi-journal-text"></i> */}
-                        <img src={require('../assets/images/reports-list.png')} alt="" className="img-fluid" />
-                        <span>App Feedback</span>
+                    <Link to={'/billing-management'} className={`${activepage === 'billing-management' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('billing-management')}>
+                        <i className="bi bi-gear"></i>
+                        {!collapsed && <span>Settings</span>}
                     </Link>
                 </li>
+            </ul>
+
+            <ul className="sidebar-item-cover list-inline mt-auto">
                 <li className="nav-item">
-                    <Link to={'/resource-list'} className={`${activepage === 'resource-list' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('resource-list')}>
-                        {/* <i className="bi bi-journal-text"></i> */}
-                        <img src={require('../assets/images/reports-list.png')} alt="" className="img-fluid" />
-                        <span>Resource</span>
-                    </Link>
-                </li>
-                <li className="nav-item">
-                    <Link to={'/drivers-list'} className={`${activepage === 'drivers-list' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('drivers-list')}>
-                        {/* <i className="bi bi-journal-text"></i> */}
-                        <img src={require('../assets/images/reports-list.png')} alt="" className="img-fluid" />
-                        <span>Drivers</span>
-                    </Link>
-                </li>
-                <li className="nav-item">
-                    <Link to={'/vehicles-list'} className={`${activepage === 'vehicles-list' ? 'active' : ' '} nav-link d-flex align-items-center gap-2`} onClick={() => closeSidebar('vehicles-list')}>
-                        {/* <i className="bi bi-journal-text"></i> */}
-                        <img src={require('../assets/images/reports-list.png')} alt="" className="img-fluid" />
-                        <span>Vehicles</span>
+                    <hr className="opacity-100 my-2" />
+                    <Link to={'/login'} className="nav-link d-flex align-items-center gap-2">
+                        <img src={ArrowLogoutIcon} alt="Arrow Logout Icon" className="img-fluid" style={{ filter: 'none', width: 'auto' }} />
+                        {!collapsed && <span>Logout</span>}
                     </Link>
                 </li>
             </ul>

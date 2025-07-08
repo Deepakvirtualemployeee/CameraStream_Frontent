@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Button, Badge } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { Button, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
 import TableFilter from '../../components/TableFilter';
@@ -11,6 +12,7 @@ import TrashIcon from '../../assets/images/icons/trash.svg';
 import { DeleteModal } from '../../components/DeleteModal';
 
 export const CompaniesList = () => {
+    const navigate = useNavigate();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const handleClose = () => setShowDeleteModal(false);
     const handleShow = () => setShowDeleteModal(true);
@@ -183,7 +185,7 @@ export const CompaniesList = () => {
                                 onReset={resetFilters}
                             />
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
-                                <Button variant='primary'><i className="bi bi-plus-lg fs-16"></i> Create Company</Button>
+                                <Button variant='primary' onClick={()=> navigate('/companies-list/create-company')}><i className="bi bi-plus-lg fs-16"></i> Create Company</Button>
                                 <Button variant='white' className="bg-white border-gray"><img src={FilterIocn} alt="Filter Iocn" /> Filter by Status</Button>
                                 <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>

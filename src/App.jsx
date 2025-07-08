@@ -12,6 +12,7 @@ import { ForgotPassword } from './pages/authentication/ForgotPassword';
 import { Layout } from './components/layouts/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { CompaniesList } from './pages/company-list/CompaniesList';
+import { CreateCompany } from './pages/company-list/CreateCompany';
 
 import { UsersManagement } from './pages/system-users-management/UsersManagement';
 import { AddUser } from './pages/system-users-management/AddUser';
@@ -34,6 +35,7 @@ import { DriversList } from './pages/drivers-list/DriversList';
 import { ELDDevice } from './pages/ELD-Devices/ELDDevice';
 import { AddELDDevice } from './pages/ELD-Devices/AddELDDevice';
 import { EditELDDevice } from './pages/ELD-Devices/EditELDDevice';
+import { Layout2 } from './components/layouts/Layout2';
 
 function App() {
   return (
@@ -47,14 +49,12 @@ function App() {
         <Route path="/signup-finished" element={<SignupFinished />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        <Route path="system-users-management/add-user" element={<AddUser />} />
-        <Route path="system-users-management/edit-user-info" element={<EditUserInfo />} />
+        <Route path="/companies-list/create-company" element={<CreateCompany />} />
 
-        <Route path="group-management/add-group" element={<AddGroup />} />
+        <Route path="/system-users-management/add-user" element={<AddUser />} />
+        <Route path="/system-users-management/edit-user-info" element={<EditUserInfo />} />
 
-        <Route path="eld-devices" element={<ELDDevice />} />
-        <Route path="eld-devices/add-device" element={<AddELDDevice />} />
-        <Route path="eld-devices/edit-device" element={<EditELDDevice />} />
+        <Route path="/group-management/add-group" element={<AddGroup />} />
 
         {/* Main Layout Routes */}
         <Route path="/" element={<Layout />}>
@@ -72,6 +72,13 @@ function App() {
           <Route path="resource" element={<Resources />} />
           <Route path="drivers-list" element={<DriversList />} />
           <Route path="*" element={<PageNotFound />} />
+        </Route>
+
+        {/* Routes using Sidebar + Topbar */}
+        <Route element={<Layout2 />}>
+          <Route path="eld-devices" element={<ELDDevice />} />
+          <Route path="eld-devices/add-device" element={<AddELDDevice />} />
+          <Route path="eld-devices/edit-device" element={<EditELDDevice />} />
         </Route>
       </Routes>
     </BrowserRouter>

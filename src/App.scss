@@ -281,6 +281,7 @@ input[type="time"]:invalid:before {
     .custom-select__multi-value__label {
       padding-left: 8px;
     }
+
     .custom-select__multi-value__remove {
       padding-right: 5px;
     }
@@ -385,7 +386,7 @@ input[type="time"]:invalid:before {
     }
 
     .dropdown-menu:before {
-      background: #c0d4fa;
+      background: rgba($primary, 0.5);
     }
   }
 
@@ -398,7 +399,7 @@ input[type="time"]:invalid:before {
 .main-content {
   width: 100%;
   min-height: 100vh;
-  transition: margin .25s ease-out;
+  transition: all 0.3s;
 }
 
 /* Small devices (landscape phones, 991px and down) */
@@ -415,7 +416,120 @@ input[type="time"]:invalid:before {
   }
 }
 
+@media (min-width: 992px) {
+  .main-content {
+    width: calc(100% - 220px);
+    margin-left: 220px;
+  }
+}
+
+.sidebar.collapsed~.main-content {
+  width: calc(100% - 80px);
+  margin-left: 80px;
+}
+
 // End: Top Header CSS
+
+// Start: Sidebar CSS
+
+// .sidebar-wrapper {
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   max-width: 230px;
+//   width: 100%;
+//   height: 100%;
+//   background-color: $sidebar-bg;
+//   overflow-x: hidden;
+//   z-index: $zindex-offcanvas;
+
+//   .sidebar-logo {
+//     img {
+//       max-width: 150px;
+//       max-height: 50px;
+//       object-fit: contain;
+//     }
+//   }
+// }
+
+.sidebar {
+  background-color: $theme3;
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  min-height: 100vh;
+  width: 220px;
+  transition: all 0.3s;
+
+  .sidebar-logo {
+    img {
+      max-width: 55px;
+      object-fit: contain;
+    }
+  }
+
+  &.collapsed {
+    width: 80px;
+
+    li a {
+      width: 50px;
+      justify-content: center;
+      margin: 0 auto;
+    }
+  }
+
+
+  .sidebar-item-cover {
+    li {
+      margin: 0 8px;
+    }
+
+    li a {
+      font-size: 15px;
+      color: $white;
+      border-radius: 6px;
+      padding: 12px;
+      text-align: left;
+      text-transform: capitalize;
+      transition: .35s ease-out;
+
+      i.bi {
+        font-size: 18px;
+
+        &:before {
+          font-weight: 600 !important;
+        }
+      }
+
+      &:hover,
+      &:focus,
+      &:hover img,
+      &.active img,
+      &:focus img {
+        color: $white;
+        opacity: 1;
+      }
+
+      &.active {
+        color: #5F6368;
+        background-color: $theme2;
+        font-weight: 600;
+        padding: 12px;
+      }
+
+      img {
+        width: 16px;
+        filter: invert(1);
+        opacity: 1;
+        transition: .35s ease-out;
+      }
+    }
+  }
+}
+
+// End: Sidebar CSS
 
 // Start: Common CSS for all pages to adjust the height of input field to 40px which is within filter-wrapper div
 .filter-wrapper {
