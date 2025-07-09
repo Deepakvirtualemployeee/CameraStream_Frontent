@@ -6,10 +6,10 @@ import ReloadIcon from '../assets/images/icons/reload.svg';
 
 const TableFilter = ({ searchText, setSearchText, searchPlaceholder = 'Search...', filters = [], onReset }) => {
     return (
-        <div className="filter-wrapper d-flex flex-column flex-sm-row flex-wrap gap-2">
+        <div className="filter-wrapper d-flex flex-column flex-sm-row flex-wrap gap-2 flex-fill">
             {/* Search input */}
             <div className="searchfield-wrapper">
-                <Form.Control type="search" value={searchText} placeholder={searchPlaceholder} onChange={e => setSearchText(e.target.value)} style={{ minWidth: '315px' }} />
+                <Form.Control type="search" value={searchText} placeholder={searchPlaceholder} onChange={e => setSearchText(e.target.value)} />
                 <img src={SearchIcon} alt="Search Icon" className="icon" />
             </div>
 

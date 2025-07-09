@@ -297,130 +297,43 @@ input[type="time"]:invalid:before {
 
 // Start: Top Header Css
 .top-header {
-  .navbar-brand {
-    .brand-name {
-      font-size: 20px;
-      font-weight: $font-weight-bold;
-      color: $gray-200;
-
-      @include media-breakpoint-up(lg) {
-        font-size: 30px;
-      }
-    }
-
-    img {
-      max-width: 210px;
-
-      @include media-breakpoint-down(lg) {
-        max-width: 170px;
-      }
-    }
-
-    .app-version {
-      font-size: 10px;
-      color: $gray-200;
-      float: right;
-      line-height: normal;
-      margin-left: 7px;
-    }
-  }
-
-  .navbar-nav {
-    li {
-      position: relative;
-
-      @include media-breakpoint-up(lg) {
-        &:after {
-          content: '';
-          display: block;
-          height: 18px;
-          width: 1px;
-          background: #fff;
-          position: absolute;
-          top: 50%;
-          right: 0;
-          transform: translateY(-50%);
-        }
-      }
-    }
-  }
-
   .dropdown {
     list-style-type: none;
   }
 
-  .dropdown-menu-end.caret-indicator:before {
-    left: auto;
-    right: 12px;
-  }
-
-  .caret-indicator:before {
-    content: '';
-    display: block;
-    height: 15px;
-    width: 15px;
-    background: #fff;
-    border-radius: 3px;
-    position: absolute;
-    top: -6px;
-    left: 30px;
-    transform: rotate(45deg);
-    z-index: -111;
-  }
-
-  .user-logout {
-    .user-name {
-      color: $black;
-      font-size: 18px;
-      font-weight: $font-weight-semibold;
-    }
-
-    .title-label {
-      font-size: 13px;
-      color: $black;
-    }
-
+  .account-menu {
     .dropdown-menu {
-      background: linear-gradient(168.68deg, #ffffff 1.12%, $primary 100%);
-      border: none;
+      top: 9px !important;
+      width: 200px;
+
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
     }
 
-    .dropdown-menu:before {
-      background: rgba($primary, 0.5);
+    .dropdown-toggle:after {
+      display: none;
     }
   }
 
   .chip-wrapper .chip-img {
-    height: 35px;
-    width: 35px;
+    height: 32px;
+    width: 32px;
   }
 }
 
-.main-content {
+.main-content-wrapper {
   width: 100%;
   min-height: 100vh;
   transition: all 0.3s;
 }
 
-/* Small devices (landscape phones, 991px and down) */
-@media (max-width: 991px) {
-
-  nav .user-name span,
-  nav .user-name:after {
-    display: none;
-  }
-
-  nav .user-profile .dropdown-menu {
-    right: 0;
-    left: auto;
-  }
-}
-
-@media (min-width: 992px) {
-  .main-content {
-    width: calc(100% - 220px);
-    margin-left: 220px;
-  }
+.main-content {
+  width: calc(100% - 220px);
+  margin-left: 220px;
+  transition: all 0.3s;
 }
 
 .sidebar.collapsed~.main-content {
@@ -490,7 +403,7 @@ input[type="time"]:invalid:before {
       font-size: 15px;
       color: $white;
       border-radius: 6px;
-      padding: 12px;
+      padding: 10px 12px;
       text-align: left;
       text-transform: capitalize;
       transition: .35s ease-out;
@@ -516,7 +429,7 @@ input[type="time"]:invalid:before {
         color: #5F6368;
         background-color: $theme2;
         font-weight: 600;
-        padding: 12px;
+        padding: 10px 12px;
       }
 
       img {
@@ -533,6 +446,13 @@ input[type="time"]:invalid:before {
 
 // Start: Common CSS for all pages to adjust the height of input field to 40px which is within filter-wrapper div
 .filter-wrapper {
+  .searchfield-wrapper {
+    width: 100%;
+
+    @include media-breakpoint-up(sm) {
+      max-width: 315px;
+    }
+  }
 
   .form-control,
   .form-select {

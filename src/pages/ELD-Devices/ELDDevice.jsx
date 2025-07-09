@@ -169,7 +169,7 @@ export const ELDDevice = () => {
             <div className="container-fluid">
                 <div className="main-heading mb-3">ELD Devices (62)</div>
                 <div className="table-content-wrapper">
-                    <div className="action-wrapper d-flex flex-column flex-sm-row flex-wrap justify-content-between gap-2 mb-4">
+                    <div className="action-wrapper d-flex flex-column flex-sm-row flex-wrap align-items-sm-start justify-content-between gap-2 mb-4">
                         <TableFilter
                             searchText={searchText}
                             setSearchText={setSearchText}
@@ -177,9 +177,10 @@ export const ELDDevice = () => {
                             filters={filters}
                             onReset={resetFilters}
                         />
-                        <div className="btn-wrapper d-flex flex-wrap gap-2">
+                        <Button variant='primary' onClick={() => navigate('/eld-devices/add-device')}><i className="bi bi-plus-lg fs-16"></i> Add ELD Device</Button>
+                        {/* <div className="btn-wrapper d-flex flex-wrap gap-2">
                             <Button variant='primary' onClick={() => navigate('/eld-devices/add-device')}><i className="bi bi-plus-lg fs-16"></i> Add ELD Device</Button>
-                        </div>
+                        </div> */}
                     </div>
                     <div className='table-responsive table-custom-wrapper'>
                         <DataTable
