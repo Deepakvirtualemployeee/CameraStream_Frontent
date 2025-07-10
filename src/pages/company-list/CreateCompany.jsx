@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 
 export const CreateCompany = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         companyName: '',
         timeZone: '',
@@ -34,17 +36,6 @@ export const CreateCompany = () => {
 
         console.log('Submitted Company Data:', formData);
         alert('Company added successfully!');
-    };
-
-    const handleCancel = () => {
-        if (window.confirm('Clear all form data?')) {
-            setFormData({
-                companyName: '',
-                timeZone: '',
-                usdotNumber: '',
-                companyAddress: '',
-            });
-        }
     };
 
     return (
@@ -131,7 +122,7 @@ export const CreateCompany = () => {
                         </Row>
 
                         <div className="btn-wrapper d-flex flex-wrap justify-content-end gap-2">
-                            <Button variant='white' className="bg-white border-gray" onClick={handleCancel}>Cancel</Button>
+                            <Button variant='white' className="bg-white border-gray" onClick={()=> navigate(-1)}>Cancel</Button>
                             <Button variant='primary' type="submit" form="add-company-form">Confirm</Button>
                         </div>
                     </Form>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
@@ -8,6 +9,7 @@ import IOSIcon from '../../assets/images/icons/ios.svg'
 import LogoutIocn from '../../assets/images/icons/logout.svg';
 
 export const DriversList = () => {
+    const navigate = useNavigate();
     const columns = [
         {
             name: 'Driver',
@@ -225,7 +227,7 @@ export const DriversList = () => {
                                 onReset={resetFilters}
                             />
                             <div className="btn-wrapper d-flex flex-wrap align-items-center row-gap-2 column-gap-3">
-                                <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='white' className="bg-white border-gray" onClick={()=> navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
                         <div className='table-responsive table-custom-wrapper'>

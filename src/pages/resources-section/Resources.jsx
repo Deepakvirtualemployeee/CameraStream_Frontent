@@ -117,7 +117,7 @@ export const Resources = () => {
                             />
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
                                 <Button variant='primary'><i className="bi bi-plus-lg fs-16"></i> Add Resources</Button>
-                                <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='white' className="bg-white border-gray" onClick={()=> navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
                         <div className='table-responsive table-custom-wrapper'>

@@ -9,7 +9,6 @@ import LogoutIocn from '../../assets/images/icons/logout.svg';
 import EditIcon from '../../assets/images/icons/edit.svg'
 import TrashIcon from '../../assets/images/icons/trash.svg';
 
-
 export const GroupManagement = () => {
     const navigate = useNavigate();
     const [show, setShow] = useState(false);
@@ -133,7 +132,7 @@ export const GroupManagement = () => {
                             />
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
                                 <Button variant='primary' onClick={()=> navigate('/group-management/add-group')}><i className="bi bi-plus-lg fs-16"></i> Add Group</Button>
-                                <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='white' className="bg-white border-gray" onClick={()=> navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
                         <div className='table-responsive table-custom-wrapper'>

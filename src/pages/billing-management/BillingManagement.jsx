@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Badge, Form } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
@@ -8,6 +9,7 @@ import ArrowUpRightIocn from '../../assets/images/icons/arrow-up-right.svg';
 import LogoutIocn from '../../assets/images/icons/logout.svg';
 
 export const BillingManagement = () => {
+    const navigate = useNavigate();
     const columns = [
         {
             name: 'Name',
@@ -248,7 +250,7 @@ export const BillingManagement = () => {
                             <div className="btn-wrapper d-flex flex-wrap align-items-center row-gap-2 column-gap-3">
                                 <div className="fs-16 text-gray">Total Active Vehicles: <span className="fw-semibold text-body">197,</span></div>
                                 <div className="fs-16 text-gray">Total Subscribed Vehicles: <span className="fw-semibold text-body">199</span></div>
-                                <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='white' className="bg-white border-gray" onClick={()=> navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
                         <div className='table-responsive table-custom-wrapper'>

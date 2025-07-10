@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './driven-hours.scss'
+import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Accordion, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
@@ -12,6 +13,7 @@ import InvokeIocn from '../../assets/images/icons/pin-invoke.svg';
 import TrashIcon from '../../assets/images/icons/trash.svg';
 
 export const DrivenHours = () => {
+    const navigate = useNavigate();
     const [show, setShow] = useState(false);
 
     const handleClose = () => setShow(false);
@@ -179,7 +181,7 @@ export const DrivenHours = () => {
                             />
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
                                 <Button variant='white' className="bg-white border-gray"><img src={FilterIocn} alt="Filter Iocn" /> Filter by Status</Button>
-                                <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='white' className="bg-white border-gray" onClick={()=> navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
 

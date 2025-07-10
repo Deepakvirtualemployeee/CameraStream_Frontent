@@ -11,7 +11,7 @@ import LogoutIcon from "../assets/images/icons/log-out.svg";
 export const Header = ({ collapsed, toggleSidebar }) => {
 
   return (
-    <nav className="navbar navbar-light bg-white navbar-expand-lgg top-header sticky-top shadow-sm py-2" data-bs-theme="light" style={{ minHeight: "61px" }}>
+    <nav className="navbar navbar-light bg-white border-bottom navbar-expand-lgg top-header sticky-top py-2" data-bs-theme="light" style={{ minHeight: "61px" }}>
       <div className="container-fluid gap-2 flex-nowrap">
         <div className="left-sec d-flex align-items-center justify-content-start gap-3">
           <span className="pointer" onClick={toggleSidebar}><i className={`fs-3 bi ${!collapsed ? 'bi-caret-left-square' : 'bi-caret-right-square'} lh-sm`}></i></span>

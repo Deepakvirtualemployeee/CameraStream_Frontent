@@ -10,7 +10,6 @@ import FilterIocn from '../../assets/images/icons/filter.svg';
 import EditIcon from '../../assets/images/icons/edit.svg'
 import TrashIcon from '../../assets/images/icons/trash.svg';
 
-
 export const UsersManagement = () => {
     const navigate = useNavigate();
     const [show, setShow] = useState(false);
@@ -20,10 +19,6 @@ export const UsersManagement = () => {
 
     const addNewUser = () => {
         navigate('/system-users-management/add-user');
-    }
-
-    const userDetails = (row) => {
-        navigate('/system-users-management/user-details', { state: row });
     }
 
     const columns = [
@@ -171,16 +166,13 @@ export const UsersManagement = () => {
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
                                 <Button variant='primary' onClick={addNewUser}><i className="bi bi-plus-lg fs-16"></i> Add User</Button>
                                 <Button variant='white' className="bg-white border-gray"><img src={FilterIocn} alt="Filter Iocn" /> Filter by Status</Button>
-                                <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='white' className="bg-white border-gray" onClick={()=> navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
                         <div className='table-responsive table-custom-wrapper'>
                             <DataTable
                                 columns={columns}
                                 data={filteredData}
-                                // selectableRows
-                                onRowClicked={userDetails}
-                                // dense
                                 pagination
                                 highlightOnHover
                                 pointerOnHover

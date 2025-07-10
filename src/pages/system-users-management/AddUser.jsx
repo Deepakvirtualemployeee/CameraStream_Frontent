@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 export const AddUser = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -63,28 +65,13 @@ export const AddUser = () => {
         alert('User added successfully!');
     };
 
-    const handleCancel = () => {
-        if (window.confirm('Clear all form data?')) {
-            setFormData({
-                firstName: '',
-                lastName: '',
-                email: '',
-                password: '',
-                confirmPassword: '',
-                role: '',
-                accessToAllCompanies: false,
-                group: '',
-            });
-        }
-    };
-
     return (
         <div className="addUser-page py-3">
             <div className="container-fluid" style={{ maxWidth: 'calc(1000px + 1.5rem)' }}>
                 <div className="heading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
                     <div className="main-heading">Add New User</div>
                     <div className="btn-wrapper d-flex flex-wrap gap-2">
-                        <Button variant='white' className="bg-white border-gray" onClick={handleCancel}>Cancel</Button>
+                        <Button variant='white' className="bg-white border-gray" onClick={() => navigate(-1)}>Cancel</Button>
                         <Button variant='primary' type="submit" form="add-user-form">
                             <i className="bi bi-plus-lg fs-16"></i> Add User
                         </Button>

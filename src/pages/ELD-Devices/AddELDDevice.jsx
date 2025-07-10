@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 export const AddELDDevice = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         serialNumber: '',
         mac: ['', '', '', '', '', ''],
@@ -61,31 +63,21 @@ export const AddELDDevice = () => {
         alert("ELD Device added successfully!");
     };
 
-    const handleCancel = () => {
-        if (window.confirm("Clear form?")) {
-            setFormData({
-                serialNumber: '',
-                mac: ['', '', '', '', '', ''],
-                vehicle: '',
-            });
-        }
-    };
-
     return (
         <div className="AddELDDevice-page py-3">
             <div className="container-fluid" style={{ maxWidth: 'calc(1000px + 1.5rem)' }}>
                 <div className="heading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
                     <div className="main-heading">ELD Device Info</div>
                     <div className="btn-wrapper d-flex flex-wrap gap-2">
-                        <Button variant='white' className="bg-white border-gray" onClick={handleCancel}>Cancel</Button>
-                        <Button variant='outline-danger' onClick={handleCancel}>Delete</Button>
+                        <Button variant='white' className="bg-white border-gray" onClick={() => navigate(-1)}>Cancel</Button>
+                        <Button variant='outline-danger'>Delete</Button>
                         <Button variant='primary' type="submit" form="add-group-form">
                             <i className="bi bi-plus-lg fs-16"></i> Add Group
                         </Button>
                     </div>
                 </div>
 
-                <div className="form-wrapper bg-white w-100 border rounded-4 px-3 px-md-4 py-4">
+                <div className="form-wrapper bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
                     <Form id="add-group-form" onSubmit={handleSubmit}>
                         <Row className="g-3 g-xl-4">
                             <Col xs={12}>

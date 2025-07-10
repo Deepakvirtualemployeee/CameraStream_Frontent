@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import Select from "react-select";
 import makeAnimated from 'react-select/animated';
 
 const animatedComponents = makeAnimated();
 
 export const AddGroup = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         accessToAllCompanies: false,
@@ -53,24 +55,13 @@ export const AddGroup = () => {
         alert("Group added successfully!");
     };
 
-    const handleCancel = () => {
-        if (window.confirm("Clear form?")) {
-            setFormData({
-                name: '',
-                accessToAllCompanies: false,
-                selectedUsers: [],
-                selectedCompanies: [],
-            });
-        }
-    };
-
     return (
         <div className="addGroup-page py-3">
             <div className="container-fluid" style={{ maxWidth: 'calc(1000px + 1.5rem)' }}>
                 <div className="heading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
                     <div className="main-heading">Add New Group</div>
                     <div className="btn-wrapper d-flex flex-wrap gap-2">
-                        <Button variant='white' className="bg-white border-gray" onClick={handleCancel}>Cancel</Button>
+                        <Button variant='white' className="bg-white border-gray" onClick={() => navigate(-1)}>Cancel</Button>
                         <Button variant='primary' type="submit" form="add-group-form">
                             <i className="bi bi-plus-lg fs-16"></i> Add Group
                         </Button>

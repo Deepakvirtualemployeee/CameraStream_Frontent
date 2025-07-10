@@ -1,9 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import ArrowLogoutIcon from '../assets/images/icons/arrow-bar-right.svg';
 
 const Sidebar = ({ collapsed }) => {
     const location = useLocation();
+    const [openSettings, setOpenSettings] = useState(false);
+    const toggleSettings = () => setOpenSettings(!openSettings);
+
+    // Group of routes under Settings
+    const settingsRoutes = ['/settings', '/settings/eld-devices', '/settings/vehicles-list'];
+
+    const isSettingsActive = settingsRoutes.some(path =>
+        location.pathname.startsWith(path)
+    );
+
+    // Auto-close settings dropdown if not on a settings route
+    useEffect(() => {
+        if (!isSettingsActive) {
+            setOpenSettings(false);
+        }
+    }, [location.pathname]);
 
     return (
         <aside className={`sidebar d-flex flex-column ${collapsed ? 'collapsed' : ''} py-2`}>
@@ -13,7 +29,7 @@ const Sidebar = ({ collapsed }) => {
                 </Link>
             </div>
 
-            <ul className="sidebar-item-cover list-inline overflow-auto m-0">
+            <ul className="sidebar-item-cover list-inline overflow-auto flex-fill m-0">
                 <li className="nav-item">
                     <Link to={'/dashboard'} className={`${location.pathname === '/dashboard' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
                         <i className="bi bi-house-door"></i>
@@ -21,52 +37,72 @@ const Sidebar = ({ collapsed }) => {
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/deadline'} className={`${location.pathname === 'deadline' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
+                    <Link to={'/drivers-hos'} className={`${location.pathname === '/drivers-hos' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
                         <i className="bi bi-clock"></i>
-                        {!collapsed && <span>Deadline</span>}
+                        {!collapsed && <span>Drivers HOS</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/activity'} className={`${location.pathname === 'activity' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
+                    <Link to={'/logs'} className={`${location.pathname === '/logs' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
                         <i className="bi bi-activity"></i>
-                        {!collapsed && <span>Activity</span>}
+                        {!collapsed && <span>Logs</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/delivery'} className={`${location.pathname === 'delivery' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
+                    <Link to={'/delivery'} className={`${location.pathname === '/delivery' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
                         <i className="bi bi-truck"></i>
                         {!collapsed && <span>Delivery</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/management'} className={`${location.pathname === 'management' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
+                    <Link to={'/dvir'} className={`${location.pathname === '/dvir' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
                         <i className="bi bi-wrench"></i>
-                        {!collapsed && <span>Management</span>}
+                        {!collapsed && <span>DVIR</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/layers'} className={`${location.pathname === 'layers' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
+                    <Link to={'/eld-events'} className={`${location.pathname === '/eld-events' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
                         <i className="bi bi-layers"></i>
-                        {!collapsed && <span>Layers</span>}
+                        {!collapsed && <span>ELD Events</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/reports'} className={`${location.pathname === 'reports' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
+                    <Link to={'/reports'} className={`${location.pathname === '/reports' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
                         <i className="bi bi-clipboard-data"></i>
                         {!collapsed && <span>Reports</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/message'} className={`${location.pathname === 'message' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
+                    <Link to={'/message'} className={`${location.pathname === '/message' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
                         <i className="bi bi-chat"></i>
                         {!collapsed && <span>Message</span>}
                     </Link>
                 </li>
-                <li className="nav-item">
-                    <Link to={'/settings'} className={`${location.pathname === 'settings' ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>
+                {/* Settings Dropdown */}
+                <li className={`nav-item ${isSettingsActive || openSettings ? 'active' : ''}`}>
+                    <a className={`nav-link d-flex align-items-center gap-2 ${isSettingsActive ? 'active' : ''}`} onClick={toggleSettings}>
                         <i className="bi bi-gear"></i>
                         {!collapsed && <span>Settings</span>}
-                    </Link>
+                        {!collapsed && (
+                            <i className={`bi fs-16 ms-auto ${openSettings ? 'bi-chevron-up' : 'bi-chevron-down'}`}></i>
+                        )}
+                    </a>
+
+                    {/* Dropdown submenu */}
+                    {/* {!collapsed && openSettings && (
+                        <ul className="sub-menu list-unstyled">
+                            <li className="nav-item">
+                                <Link to="/settings/eld-devices" className={`${location.pathname === '/settings/eld-devices' ? 'active' : ''}`} onClick={() => setOpenSettings(false)}>
+                                    ELD Devices
+                                </Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link to="/settings/vehicles-list" className={`${location.pathname === '/settings/vehicles-list' ? 'active' : ''}`} onClick={() => setOpenSettings(false)}>
+                                    Vehicles
+                                </Link>
+                            </li>
+                        </ul>
+                    )} */}
                 </li>
             </ul>
 

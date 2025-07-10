@@ -5,41 +5,48 @@ import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../components/NoDataComponent';
 import TableFilter from '../../components/TableFilter';
+import CreditCardIcon from '../../assets/images/icons/credit-card.svg';
 import EditIcon from '../../assets/images/icons/edit.svg'
 
-export const ELDDevice = () => {
+export const VehiclesList = () => {
     const navigate = useNavigate();
 
     const columns = [
         {
-            name: 'ELD SN (MAC)',
-            selector: (row) => row.eld_sm,
-            sortable: true,
-            minWidth: '300px',
-        },
-        {
-            name: 'ELD Model',
-            selector: (row) => row.eld_model,
+            name: 'Vehicle Number',
+            selector: (row) => row.vehicle_number,
             sortable: true,
             minWidth: '150px',
         },
         {
-            name: 'Assigned Vehicle',
-            selector: (row) => row.assigned_vehicle,
-            sortable: true,
-            minWidth: '170px',
-        },
-        {
-            name: 'BLE Version',
-            selector: (row) => row.ble_version,
+            name: 'License Plate',
+            selector: (row) => row.license_plate,
             sortable: true,
             minWidth: '150px',
         },
         {
-            name: 'Firmware Version',
-            selector: (row) => row.firmware_version,
+            name: 'Year',
+            selector: (row) => row.year,
             sortable: true,
-            minWidth: '170px',
+            minWidth: '120px',
+        },
+        {
+            name: 'Make / Model',
+            selector: (row) => row.make_model,
+            sortable: true,
+            minWidth: '200px',
+        },
+        {
+            name: 'Vin',
+            selector: (row) => row.vin,
+            sortable: true,
+            minWidth: '200px',
+        },
+        {
+            name: 'Eld Sn (Mac)',
+            selector: (row) => row.eld_sn,
+            sortable: true,
+            minWidth: '270px',
         },
         {
             name: 'Status',
@@ -51,7 +58,7 @@ export const ELDDevice = () => {
             minWidth: '150px',
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    <span className='pointer ms-3' title='Edit' onClick={() => navigate('/eld-devices/edit-device')}><img src={EditIcon} alt="Edit Icon" /></span>
+                    <span className='pointer ms-3' title='Edit' onClick={() => navigate('/vehicles-list/edit-vehicle')}><img src={EditIcon} alt="Edit Icon" /></span>
                     {/* <span className='pointer p-0' title='Delete' onClick={handleShow}><img src={TrashIcon} alt="Trash Icon" /></span> */}
                 </div>
             ),
@@ -61,74 +68,82 @@ export const ELDDevice = () => {
     const data = [
         {
             id: '01',
-            eld_sm: '3B2000090651 (C2:E8:DE:F5:13:2E)',
-            eld_model: 'PT30',
-            assigned_vehicle: '7000',
-            ble_version: '1.5.6',
-            firmware_version: '1.1.46,72',
+            vehicle_number: '7000',
+            license_plate: 'PA-079225',
+            year: '2020',
+            make_model: 'Freightliner / Cascadia',
+            vin: '4V4NC9GF72N326531',
+            eld_sn: '3B2000090651 (C2:E8:DE:F5:13:2E)',
             status: 'Active',
         },
         {
             id: '02',
-            eld_sm: '3B2000090651 (C2:E8:DE:F5:13:2E)',
-            eld_model: 'PT30U',
-            assigned_vehicle: '7001',
-            ble_version: '1.5.6',
-            firmware_version: '1.1.46,72',
+            vehicle_number: '7001',
+            license_plate: 'PA-079225',
+            year: '2020',
+            make_model: 'Freightliner / Cascadia',
+            vin: '4V4NC9GF72N326531',
+            eld_sn: '3B2000090651 (C2:E8:DE:F5:13:2E)',
             status: 'Inactive',
         },
         {
             id: '03',
-            eld_sm: '3B2000090651 (C2:E8:DE:F5:13:2E)',
-            eld_model: 'PT30U',
-            assigned_vehicle: '7002',
-            ble_version: '1.5.6',
-            firmware_version: '1.1.46,72',
+            vehicle_number: '7002',
+            license_plate: 'PA-079225',
+            year: '2020',
+            make_model: 'Freightliner / Cascadia',
+            vin: '4V4NC9GF72N326531',
+            eld_sn: '3B2000090651 (C2:E8:DE:F5:13:2E)',
             status: 'Active',
         },
         {
             id: '04',
-            eld_sm: '3B2000090651 (C2:E8:DE:F5:13:2E)',
-            eld_model: 'PT30U',
-            assigned_vehicle: '7003',
-            ble_version: '1.5.6',
-            firmware_version: '1.1.46,72',
+            vehicle_number: '7003',
+            license_plate: 'PA-079225',
+            year: '2020',
+            make_model: 'Freightliner / Cascadia',
+            vin: '4V4NC9GF72N326531',
+            eld_sn: '3B2000090651 (C2:E8:DE:F5:13:2E)',
             status: 'Active',
         },
         {
             id: '05',
-            eld_sm: '3B2000090651 (C2:E8:DE:F5:13:2E)',
-            eld_model: 'PT30U',
-            assigned_vehicle: '7004',
-            ble_version: '1.5.6',
-            firmware_version: '1.1.46,72',
+            vehicle_number: '7004',
+            license_plate: 'PA-079225',
+            year: '2020',
+            make_model: 'Freightliner / Cascadia',
+            vin: '4V4NC9GF72N326531',
+            eld_sn: '3B2000090651 (C2:E8:DE:F5:13:2E)',
             status: 'Active',
         },
         {
             id: '06',
-            eld_sm: '3B2000090651 (C2:E8:DE:F5:13:2E)',
-            eld_model: 'PT30U',
-            assigned_vehicle: '7005',
-            ble_version: '1.5.6',
-            firmware_version: '1.1.46,72',
+            vehicle_number: '7005',
+            license_plate: 'PA-079225',
+            year: '2020',
+            make_model: 'Freightliner / Cascadia',
+            vin: '4V4NC9GF72N326531',
+            eld_sn: '3B2000090651 (C2:E8:DE:F5:13:2E)',
             status: 'Active',
         },
         {
             id: '07',
-            eld_sm: '3B2000090651 (C2:E8:DE:F5:13:2E)',
-            eld_model: 'PT30U',
-            assigned_vehicle: '7006',
-            ble_version: '1.5.6',
-            firmware_version: '1.1.46,72',
+            vehicle_number: '7006',
+            license_plate: 'PA-079225',
+            year: '2020',
+            make_model: 'Freightliner / Cascadia',
+            vin: '4V4NC9GF72N326531',
+            eld_sn: '3B2000090651 (C2:E8:DE:F5:13:2E)',
             status: 'Inactive',
         },
         {
             id: '08',
-            eld_sm: '3B2000090651 (C2:E8:DE:F5:13:2E)',
-            eld_model: 'PT30U',
-            assigned_vehicle: '7007',
-            ble_version: '1.5.6',
-            firmware_version: '1.1.46,72',
+            vehicle_number: '7007',
+            license_plate: 'PA-079225',
+            year: '2020',
+            make_model: 'Freightliner / Cascadia',
+            vin: '4V4NC9GF72N326531',
+            eld_sn: '3B2000090651 (C2:E8:DE:F5:13:2E)',
             status: 'Active',
         },
     ];
@@ -165,22 +180,25 @@ export const ELDDevice = () => {
     });
 
     return (
-        <div className="ELDDevice-page py-3">
+        <div className="VehiclesList-page py-3">
             <div className="container-fluid">
-                <div className="main-heading mb-3">ELD Devices (62)</div>
+                <div className="main-heading mb-3">Vehicles (62)</div>
                 <div className="table-content-wrapper">
                     <div className="action-wrapper d-flex flex-column flex-sm-row flex-wrap align-items-sm-start justify-content-between gap-2 mb-4">
                         <TableFilter
                             searchText={searchText}
                             setSearchText={setSearchText}
-                            searchPlaceholder="Search by ELD SN or ELD MAC Address"
+                            searchPlaceholder="Search by Vehicle ID or VIN Number"
                             filters={filters}
                             onReset={resetFilters}
                         />
-                        <Button variant='primary' onClick={() => navigate('/eld-devices/add-device')}><i className="bi bi-plus-lg fs-16"></i> Add ELD Device</Button>
-                        {/* <div className="btn-wrapper d-flex flex-wrap gap-2">
-                            <Button variant='primary' onClick={() => navigate('/eld-devices/add-device')}><i className="bi bi-plus-lg fs-16"></i> Add ELD Device</Button>
-                        </div> */}
+
+                        <div className="btn-wrapper d-flex flex-wrap gap-2">
+                            <Button variant='white' className="bg-white border-gray d-flex align-items-center gap-2">
+                                <img src={CreditCardIcon} alt="Credit Card Icon" className="img-fluid" style={{ filter: 'brightness(0.2)' }} /> Billing Page
+                            </Button>
+                            <Button variant='primary' onClick={() => navigate('/vehicles-list/add-vehicle')}><i className="bi bi-plus-lg fs-16"></i> Add Vehicle</Button>
+                        </div>
                     </div>
                     <div className='table-responsive table-custom-wrapper'>
                         <DataTable

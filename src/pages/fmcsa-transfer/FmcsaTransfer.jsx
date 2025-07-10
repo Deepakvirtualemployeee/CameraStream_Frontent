@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
@@ -10,6 +11,7 @@ import FileLeftIcon from '../../assets/images/icons/file-arrow-left.svg'
 import FileRightIcon from '../../assets/images/icons/file-arrow-right.svg';
 
 export const FmcsaTransfer = () => {
+    const navigate = useNavigate();
     const columns = [
         {
             name: 'Date',
@@ -187,7 +189,7 @@ export const FmcsaTransfer = () => {
                                 onReset={resetFilters}
                             />
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
-                                <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='white' className="bg-white border-gray" onClick={()=> navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
                         <div className='table-responsive table-custom-wrapper'>

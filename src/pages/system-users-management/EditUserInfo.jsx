@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 export const EditUserInfo = () => {
+    const navigate = useNavigate();
     const [userData, setUserData] = useState({
         firstName: 'John',
         lastName: 'Doe',
@@ -42,22 +44,6 @@ export const EditUserInfo = () => {
         alert('User info updated successfully!');
     };
 
-    const handleCancel = () => {
-        if (window.confirm("Are you sure you want to cancel? Unsaved changes will be lost.")) {
-            // Reset form to original state or navigate away
-            setUserData({
-                firstName: 'John',
-                lastName: 'Doe',
-                email: 'john.doe@example.com',
-                password: 'Test@1234',
-                confirmPassword: 'Test@1234',
-                role: 'System Administrator',
-                accessToAllCompanies: true,
-                group: 'Super Team'
-            });
-        }
-    };
-
     const renderCheck = (condition) => (
         <span className={`lh-1 ${condition ? 'text-primary' : 'text-gray'}`}>
             <i className="bi bi-check-lg fs-4"></i>
@@ -70,8 +56,8 @@ export const EditUserInfo = () => {
                 <div className="heading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
                     <div className="main-heading">Edit User Info</div>
                     <div className="btn-wrapper d-flex flex-wrap gap-2">
-                        <Button variant='white' className="bg-white border-gray" onClick={handleCancel}>Cancel</Button>
-                        <Button variant='outline-danger' onClick={handleCancel}>Cancel</Button>
+                        <Button variant='white' className="bg-white border-gray" onClick={()=> navigate(-1)}>Cancel</Button>
+                        <Button variant='outline-danger'>Deactivate</Button>
                         <Button variant='primary' type="submit" form="edit-user-form">Save Changes</Button>
                     </div>
                 </div>

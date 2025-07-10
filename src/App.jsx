@@ -18,7 +18,6 @@ import { UsersManagement } from './pages/system-users-management/UsersManagement
 import { AddUser } from './pages/system-users-management/AddUser';
 import { EditUserInfo } from './pages/system-users-management/EditUserInfo';
 
-import { UserDetails } from './pages/system-users-management/UserDetails';
 import { FmcsaTransfer } from './pages/fmcsa-transfer/FmcsaTransfer';
 import { PageNotFound } from './pages/PageNotFound';
 import { BillingManagement } from './pages/billing-management/BillingManagement';
@@ -36,6 +35,9 @@ import { ELDDevice } from './pages/ELD-Devices/ELDDevice';
 import { AddELDDevice } from './pages/ELD-Devices/AddELDDevice';
 import { EditELDDevice } from './pages/ELD-Devices/EditELDDevice';
 import { Layout2 } from './components/layouts/Layout2';
+import { VehiclesList } from './pages/Vehicles/VehiclesList';
+import { AddVehicles } from './pages/Vehicles/AddVehicles';
+import { EditVehicles } from './pages/Vehicles/EditVehicles';
 
 function App() {
   return (
@@ -61,7 +63,6 @@ function App() {
           {/* <Route index element={<Dashboard />} /> */}
           <Route path="companies-list" element={<CompaniesList />} />
           <Route path="system-users-management" element={<UsersManagement />} />
-          <Route path="system-users-management/user-details" element={<UserDetails />} />
           <Route path="fmcsa-transfer" element={<FmcsaTransfer />} />
           <Route path="billing-management" element={<BillingManagement />} />
           <Route path="driven-hours" element={<DrivenHours />} />
@@ -76,9 +77,12 @@ function App() {
 
         {/* Routes using Sidebar + Topbar */}
         <Route element={<Layout2 />}>
-          <Route path="eld-devices" element={<ELDDevice />} />
-          <Route path="eld-devices/add-device" element={<AddELDDevice />} />
-          <Route path="eld-devices/edit-device" element={<EditELDDevice />} />
+          <Route path="settings/eld-devices" element={<ELDDevice />} />
+          <Route path="settings/eld-devices/add-device" element={<AddELDDevice />} />
+          <Route path="settings/eld-devices/edit-device" element={<EditELDDevice />} />
+          <Route path="settings/vehicles-list" element={<VehiclesList />} />
+          <Route path="settings/vehicles-list/add-vehicle" element={<AddVehicles />} />
+          <Route path="settings/vehicles-list/edit-vehicle" element={<EditVehicles />} />
         </Route>
       </Routes>
     </BrowserRouter>

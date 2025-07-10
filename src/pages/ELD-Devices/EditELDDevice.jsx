@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 export const EditELDDevice = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         serialNumber: 'SN-987654321',
         mac: ['AC', '12', 'EF', '45', '78', '9B'],
@@ -62,24 +64,13 @@ export const EditELDDevice = () => {
         alert("ELD Device updated successfully!");
     };
 
-    const handleCancel = () => {
-        if (window.confirm("Clear form?")) {
-            setFormData({
-                serialNumber: '',
-                mac: ['', '', '', '', '', ''],
-                vehicle: '',
-                firmwareVersion: '',
-            });
-        }
-    };
-
     return (
         <div className="AddELDDevice-page py-3">
             <div className="container-fluid" style={{ maxWidth: 'calc(1000px + 1.5rem)' }}>
                 <div className="heading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
                     <div className="main-heading">Edit ELD Device Info</div>
                     <div className="btn-wrapper d-flex flex-wrap gap-2">
-                        <Button variant='white' className="bg-white border-gray" onClick={handleCancel}>Cancel</Button>
+                        <Button variant='white' className="bg-white border-gray" onClick={() => navigate(-1)}>Cancel</Button>
                         <Button variant='outline-danger'>Delete</Button>
                         <Button variant='outline-danger'>Deactivate</Button>
                         <Button variant='primary' type="submit" form="edit-device-form">Save Changes</Button>
@@ -88,7 +79,7 @@ export const EditELDDevice = () => {
 
                 <div className="form-wrapper">
                     <Form id="edit-device-form" onSubmit={handleSubmit}>
-                        <section className="bg-white w-100 border rounded-4 mb-4 px-3 px-md-4 py-4">
+                        <section className="bg-white w-100 border rounded-4 shadow-sm mb-4 px-3 px-md-4 py-4">
                             <Row className="g-3 g-xl-4">
                                 <Col xs={12}>
                                     <Form.Group controlId="serialNumber">
@@ -163,7 +154,7 @@ export const EditELDDevice = () => {
 
                         <section>
                             <div className="main-heading mb-3">ELD Device Firmware Update</div>
-                            <div className="bg-white w-100 border rounded-4 px-3 px-md-4 py-4">
+                            <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
                                 <Form.Group controlId="vehicle">
                                     <Form.Label>Select Firmware Version<span className="text-danger">*</span></Form.Label>
                                     <Form.Select

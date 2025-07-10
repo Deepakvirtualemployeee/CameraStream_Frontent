@@ -187,14 +187,15 @@ export const CompaniesList = () => {
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
                                 <Button variant='primary' onClick={()=> navigate('/companies-list/create-company')}><i className="bi bi-plus-lg fs-16"></i> Create Company</Button>
                                 <Button variant='white' className="bg-white border-gray"><img src={FilterIocn} alt="Filter Iocn" /> Filter by Status</Button>
-                                <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='white' className="bg-white border-gray" onClick={()=> navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
                         <div className='table-responsive table-custom-wrapper'>
                             <DataTable
                                 columns={columns}
                                 data={filteredData}
-                                // selectableRows
+                                pointerOnHover
+                                onRowClicked={()=> navigate('/eld-devices')}
                                 striped
                                 pagination
                                 highlightOnHover

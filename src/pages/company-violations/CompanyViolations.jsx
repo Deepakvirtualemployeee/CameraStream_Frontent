@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Accordion, Badge, Tabs, Tab } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
@@ -9,6 +10,7 @@ import InvokeIocn from '../../assets/images/icons/pin-invoke.svg';
 import TrashIcon from '../../assets/images/icons/trash.svg';
 
 export const CompanyViolations = () => {
+    const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState('violation');
     const [show, setShow] = useState(false);
 
@@ -175,7 +177,7 @@ export const CompanyViolations = () => {
                                 {activeTab === 'unidentified' && (
                                     <Button variant='danger'><img src={LogoutIocn} alt="Logout Iocn" className="me-2" style={{ filter: 'invert(100%) brightness(200%)' }} />Delete All Unidentified Events</Button>
                                 )}
-                                <Button variant='white' className="bg-white border-gray"><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='white' className="bg-white border-gray" onClick={()=> navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
 
