@@ -195,7 +195,7 @@ export const CompaniesList = () => {
                                 columns={columns}
                                 data={filteredData}
                                 pointerOnHover
-                                onRowClicked={()=> navigate('/eld-devices')}
+                                onRowClicked={()=> navigate('/settings/eld-devices')}
                                 striped
                                 pagination
                                 highlightOnHover

@@ -31,13 +31,15 @@ import { AppFeedback } from './pages/app-feedback/AppFeedback';
 import { Resources } from './pages/resources-section/Resources';
 import { DriversList } from './pages/drivers-list/DriversList';
 
-import { ELDDevice } from './pages/ELD-Devices/ELDDevice';
-import { AddELDDevice } from './pages/ELD-Devices/AddELDDevice';
-import { EditELDDevice } from './pages/ELD-Devices/EditELDDevice';
+import { ELDDevice } from './pages/settings-section/ELD-Devices/ELDDevice';
+import { AddELDDevice } from './pages/settings-section/ELD-Devices/AddELDDevice';
+import { EditELDDevice } from './pages/settings-section/ELD-Devices/EditELDDevice';
 import { Layout2 } from './components/layouts/Layout2';
-import { VehiclesList } from './pages/Vehicles/VehiclesList';
-import { AddVehicles } from './pages/Vehicles/AddVehicles';
-import { EditVehicles } from './pages/Vehicles/EditVehicles';
+import { VehiclesList } from './pages/settings-section/Vehicles/VehiclesList';
+import { AddVehicles } from './pages/settings-section/Vehicles/AddVehicles';
+import { EditVehicles } from './pages/settings-section/Vehicles/EditVehicles';
+import { CompanyInfo } from './pages/settings-section/Company/CompanyInfo';
+import { EditCompanyInfo } from './pages/settings-section/Company/EditCompanyInfo';
 
 function App() {
   return (
@@ -83,6 +85,8 @@ function App() {
           <Route path="settings/vehicles-list" element={<VehiclesList />} />
           <Route path="settings/vehicles-list/add-vehicle" element={<AddVehicles />} />
           <Route path="settings/vehicles-list/edit-vehicle" element={<EditVehicles />} />
+          <Route path="settings/company-info" element={<CompanyInfo />} />
+          <Route path="settings/company-info/edit-company-info" element={<EditCompanyInfo />} />
         </Route>
       </Routes>
     </BrowserRouter>

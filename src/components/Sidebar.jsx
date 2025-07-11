@@ -80,7 +80,7 @@ const Sidebar = ({ collapsed }) => {
                 </li>
                 {/* Settings Dropdown */}
                 <li className={`nav-item ${isSettingsActive || openSettings ? 'active' : ''}`}>
-                    <a className={`nav-link d-flex align-items-center gap-2 ${isSettingsActive ? 'active' : ''}`} onClick={toggleSettings}>
+                    <a className={`nav-link d-flex align-items-center gap-2 pointer ${isSettingsActive ? 'active' : ''}`} onClick={toggleSettings}>
                         <i className="bi bi-gear"></i>
                         {!collapsed && <span>Settings</span>}
                         {!collapsed && (
@@ -89,7 +89,7 @@ const Sidebar = ({ collapsed }) => {
                     </a>
 
                     {/* Dropdown submenu */}
-                    {/* {!collapsed && openSettings && (
+                    {!collapsed && openSettings && (
                         <ul className="sub-menu list-unstyled">
                             <li className="nav-item">
                                 <Link to="/settings/eld-devices" className={`${location.pathname === '/settings/eld-devices' ? 'active' : ''}`} onClick={() => setOpenSettings(false)}>
@@ -101,8 +101,13 @@ const Sidebar = ({ collapsed }) => {
                                     Vehicles
                                 </Link>
                             </li>
+                            <li className="nav-item">
+                                <Link to="/settings/company-info" className={`${location.pathname === '/settings/company-info' ? 'active' : ''}`} onClick={() => setOpenSettings(false)}>
+                                    Company
+                                </Link>
+                            </li>
                         </ul>
-                    )} */}
+                    )}
                 </li>
             </ul>
 

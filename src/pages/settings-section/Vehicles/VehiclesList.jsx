@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
-import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
-import { NoDataComponent } from '../../components/NoDataComponent';
-import TableFilter from '../../components/TableFilter';
-import CreditCardIcon from '../../assets/images/icons/credit-card.svg';
-import EditIcon from '../../assets/images/icons/edit.svg'
+import dataTableCustomStyles from '../../../assets/style/dataTableCustomStyles';
+import { NoDataComponent } from '../../../components/NoDataComponent';
+import TableFilter from '../../../components/TableFilter';
+import CreditCardIcon from '../../../assets/images/icons/credit-card.svg';
+import EditIcon from '../../../assets/images/icons/edit.svg'
 
 export const VehiclesList = () => {
     const navigate = useNavigate();
@@ -58,7 +58,7 @@ export const VehiclesList = () => {
             minWidth: '150px',
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    <span className='pointer ms-3' title='Edit' onClick={() => navigate('/vehicles-list/edit-vehicle')}><img src={EditIcon} alt="Edit Icon" /></span>
+                    <span className='pointer ms-3' title='Edit' onClick={() => navigate('/settings/vehicles-list/edit-vehicle')}><img src={EditIcon} alt="Edit Icon" /></span>
                     {/* <span className='pointer p-0' title='Delete' onClick={handleShow}><img src={TrashIcon} alt="Trash Icon" /></span> */}
                 </div>
             ),
@@ -197,7 +197,7 @@ export const VehiclesList = () => {
                             <Button variant='white' className="bg-white border-gray d-flex align-items-center gap-2">
                                 <img src={CreditCardIcon} alt="Credit Card Icon" className="img-fluid" style={{ filter: 'brightness(0.2)' }} /> Billing Page
                             </Button>
-                            <Button variant='primary' onClick={() => navigate('/vehicles-list/add-vehicle')}><i className="bi bi-plus-lg fs-16"></i> Add Vehicle</Button>
+                            <Button variant='primary' onClick={() => navigate('/settings/vehicles-list/add-vehicle')}><i className="bi bi-plus-lg fs-16"></i> Add Vehicle</Button>
                         </div>
                     </div>
                     <div className='table-responsive table-custom-wrapper'>

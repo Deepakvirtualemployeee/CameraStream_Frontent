@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
-import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
-import { NoDataComponent } from '../../components/NoDataComponent';
-import TableFilter from '../../components/TableFilter';
-import EditIcon from '../../assets/images/icons/edit.svg'
+import dataTableCustomStyles from '../../../assets/style/dataTableCustomStyles';
+import { NoDataComponent } from '../../../components/NoDataComponent';
+import TableFilter from '../../../components/TableFilter';
+import EditIcon from '../../../assets/images/icons/edit.svg'
 
 export const ELDDevice = () => {
     const navigate = useNavigate();
@@ -51,7 +51,7 @@ export const ELDDevice = () => {
             minWidth: '150px',
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    <span className='pointer ms-3' title='Edit' onClick={() => navigate('/eld-devices/edit-device')}><img src={EditIcon} alt="Edit Icon" /></span>
+                    <span className='pointer ms-3' title='Edit' onClick={() => navigate('/settings/eld-devices/edit-device')}><img src={EditIcon} alt="Edit Icon" /></span>
                     {/* <span className='pointer p-0' title='Delete' onClick={handleShow}><img src={TrashIcon} alt="Trash Icon" /></span> */}
                 </div>
             ),
@@ -177,7 +177,7 @@ export const ELDDevice = () => {
                             filters={filters}
                             onReset={resetFilters}
                         />
-                        <Button variant='primary' onClick={() => navigate('/eld-devices/add-device')}><i className="bi bi-plus-lg fs-16"></i> Add ELD Device</Button>
+                        <Button variant='primary' onClick={() => navigate('/settings/eld-devices/add-device')}><i className="bi bi-plus-lg fs-16"></i> Add ELD Device</Button>
                         {/* <div className="btn-wrapper d-flex flex-wrap gap-2">
                             <Button variant='primary' onClick={() => navigate('/eld-devices/add-device')}><i className="bi bi-plus-lg fs-16"></i> Add ELD Device</Button>
                         </div> */}
