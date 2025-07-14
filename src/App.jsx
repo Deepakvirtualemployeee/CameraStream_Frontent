@@ -40,6 +40,7 @@ import { AddVehicles } from './pages/settings-section/Vehicles/AddVehicles';
 import { EditVehicles } from './pages/settings-section/Vehicles/EditVehicles';
 import { CompanyInfo } from './pages/settings-section/Company/CompanyInfo';
 import { EditCompanyInfo } from './pages/settings-section/Company/EditCompanyInfo';
+import { PortalUsers } from './pages/settings-section/Portal-Users/PortalUsers';
 
 function App() {
   return (
@@ -87,6 +88,7 @@ function App() {
           <Route path="settings/vehicles-list/edit-vehicle" element={<EditVehicles />} />
           <Route path="settings/company-info" element={<CompanyInfo />} />
           <Route path="settings/company-info/edit-company-info" element={<EditCompanyInfo />} />
+          <Route path="settings/portal-users" element={<PortalUsers />} />
         </Route>
       </Routes>
     </BrowserRouter>

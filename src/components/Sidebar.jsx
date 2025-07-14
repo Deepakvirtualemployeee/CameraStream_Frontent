@@ -106,6 +106,11 @@ const Sidebar = ({ collapsed }) => {
                                     Company
                                 </Link>
                             </li>
+                            <li className="nav-item">
+                                <Link to="/settings/portal-users" className={`${location.pathname === '/settings/portal-users' ? 'active' : ''}`} onClick={() => setOpenSettings(false)}>
+                                    Portal Users
+                                </Link>
+                            </li>
                         </ul>
                     )}
                 </li>

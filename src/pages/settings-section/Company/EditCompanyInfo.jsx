@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import CancelIcon from '../../../assets/images/icons/cancel.svg';
 
 export const EditCompanyInfo = () => {
     const navigate = useNavigate();
-    // Prefilled vehicle data (simulating props or API response)
+
+    // Pre-filled company data simulating API response
     const companyData = {
         companyName: 'ABC Trans Inc',
         dotNumber: '0000000',
         timeZone: 'Eastern Standard Time',
         address: '1 Cristina Ln, Oxford PA, 19363',
+        terminals: [
+            { timeZone: 'Eastern Standard Time', address: 'Terminal 1 Address' },
+            { timeZone: 'Central Standard Time', address: 'Terminal 2 Address' },
+        ],
     };
 
     const [formData, setFormData] = useState({
@@ -17,6 +23,7 @@ export const EditCompanyInfo = () => {
         dotNumber: '',
         timeZone: '',
         address: '',
+        terminals: [],
     });
 
     useEffect(() => {
@@ -31,17 +38,34 @@ export const EditCompanyInfo = () => {
         }));
     };
 
+    const handleTerminalChange = (index, e) => {
+        const { name, value } = e.target;
+        const updatedTerminals = [...formData.terminals];
+        updatedTerminals[index][name] = value;
+        setFormData((prev) => ({
+            ...prev,
+            terminals: updatedTerminals,
+        }));
+    };
+
+    const removeTerminal = (indexToRemove) => {
+        setFormData((prev) => ({
+            ...prev,
+            terminals: prev.terminals.filter((_, i) => i !== indexToRemove),
+        }));
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Updated Company Data:', formData);
         alert('Company details updated successfully!');
-        // Add PUT/PATCH API call here if needed
+        // API call can go here
     };
 
     return (
         <div className="EditCompanyInfo-page py-3">
             <div className="container-fluid" style={{ maxWidth: 'calc(1000px + 1.5rem)' }}>
-                <div className="heading-wrapper d-flex justify-content-between align-items-center mb-4">
+                <div className="heading-wrapper d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
                     <div className="main-heading">General Settings</div>
                     <div className="btn-wrapper d-flex flex-wrap gap-2">
                         <Button variant='white' className="bg-white border-gray" onClick={() => navigate(-1)}>Cancel</Button>
@@ -80,15 +104,20 @@ export const EditCompanyInfo = () => {
                                 <Col sm={6}>
                                     <Form.Group controlId="timeZone">
                                         <Form.Label>Time Zone</Form.Label>
-                                        <Form.Select name="timeZone" value={formData.timeZone} onChange={handleChange} required >
+                                        <Form.Select
+                                            name="timeZone"
+                                            value={formData.timeZone}
+                                            onChange={handleChange}
+                                            required
+                                        >
                                             <option value="" hidden>Select Time zone</option>
-                                            <option value="UTC">UTC (Coordinated Universal Time)</option>
-                                            <option value="GMT">GMT (Greenwich Mean Time)</option>
-                                            <option value="IST">IST – India Standard Time</option>
-                                            <option value="EST">EST – Eastern Standard Time</option>
-                                            <option value="EDT">EDT – Eastern Daylight Time (USA)</option>
-                                            <option value="CST">CST – Central Standard Time</option>
-                                            <option value="CDT">CDT – Central Daylight Time (USA)</option>
+                                            <option value="Coordinated Universal Time">UTC (Coordinated Universal Time)</option>
+                                            <option value="Greenwich Mean Time">GMT (Greenwich Mean Time)</option>
+                                            <option value="India Standard Time">IST – India Standard Time</option>
+                                            <option value="Eastern Standard Time">EST – Eastern Standard Time</option>
+                                            <option value="Eastern Daylight Time">EDT – Eastern Daylight Time (USA)</option>
+                                            <option value="Central Standard Time">CST – Central Standard Time</option>
+                                            <option value="Central Daylight Time">CDT – Central Daylight Time (USA)</option>
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
@@ -107,11 +136,51 @@ export const EditCompanyInfo = () => {
                             </Row>
                         </section>
 
-                        <section>
-                            <div className="main-heading mb-3">ELD Settings</div>
-                            <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
-
-                            </div>
+                        <section className="bg-white w-100 d-flex flex-column gap-4 border rounded-4 shadow-sm px-3 px-md-4 pt-3 pb-4">
+                            {formData.terminals.map((terminal, index) => (
+                                <div key={index} className="terminal-info pt-2">
+                                    <div className="heading-wrapper d-flex justify-content-between align-items-center mb-4">
+                                        <div className="main-heading pe-4">Terminal {index + 1}</div>
+                                        <div className="cancel-icon pointer" onClick={() => removeTerminal(index)} style={{ cursor: 'pointer' }}>
+                                            <img src={CancelIcon} alt="Cancel Icon" className="img-fluid" />
+                                        </div>
+                                    </div>
+                                    <Row className="g-3 g-xl-4">
+                                        <Col xs={12}>
+                                            <Form.Group controlId={`terminalTimeZone-${index}`}>
+                                                <Form.Label>Time Zone</Form.Label>
+                                                <Form.Select
+                                                    name="timeZone"
+                                                    value={terminal.timeZone}
+                                                    onChange={(e) => handleTerminalChange(index, e)}
+                                                    required
+                                                >
+                                                    <option value="" hidden>Select Time zone</option>
+                                                    <option value="Coordinated Universal Time">UTC (Coordinated Universal Time)</option>
+                                                    <option value="Greenwich Mean Time">GMT (Greenwich Mean Time)</option>
+                                                    <option value="India Standard Time">IST – India Standard Time</option>
+                                                    <option value="Eastern Standard Time">EST – Eastern Standard Time</option>
+                                                    <option value="Eastern Daylight Time">EDT – Eastern Daylight Time (USA)</option>
+                                                    <option value="Central Standard Time">CST – Central Standard Time</option>
+                                                    <option value="Central Daylight Time">CDT – Central Daylight Time (USA)</option>
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col xs={12}>
+                                            <Form.Group controlId={`terminalAddress-${index}`}>
+                                                <Form.Label>Address</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    name="address"
+                                                    value={terminal.address}
+                                                    onChange={(e) => handleTerminalChange(index, e)}
+                                                    required
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </div>
+                            ))}
                         </section>
                     </Form>
                 </div>
