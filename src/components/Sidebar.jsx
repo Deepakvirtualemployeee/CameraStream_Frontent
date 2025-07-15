@@ -111,6 +111,11 @@ const Sidebar = ({ collapsed }) => {
                                     Portal Users
                                 </Link>
                             </li>
+                            <li className="nav-item">
+                                <Link to="/settings/resources" className={`${location.pathname === '/settings/resources' ? 'active' : ''}`} onClick={() => setOpenSettings(false)}>
+                                    Resources
+                                </Link>
+                            </li>
                         </ul>
                     )}
                 </li>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Dropdown } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import BellIcon from "../assets/images/icons/bell.svg";
 import BookIcon from "../assets/images/icons/book.svg";
 import UserIcon from "../assets/images/icons/user.svg";
@@ -17,18 +17,18 @@ export const Header = ({ collapsed, toggleSidebar }) => {
           <span className="pointer" onClick={toggleSidebar}><i className={`fs-3 bi ${!collapsed ? 'bi-caret-left-square' : 'bi-caret-right-square'} lh-sm`}></i></span>
         </div>
 
-        <ul className="right-sec d-flex align-items-center justify-content-end gap-1 gap-sm-2 gap-md-3 m-0 p-0">
+        <ul className="right-sec d-flex align-items-center justify-content-end gap-1 gap-sm-2 m-0 p-0">
           <li className="nav-item dropdown">
-            <Link to={'/'}>
+            <NavLink to={'/'} className="nav-link p-2">
               <img src={BellIcon} alt="Bell Icon" className="img-fluid" style={{minWidth:'24px'}} />
-            </Link>
+            </NavLink>
           </li>
           <li className="nav-item dropdown">
-            <Link to={'/'}>
+            <NavLink to={'/'} className="nav-link active p-2">
               <img src={BookIcon} alt="Book Icon" className="img-fluid" style={{minWidth:'24px'}} />
-            </Link>
+            </NavLink>
           </li>
-          <div className="divider vr d-none d-md-block"></div>
+          <div className="divider vr d-none d-md-block mx-2"></div>
           <Dropdown align="end" className="account-menu">
             <Dropdown.Toggle variant="white" className="bg-transparent border-0 p-0" id="dropdown-basic">
               <div className="chip-wrapper d-flex align-items-center gap-2 text-truncate">
