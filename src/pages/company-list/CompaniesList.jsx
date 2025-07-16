@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
@@ -16,6 +16,17 @@ export const CompaniesList = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const handleClose = () => setShowDeleteModal(false);
     const handleShow = () => setShowDeleteModal(true);
+
+    // Filter dropdown button
+    const [open, setOpen] = useState(false);
+    const [selected, setSelected] = useState('Filter by Status');
+
+    const options = ['All', 'Active', 'Inactive'];
+
+    const handleSelect = (option) => {
+        setSelected(option);
+        setOpen(false);
+    };
 
     const columns = [
         {
@@ -146,18 +157,7 @@ export const CompaniesList = () => {
     // Reset filters
     const resetFilters = () => {
         setSearchText('');
-        setFilterStatus('');
     };
-
-    // Dropdown filter options
-    const filters = [
-        {
-            value: filterStatus,
-            setValue: setFilterStatus,
-            placeholder: 'Filter by status',
-            options: ['All', 'Active', 'Pending', 'In Process'],
-        },
-    ];
 
     // Filtered data
     const filteredData = data.filter(item => {
@@ -181,13 +181,23 @@ export const CompaniesList = () => {
                                 searchText={searchText}
                                 setSearchText={setSearchText}
                                 searchPlaceholder="Search by Company Name or DOT"
-                                filters={filters}
                                 onReset={resetFilters}
                             />
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
-                                <Button variant='primary' onClick={()=> navigate('/companies-list/create-company')}><i className="bi bi-plus-lg fs-16"></i> Create Company</Button>
-                                <Button variant='white' className="bg-white border-gray"><img src={FilterIocn} alt="Filter Iocn" /> Filter by Status</Button>
-                                <Button variant='white' className="bg-white border-gray" onClick={()=> navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='primary' onClick={() => navigate('/companies-list/create-company')}><i className="bi bi-plus-lg fs-16"></i> Create Company</Button>
+                                <div className="position-relative inline-block text-start">
+                                    <Button variant='white' onClick={() => setOpen(!open)} className="bg-white border-gray" style={{minWidth:'150px'}}><img src={FilterIocn} alt="Filter Iocn" /> Filter by Status</Button>
+                                    {open && (
+                                        <div className="position-absolute bg-white rounded-3 shadow-lg z-1 mt-1 p-2" style={{width:'180px'}}>
+                                            {options.map((option, index) => (
+                                                <li key={index} onClick={() => handleSelect(option)} className={`fs-14 w-100 text-theme3 text-start d-block rounded-2 pointer px-3 py-2 ${selected === option ? 'bg-secondary bg-opacity-10 font-medium' : ''}`}>
+                                                    {option}
+                                                </li>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <Button variant='white' className="bg-white border-gray" onClick={() => navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
                         <div className='table-responsive table-custom-wrapper'>
@@ -195,7 +205,7 @@ export const CompaniesList = () => {
                                 columns={columns}
                                 data={filteredData}
                                 pointerOnHover
-                                onRowClicked={()=> navigate('/settings/eld-devices')}
+                                onRowClicked={() => navigate('/settings/eld-devices')}
                                 striped
                                 pagination
                                 highlightOnHover
