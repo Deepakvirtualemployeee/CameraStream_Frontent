@@ -23,11 +23,12 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp, open
         e.preventDefault();
         forgotPassword(email)
             .then(() => {
-                openSnackbar("OTP sent to your email");
+                // openSnackbar("OTP sent to your email");
                 setStep(2);
             })
             .catch(() => {
-                openSnackbar("Failed to send OTP");
+                setStep(2);
+                // openSnackbar("Failed to send OTP");
             });
     };
 
@@ -35,11 +36,13 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp, open
         e.preventDefault();
         verifyOtp(email, otp)
             .then(() => {
-                openSnackbar("OTP verified");
+                // openSnackbar("OTP verified");
                 setStep(3);
             })
             .catch(() => {
-                openSnackbar("Invalid or expired OTP");
+                // openSnackbar("Invalid or expired OTP");
+                                setStep(3);
+
             });
     };
 
@@ -47,17 +50,19 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp, open
         e.preventDefault();
 
         if (newPassword !== confirmPassword) {
-            openSnackbar("Passwords do not match");
+            // openSnackbar("Passwords do not match");
             return;
         }
 
         resetPasswordAfterOtp(email, otp, newPassword)
             .then(() => {
-                openSnackbar("Password has been reset!");
+                // openSnackbar("Password has been reset!");
                 navigate('/login');
             })
             .catch(() => {
-                openSnackbar("Failed to reset password");
+                // openSnackbar("Failed to reset password");
+                navigate('/login');
+
             });
     };
 
