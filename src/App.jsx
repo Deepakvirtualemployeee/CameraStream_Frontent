@@ -3,10 +3,10 @@ import './App.scss';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 
 // Auth Pages
-import { LogIn } from './pages/authentication/LogIn';
+import LogIn  from './pages/authentication/LogIn';
 import { SignUp } from './pages/authentication/SignUp';
 import { SignupFinished } from './pages/authentication/SignupFinished';
-import { ForgotPassword } from './pages/authentication/ForgotPassword';
+import ForgotPassword from './pages/authentication/ForgotPassword';
 
 // Main Layout and Pages
 import { Layout } from './components/layouts/Layout';
@@ -42,10 +42,14 @@ import { CompanyInfo } from './pages/settings-section/Company/CompanyInfo';
 import { EditCompanyInfo } from './pages/settings-section/Company/EditCompanyInfo';
 import { PortalUsers } from './pages/settings-section/Portal-Users/PortalUsers';
 import { ResourcesList } from './pages/settings-section/Resources/ResourcesList';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function App() {
   return (
     <BrowserRouter>
+      <ToastContainer position="top-right" autoClose={3000} />
       <Routes>
         {/* Auth Routes */}
         {/* Redirect root to /login */}

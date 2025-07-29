@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { withSnackbar } from 'react-simple-snackbar';
+import * as actions from '../../store/actions/index'; // adjust path based on your folder structure
 
-export const LogIn = () => {
+const LogIn = ({ login, openSnackbar }) => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            navigate('/companies-list');
+        }
+    }, []);
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
@@ -15,15 +25,13 @@ export const LogIn = () => {
     const handleLogin = (e) => {
         e.preventDefault();
 
-        // Replace this with your real login logic
-        const isAuthenticated = email === 'test@example.com' && password === 'Test@123';
-
-        if (isAuthenticated) {
-            // Redirect to home
-            navigate('/companies-list');
-        } else {
-            alert('Invalid credentials');
+        if (!email || !password) {
+            openSnackbar("Please fill all required fields.");
+            return;
         }
+
+        const payload = { email, password };
+        login(payload, navigate); // Call Redux action
     };
 
     return (
@@ -46,10 +54,15 @@ export const LogIn = () => {
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Password<span className="text-danger">*</span></Form.Label>
                             <div className="position-relative">
-                                <Form.Control type={passwordVisible ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} className='pe-5'
-                                    placeholder="Enter password" minlength="8"
-                                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-                                    title="Must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character."
+                                <Form.Control
+                                    type={passwordVisible ? 'text' : 'password'}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className='pe-5'
+                                    placeholder="Enter password"
+                                    minLength="8"
+                                    // pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                                    // title="Must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character."
                                     autoComplete='new-password'
                                     required
                                 />
@@ -83,4 +96,11 @@ export const LogIn = () => {
             </div>
         </div>
     )
-}
+};
+
+// Connect Redux
+const mapDispatchToProps = (dispatch) => ({
+    login: (data, navigate) => dispatch(actions.login(data, navigate)),
+});
+
+export default connect(null, mapDispatchToProps)(withSnackbar(LogIn));

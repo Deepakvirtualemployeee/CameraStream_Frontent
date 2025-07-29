@@ -16,10 +16,16 @@
     "react-dom": "^18.3.1",
     "react-phone-input-2": "^2.15.1",
     "react-quill": "^2.0.0",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^6.24.1",
     "react-scripts": "5.0.1",
     "react-select": "^5.10.1",
+    "react-simple-snackbar": "^1.1.11",
+    "react-toastify": "^11.0.5",
+    "redux": "^5.0.1",
+    "redux-thunk": "^3.1.0",
     "sass": "^1.77.8",
+    "styled-components": "^6.1.19",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

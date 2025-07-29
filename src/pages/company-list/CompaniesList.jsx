@@ -197,7 +197,10 @@ export const CompaniesList = () => {
                                         </div>
                                     )}
                                 </div>
-                                <Button variant='white' className="bg-white border-gray" onClick={() => navigate('/login')}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button variant='white' className="bg-white border-gray" onClick={() => {
+                                    navigate('/login');
+                                    localStorage.removeItem("token");
+                                }}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
                             </div>
                         </div>
                         <div className='table-responsive table-custom-wrapper'>

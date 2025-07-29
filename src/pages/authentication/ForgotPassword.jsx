@@ -1,42 +1,66 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { withSnackbar } from 'react-simple-snackbar';
+import * as actions from '../../store/actions/index'; // Adjust path as needed
 
-export const ForgotPassword = () => {
+const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp, openSnackbar }) => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setconfirmPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [confirmPassVisible, setconfirmPassVisible] = useState(false);
+    const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
-    const togglePassVisibility = () => {
-        setPasswordVisible(!passwordVisible);
-    };
-    const toggleConfirmPassVisibility = () => {
-        setconfirmPassVisible(!confirmPassVisible);
-    };
+    const togglePassVisibility = () => setPasswordVisible(!passwordVisible);
+    const toggleConfirmPassVisibility = () => setConfirmPassVisible(!confirmPassVisible);
 
     const handleEmailSubmit = (e) => {
         e.preventDefault();
-        // Send OTP to the email
-        setStep(2); // Go to OTP input
+        forgotPassword(email)
+            .then(() => {
+                openSnackbar("OTP sent to your email");
+                setStep(2);
+            })
+            .catch(() => {
+                openSnackbar("Failed to send OTP");
+            });
     };
 
     const handleOtpSubmit = (e) => {
         e.preventDefault();
-        // Verify OTP
-        setStep(3); // Go to new password input
+        verifyOtp(email, otp)
+            .then(() => {
+                openSnackbar("OTP verified");
+                setStep(3);
+            })
+            .catch(() => {
+                openSnackbar("Invalid or expired OTP");
+            });
     };
 
     const handleNewPasswordSubmit = (e) => {
         e.preventDefault();
-        // Reset password logic
-        alert('Password has been reset!');
+
+        if (newPassword !== confirmPassword) {
+            openSnackbar("Passwords do not match");
+            return;
+        }
+
+        resetPasswordAfterOtp(email, otp, newPassword)
+            .then(() => {
+                openSnackbar("Password has been reset!");
+                navigate('/login');
+            })
+            .catch(() => {
+                openSnackbar("Failed to reset password");
+            });
     };
+
     return (
         <div className='auth-page forgotPassword-page d-flex justify-content-center align-items-center min-vh-100 py-4'>
             <div className="container-xl" style={{ maxWidth: '525px' }}>
@@ -45,7 +69,7 @@ export const ForgotPassword = () => {
                         <Form onSubmit={handleEmailSubmit}>
                             <div className="heading-wrapper text-dark mb-4 pb-2">
                                 <div className="fs-3 fw-bold mb-1">Forgot Password</div>
-                                <div className="small text-gray">Kindly enter the Email Address tied to your account, we would help you to reset your password</div>
+                                <div className="small text-gray">Enter your email to receive an OTP</div>
                             </div>
                             <Form.Group className="mb-4" controlId="formEmail">
                                 <Form.Label>Email address<span className="text-danger">*</span></Form.Label>
@@ -58,22 +82,25 @@ export const ForgotPassword = () => {
                             <div className="btn-wrapper">
                                 <Row className="g-2 gx-md-3">
                                     <Col>
-                                        <Button type="button" variant="outline-primary" className="w-100 fs-12 fw-semibold font-roboto text-dark d-flex align-items-center justify-content-center rounded-pill shadow px-3" onClick={() => navigate('/login')}>
+                                        <Button type="button" variant="outline-primary" className="w-100" onClick={() => navigate('/login')}>
                                             <i className="bi bi-arrow-left-short fs-3 lh-1"></i> Back to login
                                         </Button>
                                     </Col>
                                     <Col>
-                                        <Button type="submit" variant="primary" className="w-100 fs-12 fw-semibold font-roboto d-flex align-items-center justify-content-center rounded-pill shadow px-3">Send OTP <i className="bi bi-arrow-right-short fs-3 lh-1"></i></Button>
+                                        <Button type="submit" variant="primary" className="w-100">
+                                            Send OTP <i className="bi bi-arrow-right-short fs-3 lh-1"></i>
+                                        </Button>
                                     </Col>
                                 </Row>
                             </div>
                         </Form>
                     )}
+
                     {step === 2 && (
                         <Form onSubmit={handleOtpSubmit}>
                             <div className="heading-wrapper text-dark mb-4 pb-2">
                                 <div className="fs-3 fw-bold lh-sm mb-1">Enter OTP</div>
-                                <div className="small text-gray">An 4 digit code has been sent to your <span className="text-primary fw-semibold">+91 9083990020</span></div>
+                                <div className="small text-gray">OTP sent to <span className="text-primary fw-semibold">{email}</span></div>
                             </div>
                             <Form.Group className="mb-4" controlId="formOtp">
                                 <Form.Label>Enter OTP<span className="text-danger">*</span></Form.Label>
@@ -84,10 +111,11 @@ export const ForgotPassword = () => {
                                 />
                             </Form.Group>
                             <div className="btn-wrapper">
-                                <Button variant="primary" type="submit" className="btn-custom font-roboto rounded-pill w-100 py-2">Verify OTP</Button>
+                                <Button variant="primary" type="submit" className="w-100 py-2">Verify OTP</Button>
                             </div>
                         </Form>
                     )}
+
                     {step === 3 && (
                         <Form onSubmit={handleNewPasswordSubmit}>
                             <div className="heading-wrapper text-dark mb-4 pb-2">
@@ -96,7 +124,7 @@ export const ForgotPassword = () => {
                             <Form.Group className="mb-4" controlId="formNewPassword">
                                 <Form.Label>New Password<span className="text-danger">*</span></Form.Label>
                                 <div className="position-relative">
-                                    <Form.Control type={passwordVisible ? 'text' : 'password'} placeholder="Please enter the 8 digit password"
+                                    <Form.Control type={passwordVisible ? 'text' : 'password'} placeholder="Enter new password"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
                                         autoComplete='new-password' required
@@ -110,9 +138,9 @@ export const ForgotPassword = () => {
                             <Form.Group className="mb-4" controlId="formConfirmPassword">
                                 <Form.Label>Confirm Password<span className="text-danger">*</span></Form.Label>
                                 <div className="position-relative">
-                                    <Form.Control type={confirmPassVisible ? 'text' : 'password'} placeholder="Please enter the 8 digit password"
+                                    <Form.Control type={confirmPassVisible ? 'text' : 'password'} placeholder="Confirm new password"
                                         value={confirmPassword}
-                                        onChange={(e) => setconfirmPassword(e.target.value)}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
                                         autoComplete='new-password' required
                                     />
                                     <span role="button" className="position-absolute top-50 translate-middle-y text-secondary" onClick={toggleConfirmPassVisibility} style={{ right: '10px' }}>
@@ -121,12 +149,33 @@ export const ForgotPassword = () => {
                                 </div>
                             </Form.Group>
                             <div className="btn-wrapper">
-                                <Button variant="primary" type="submit" className="btn-custom font-roboto rounded-pill w-100 py-2" onClick={()=> navigate('/login')}>Submit</Button>
+                                <Button variant="primary" type="submit" className="w-100 py-2">Submit</Button>
                             </div>
                         </Form>
                     )}
                 </div>
             </div>
         </div>
+    );
+};
+
+// Connect Redux actions
+const mapDispatchToProps = (dispatch) => ({
+    forgotPassword: (email) => new Promise((resolve, reject) =>
+        dispatch(actions.forgotPassword(email))
+            .then(resolve)
+            .catch(reject)
+    ),
+    verifyOtp: (email, otp) => new Promise((resolve, reject) =>
+        dispatch(actions.verifyOtp(email, otp))
+            .then(resolve)
+            .catch(reject)
+    ),
+    resetPasswordAfterOtp: (email, otp, password) => new Promise((resolve, reject) =>
+        dispatch(actions.resetPasswordAfterOtp(email, otp, password))
+            .then(resolve)
+            .catch(reject)
     )
-}
+});
+
+export default connect(null, mapDispatchToProps)(withSnackbar(ForgotPassword));
