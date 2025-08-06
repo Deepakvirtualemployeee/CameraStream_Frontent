@@ -31,9 +31,9 @@ export const AuthFail = (message) => {
 export const login = (data, navigate) => {
   return dispatch => {
     dispatch(startAuth());
-    axios.post("/login", data)
+    axios.post("/auth/login", data)
       .then(response => {
-        if (response.status === 200) {
+        if (response.status === 201) {
           dispatch(AuthSuccess(response.data.message));
           localStorage.setItem("token", response.data.token);
           window.location = '/';
@@ -51,7 +51,7 @@ export const login = (data, navigate) => {
 export const forgotPassword = (email) => {
   return dispatch => {
     dispatch(startAuth());
-    axios.post("/forgot-password", { email })
+    axios.post("/auth/send-otp", { email })
       .then(response => {
         if (response.status === 200) {
           dispatch(AuthSuccess(response.data.message));
@@ -70,7 +70,7 @@ export const forgotPassword = (email) => {
 export const verifyOtp = (email, otp) => {
   return dispatch => {
     dispatch(startAuth());
-    axios.post("/verify-otp", { email, otp })
+    axios.post("/auth/verify-otp", { email, otp })
       .then(response => {
         if (response.status === 200) {
           dispatch(AuthSuccess(response.data.message));
@@ -86,10 +86,10 @@ export const verifyOtp = (email, otp) => {
 };
 
 // Reset password after OTP
-export const resetPasswordAfterOtp = (email, otp, password) => {
+export const resetPasswordAfterOtp = (email, otp, password, confirmPassword) => {
   return dispatch => {
     dispatch(startAuth());
-    axios.post("/reset-password-after-otp", { email, otp, password })
+    axios.post("/auth/reset-password/"+email, { newPassword:password, confirmPassword })
       .then(response => {
         if (response.status === 200) {
           dispatch(AuthSuccess(response.data.message));
@@ -107,11 +107,11 @@ export const resetPasswordAfterOtp = (email, otp, password) => {
 export const register = (data, navigate) => {
   return dispatch => {
     dispatch(startAuth());
-    axios.post("/register", data)
+    axios.post("/auth/register", data)
       .then(response => {
-        if (response.status === 200) {
+        if (response.status === true) {
           dispatch(AuthSuccess(response.data.message));
-          navigate("/login"); // redirect after successful registration
+          navigate("/signup-finished");
         } else {
           dispatch(AuthFail(response.data.message));
         }

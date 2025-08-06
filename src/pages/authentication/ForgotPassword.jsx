@@ -54,7 +54,7 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp, open
             return;
         }
 
-        resetPasswordAfterOtp(email, otp, newPassword)
+        resetPasswordAfterOtp(email, otp, newPassword, confirmPassword)
             .then(() => {
                 // openSnackbar("Password has been reset!");
                 navigate('/login');
@@ -176,8 +176,8 @@ const mapDispatchToProps = (dispatch) => ({
             .then(resolve)
             .catch(reject)
     ),
-    resetPasswordAfterOtp: (email, otp, password) => new Promise((resolve, reject) =>
-        dispatch(actions.resetPasswordAfterOtp(email, otp, password))
+    resetPasswordAfterOtp: (email, otp, password, confirmPassword) => new Promise((resolve, reject) =>
+        dispatch(actions.resetPasswordAfterOtp(email, otp, password, confirmPassword))
             .then(resolve)
             .catch(reject)
     )

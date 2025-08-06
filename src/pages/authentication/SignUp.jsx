@@ -4,9 +4,12 @@ import { Row, Col, Form, Button } from "react-bootstrap";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import "./authentication.scss";
+import { connect } from 'react-redux';
+import { withSnackbar } from 'react-simple-snackbar';
+import * as actions from '../../store/actions/index'; // adjust path based on your folder structure
 
 // Stepper Component
-const Stepper = ({ currentStep }) => {
+const Stepper = ({ register, currentStep }) => {
   const steps = [1, 2, 3];
   return (
     <div className="stepper-wrapper position-relative mb-4">
@@ -38,7 +41,7 @@ const Stepper = ({ currentStep }) => {
   );
 };
 
-export const SignUp = () => {
+const SignUp = (props) => {
   const navigate = useNavigate();
 
   const [newPassword, setNewPassword] = useState("");
@@ -61,7 +64,12 @@ export const SignUp = () => {
 
   const handleNext = () => {
     if (step < 2) setStep(step + 1);
-    else navigate("/signup-finished");
+    else 
+    {
+      form.phoneNumber = form.phoneNumber.replace(/\D/g, "").slice(-10);
+      props.register(form, navigate); // Call Redux action
+
+    }
   };
 
   const handleBack = () => setStep(step - 1);
@@ -73,22 +81,24 @@ export const SignUp = () => {
     usdot: "",
     companyAddress: "",
     timeZone: "",
-    phone: "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
+    agreedToTerms: false
   });
   const handleChange = (e) => {
-    const { id, value } = e.target;
+    const { name, type, checked, value } = e.target;
+
     setForm((prev) => ({
       ...prev,
-      [id]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
   const handleOnChange = (value) => {
     setPhone(value);
     setForm((prev) => ({
       ...prev,
-      phone: value,
+      phoneNumber: value,
     }));
   };
 
@@ -122,6 +132,7 @@ export const SignUp = () => {
                   </Form.Label>
                   <Form.Control
                     type="text"
+                    name="firstName"
                     placeholder="Please enter your first name"
                     autoComplete="off"
                     required
@@ -139,6 +150,7 @@ export const SignUp = () => {
                     placeholder="Please enter your last name"
                     autoComplete="off"
                     required
+                    name="lastName"
                     value={form.lastName}
                     onChange={handleChange}
 
@@ -150,6 +162,7 @@ export const SignUp = () => {
                   </Form.Label>
                   <Form.Control
                     type="email"
+                    name="email"
                     placeholder="Please enter your email"
                     autoComplete="off"
                     required
@@ -168,6 +181,7 @@ export const SignUp = () => {
                   </Form.Label>
                   <Form.Control
                     type="text"
+                    name="companyName"
                     placeholder="Please enter the company name"
                     autoComplete="off"
                     required
@@ -187,6 +201,7 @@ export const SignUp = () => {
                     required
                     onChange={handleChange}
                     value={form.usdot}
+                    name="usdot"
 
                   />
                 </Form.Group>
@@ -201,6 +216,7 @@ export const SignUp = () => {
                     required
                     onChange={handleChange}
                     value={form.companyAddress}
+                    name="companyAddress"
 
                   />
                 </Form.Group>
@@ -212,6 +228,7 @@ export const SignUp = () => {
                     onChange={handleChange}
                     required
                     value={form.timeZone}
+                    name="timeZone"
 
                    >
                     <option value="">Select the Time zone</option>
@@ -249,13 +266,13 @@ export const SignUp = () => {
                   </Form.Label>
                   <PhoneInput
                     inputProps={{
-                      name: "phone",
+                      name: "phoneNumber",
                       required: true,
                       autoFocus: false,
                     }}
                     country={"in"}
                     // value={phone}
-                    value={form.phone}
+                    value={form.phoneNumber}
                     onChange={handleOnChange}
                     // enableSearch={true}
                     countryCodeEditable={false}
@@ -263,6 +280,7 @@ export const SignUp = () => {
                     dropdownClass="text-start"
                     inputStyle={{ height: "auto", minHeight: "54px" }}
                     placeholder="Please enter the phone number"
+                    name="phoneNumber"
                   />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formPassword">
@@ -273,6 +291,7 @@ export const SignUp = () => {
                     <Form.Control
                       type={passwordVisible ? "text" : "password"}
                       value={form.password}
+                      name="password"
                     //   onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Please enter the 8 digit password"
                       minlength={8}
@@ -305,6 +324,7 @@ export const SignUp = () => {
                     <Form.Control
                       type={confirmPassVisible ? "text" : "password"}
                       value={form.confirmPassword}
+                      name="confirmPassword"
                     //   onChange={(e) => setconfirmPassword(e.target.value)}
                       placeholder="Please enter the 8 digit password"
                       minlength={8}
@@ -335,6 +355,9 @@ export const SignUp = () => {
                     className="form-check-input fs-16 border-primary border-opacity-75"
                     id="conditionAgreement"
                     required
+                    name="agreedToTerms"
+                    onChange={handleChange}
+
                   />
                   <label
                     className="form-check-label text-body"
@@ -406,3 +429,10 @@ export const SignUp = () => {
     </div>
   );
 };
+
+// Connect Redux
+const mapDispatchToProps = (dispatch) => ({
+    register: (data, navigate) => dispatch(actions.register(data, navigate)),
+});
+
+export default connect(null, mapDispatchToProps)(withSnackbar(SignUp));

@@ -4,9 +4,10 @@ import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 
 // Auth Pages
 import LogIn  from './pages/authentication/LogIn';
-import { SignUp } from './pages/authentication/SignUp';
+import SignUp  from './pages/authentication/SignUp';
 import { SignupFinished } from './pages/authentication/SignupFinished';
 import ForgotPassword from './pages/authentication/ForgotPassword';
+import VerifyEmail from './pages/authentication/VerifyEmail'
 
 // Main Layout and Pages
 import { Layout } from './components/layouts/Layout';
@@ -58,6 +59,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signup-finished" element={<SignupFinished />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
         <Route path="/companies-list/create-company" element={<CreateCompany />} />
 
