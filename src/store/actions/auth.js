@@ -32,11 +32,11 @@ export const login = (data, navigate) => {
   return dispatch => {
     dispatch(startAuth());
     axios.post("/auth/login", data)
-      .then(response => {
-        if (response.status === 201) {
-          dispatch(AuthSuccess(response.data.message));
-          localStorage.setItem("token", response.data.token);
-          window.location = '/';
+      .then(async response => {
+        if (response.status === 200) {
+          await dispatch(AuthSuccess(response.data.message));
+          await localStorage.setItem("token", response.data.token);
+          window.location = await '/';
         } else {
           dispatch(AuthFail(response.data.message));
         }
@@ -109,7 +109,7 @@ export const register = (data, navigate) => {
     dispatch(startAuth());
     axios.post("/auth/register", data)
       .then(response => {
-        if (response.status === true) {
+        if (response.status === 201) {
           dispatch(AuthSuccess(response.data.message));
           navigate("/signup-finished");
         } else {
