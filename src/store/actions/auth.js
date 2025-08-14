@@ -35,7 +35,7 @@ export const login = (data, navigate) => {
       .then(async response => {
         if (response.status === 200) {
           await dispatch(AuthSuccess(response.data.message));
-          await localStorage.setItem("token", response.data.token);
+          await localStorage.setItem("token", response.data.accessToken);
           window.location = await '/';
         } else {
           dispatch(AuthFail(response.data.message));

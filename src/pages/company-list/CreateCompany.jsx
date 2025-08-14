@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Form, Row, Col, Button } from 'react-bootstrap';
+import { toast } from 'react-toastify';
+import { createCompany } from '../../store/actions'; 
 
-export const CreateCompany = () => {
+const CreateCompany = ({ createCompany }) => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         companyName: '',
-        timeZone: '',
-        usdotNumber: '',
-        companyAddress: '',
+        timeZoneId: '',
+        dotNumber: '',
+        address: '',
+        phoneNumber: '5555555555'
     });
 
-    const {
-        companyName,
-        timeZone,
-        usdotNumber,
-        companyAddress,
-    } = formData;
+    const { companyName, timeZoneId, dotNumber, address, phoneNumber } = formData;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -29,13 +29,34 @@ export const CreateCompany = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!companyName || !timeZone || !usdotNumber || !companyAddress) {
-            alert('Please fill in all required fields.');
+        if (!companyName || !timeZoneId || !dotNumber || !address) {
+            toast.error('Please fill in all required fields.');
             return;
         }
 
-        console.log('Submitted Company Data:', formData);
-        alert('Company added successfully!');
+        setLoading(true);
+
+        const payload = {
+            companyName,
+            address,
+            dotNumber,
+            status: "Active",
+            subscriptionStatus: "Paid",
+            phoneNumber,
+            timeZoneId
+        };
+
+        createCompany(payload)
+            .then(() => {
+                toast.success('Company created successfully!');
+                navigate('/companies-list');
+            })
+            .catch((error) => {
+                toast.error(error || 'Something went wrong.');
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     };
 
     return (
@@ -59,7 +80,6 @@ export const CreateCompany = () => {
                                         value={companyName}
                                         onChange={handleChange}
                                         placeholder="Enter company name"
-                                        autoComplete="off"
                                         required
                                     />
                                 </Form.Group>
@@ -71,19 +91,16 @@ export const CreateCompany = () => {
                                         Time Zone<span className="text-danger">*</span>
                                     </Form.Label>
                                     <Form.Select
-                                        name="timeZone"
-                                        value={timeZone}
+                                        name="timeZoneId"
+                                        value={timeZoneId}
                                         onChange={handleChange}
                                         required
                                     >
                                         <option value="">Select the Time zone</option>
-                                        <option value="UTC">UTC (Coordinated Universal Time)</option>
-                                        <option value="GMT">GMT (Greenwich Mean Time)</option>
-                                        <option value="IST">IST – India Standard Time</option>
-                                        <option value="EST">EST – Eastern Standard Time</option>
-                                        <option value="EDT">EDT – Eastern Daylight Time (USA)</option>
-                                        <option value="CST">CST – Central Standard Time</option>
-                                        <option value="CDT">CDT – Central Daylight Time (USA)</option>
+                                        <option value="America/Chicago">America/Chicago (CST/CDT)</option>
+                                        <option value="UTC">UTC</option>
+                                        <option value="GMT">GMT</option>
+                                        <option value="IST">IST</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -93,11 +110,10 @@ export const CreateCompany = () => {
                                     <Form.Label>USDOT Number<span className="text-danger">*</span></Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="usdotNumber"
-                                        value={usdotNumber}
+                                        name="dotNumber"
+                                        value={dotNumber}
                                         onChange={handleChange}
                                         placeholder="Enter USDOT Number"
-                                        autoComplete="off"
                                         required
                                     />
                                 </Form.Group>
@@ -110,11 +126,10 @@ export const CreateCompany = () => {
                                     </Form.Label>
                                     <Form.Control
                                         type="text"
-                                        name="companyAddress"
-                                        value={companyAddress}
+                                        name="address"
+                                        value={address}
                                         onChange={handleChange}
                                         placeholder="Enter company address"
-                                        autoComplete="off"
                                         required
                                     />
                                 </Form.Group>
@@ -122,8 +137,22 @@ export const CreateCompany = () => {
                         </Row>
 
                         <div className="btn-wrapper d-flex flex-wrap justify-content-end gap-2">
-                            <Button variant='white' className="bg-white border-gray" onClick={()=> navigate(-1)}>Cancel</Button>
-                            <Button variant='primary' type="submit" form="add-company-form">Confirm</Button>
+                            <Button
+                                variant='white'
+                                className="bg-white border-gray"
+                                onClick={() => navigate(-1)}
+                                disabled={loading}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant='primary'
+                                type="submit"
+                                form="add-company-form"
+                                disabled={loading}
+                            >
+                                {loading ? 'Saving...' : 'Confirm'}
+                            </Button>
                         </div>
                     </Form>
                 </div>
@@ -131,3 +160,14 @@ export const CreateCompany = () => {
         </div>
     );
 };
+
+const mapDispatchToProps = (dispatch) => ({
+    createCompany: (data) => new Promise((resolve, reject) => {
+        dispatch(createCompany(data, (err) => {
+            if (err) reject(err);
+            else resolve();
+        }));
+    })
+});
+
+export default connect(null, mapDispatchToProps)(CreateCompany);

@@ -6,3 +6,13 @@ export {
   resetPasswordAfterOtp,
   register,
 } from "./auth"
+
+
+export {
+  getCompanies,
+  searchCompanies,
+  filterCompaniesByStatus, 
+  createCompany,
+  updateCompany,
+  deleteCompany,
+} from "./companies"

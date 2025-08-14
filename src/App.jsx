@@ -12,8 +12,8 @@ import VerifyEmail from './pages/authentication/VerifyEmail'
 // Main Layout and Pages
 import { Layout } from './components/layouts/Layout';
 import { Dashboard } from './pages/Dashboard';
-import { CompaniesList } from './pages/company-list/CompaniesList';
-import { CreateCompany } from './pages/company-list/CreateCompany';
+import CompaniesList from './pages/company-list/CompaniesList';
+import CreateCompany  from './pages/company-list/CreateCompany';
 
 import { UsersManagement } from './pages/system-users-management/UsersManagement';
 import { AddUser } from './pages/system-users-management/AddUser';

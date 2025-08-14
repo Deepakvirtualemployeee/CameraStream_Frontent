@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Badge } from 'react-bootstrap';
+import { Button, Badge, Spinner } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
 import TableFilter from '../../components/TableFilter';
@@ -10,9 +10,13 @@ import FilterIocn from '../../assets/images/icons/filter.svg';
 import ExternalIcon from '../../assets/images/icons/external.svg';
 import TrashIcon from '../../assets/images/icons/trash.svg';
 import { DeleteModal } from '../../components/DeleteModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { getCompanies } from '../../store/actions/companyActions'; // <-- update path as needed
 
 export const CompaniesList = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const handleClose = () => setShowDeleteModal(false);
     const handleShow = () => setShowDeleteModal(true);
@@ -25,6 +29,7 @@ export const CompaniesList = () => {
 
     const handleSelect = (option) => {
         setSelected(option);
+        setFilterStatus(option);
         setOpen(false);
     };
 
@@ -51,7 +56,23 @@ export const CompaniesList = () => {
             name: 'Status',
             selector: (row) => row.status,
             minWidth: '100px',
-            cell: (row) => <Badge className='fs-12 fw-medium bg-opacity-10' pill bg={row.status === 'Active' ? 'success text-success' : row.status === 'Pending' ? 'danger text-danger' : row.status === 'In Process' ? 'warning text-warning' : 'primary'}>{row.status}</Badge>,
+            cell: (row) => (
+                <Badge
+                    className='fs-12 fw-medium bg-opacity-10'
+                    pill
+                    bg={
+                        row.status === 'Active'
+                            ? 'success text-success'
+                            : row.status === 'Pending'
+                                ? 'danger text-danger'
+                                : row.status === 'In Process'
+                                    ? 'warning text-warning'
+                                    : 'primary'
+                    }
+                >
+                    {row.status}
+                </Badge>
+            ),
         },
         {
             name: 'ID',
@@ -73,7 +94,21 @@ export const CompaniesList = () => {
         {
             name: 'Subscription',
             selector: (row) => row.subscription,
-            cell: (row) => <Badge className='fs-12 fw-medium bg-opacity-10' pill bg={row.subscription === 'Paid' ? 'success text-success' : row.subscription === 'Open' ? 'danger text-danger' : ''}>{row.subscription}</Badge>,
+            cell: (row) => (
+                <Badge
+                    className='fs-12 fw-medium bg-opacity-10'
+                    pill
+                    bg={
+                        row.subscription === 'Paid'
+                            ? 'success text-success'
+                            : row.subscription === 'Open'
+                                ? 'danger text-danger'
+                                : ''
+                    }
+                >
+                    {row.subscription}
+                </Badge>
+            ),
         },
         {
             name: 'Actions',
@@ -87,68 +122,12 @@ export const CompaniesList = () => {
         },
     ];
 
-    const data = [
-        {
-            company_name: 'ABC Trans LLC',
-            address: '1 Cristina Ln, Oxford PA, 19363',
-            dot_number: '000000',
-            status: 'Active',
-            company_id: 'CompanyID',
-            active_vehicles: '62',
-            sub_vehicles: '62',
-            subscription: 'Paid',
-        },
-        {
-            company_name: 'ABC Trans LLC',
-            address: '1 Cristina Ln, Oxford PA, 19363',
-            dot_number: '000000',
-            status: 'Active',
-            company_id: 'CompanyID',
-            active_vehicles: '70',
-            sub_vehicles: '70',
-            subscription: 'Paid',
-        },
-        {
-            company_name: 'ABC Trans LLC',
-            address: '1 Cristina Ln, Oxford PA, 19363',
-            dot_number: '000000',
-            status: 'Active',
-            company_id: 'CompanyID',
-            active_vehicles: '13',
-            sub_vehicles: '13',
-            subscription: 'Open',
-        },
-        {
-            company_name: 'ABC Trans LLC',
-            address: '1 Cristina Ln, Oxford PA, 19363',
-            dot_number: '000000',
-            status: 'Active',
-            company_id: 'CompanyID',
-            active_vehicles: '36',
-            sub_vehicles: '36',
-            subscription: 'Paid',
-        },
-        {
-            company_name: 'ABC Trans LLC',
-            address: '1 Cristina Ln, Oxford PA, 19363',
-            dot_number: '000000',
-            status: 'Active',
-            company_id: 'CompanyID',
-            active_vehicles: '19',
-            sub_vehicles: '19',
-            subscription: 'Paid',
-        },
-        {
-            company_name: 'ABC Trans LLC',
-            address: '1 Cristina Ln, Oxford PA, 19363',
-            dot_number: '000000',
-            status: 'Active',
-            company_id: 'CompanyID',
-            active_vehicles: '49',
-            sub_vehicles: '49',
-            subscription: 'Paid',
-        },
-    ]
+    // Redux state
+    const { companies, loading, error } = useSelector(state => state.company);
+
+    useEffect(() => {
+        dispatch(getCompanies());
+    }, [dispatch]);
 
     // Filter state
     const [searchText, setSearchText] = useState('');
@@ -157,10 +136,12 @@ export const CompaniesList = () => {
     // Reset filters
     const resetFilters = () => {
         setSearchText('');
+        setFilterStatus('');
+        setSelected('Filter by Status');
     };
 
     // Filtered data
-    const filteredData = data.filter(item => {
+    const filteredData = companies?.filter(item => {
         const matchesSearch = Object.values(item).some(val =>
             val?.toString().toLowerCase().includes(searchText.toLowerCase())
         );
@@ -168,7 +149,7 @@ export const CompaniesList = () => {
         const matchesStatus = filterStatus === 'All' || filterStatus === '' || item.status === filterStatus;
 
         return matchesSearch && matchesStatus;
-    });
+    }) || [];
 
     return (
         <div className="CompaniesList-page py-3">
@@ -186,9 +167,11 @@ export const CompaniesList = () => {
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
                                 <Button variant='primary' onClick={() => navigate('/companies-list/create-company')}><i className="bi bi-plus-lg fs-16"></i> Create Company</Button>
                                 <div className="position-relative inline-block text-start">
-                                    <Button variant='white' onClick={() => setOpen(!open)} className="bg-white border-gray" style={{minWidth:'150px'}}><img src={FilterIocn} alt="Filter Iocn" /> Filter by Status</Button>
+                                    <Button variant='white' onClick={() => setOpen(!open)} className="bg-white border-gray" style={{ minWidth: '150px' }}>
+                                        <img src={FilterIocn} alt="Filter Icon" /> {selected}
+                                    </Button>
                                     {open && (
-                                        <div className="position-absolute bg-white rounded-3 shadow-lg z-1 mt-1 p-2" style={{width:'180px'}}>
+                                        <div className="position-absolute bg-white rounded-3 shadow-lg z-1 mt-1 p-2" style={{ width: '180px' }}>
                                             {options.map((option, index) => (
                                                 <li key={index} onClick={() => handleSelect(option)} className={`fs-14 w-100 text-theme3 text-start d-block rounded-2 pointer px-3 py-2 ${selected === option ? 'bg-secondary bg-opacity-10 font-medium' : ''}`}>
                                                     {option}
@@ -197,25 +180,39 @@ export const CompaniesList = () => {
                                         </div>
                                     )}
                                 </div>
-                                <Button variant='white' className="bg-white border-gray" onClick={() => {
-                                    navigate('/login');
-                                    localStorage.removeItem("token");
-                                }}><img src={LogoutIocn} alt="Logout Iocn" /> Log Out</Button>
+                                <Button
+                                    variant='white'
+                                    className="bg-white border-gray"
+                                    onClick={() => {
+                                        navigate('/login');
+                                        localStorage.removeItem("token");
+                                    }}
+                                >
+                                    <img src={LogoutIocn} alt="Logout Icon" /> Log Out
+                                </Button>
                             </div>
                         </div>
                         <div className='table-responsive table-custom-wrapper'>
-                            <DataTable
-                                columns={columns}
-                                data={filteredData}
-                                pointerOnHover
-                                onRowClicked={() => navigate('/settings/eld-devices')}
-                                striped
-                                pagination
-                                highlightOnHover
-                                responsive
-                                customStyles={dataTableCustomStyles}
-                                noDataComponent={<NoDataComponent />}
-                            />
+                            {loading ? (
+                                <div className="text-center my-4">
+                                    <Spinner animation="border" variant="primary" />
+                                </div>
+                            ) : error ? (
+                                <div className="text-danger text-center my-4">{error}</div>
+                            ) : (
+                                <DataTable
+                                    columns={columns}
+                                    data={filteredData}
+                                    pointerOnHover
+                                    onRowClicked={() => navigate('/settings/eld-devices')}
+                                    striped
+                                    pagination
+                                    highlightOnHover
+                                    responsive
+                                    customStyles={dataTableCustomStyles}
+                                    noDataComponent={<NoDataComponent />}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
