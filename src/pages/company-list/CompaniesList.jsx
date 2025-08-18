@@ -11,7 +11,7 @@ import ExternalIcon from '../../assets/images/icons/external.svg';
 import TrashIcon from '../../assets/images/icons/trash.svg';
 import { DeleteModal } from '../../components/DeleteModal';
 import { useDispatch, useSelector } from 'react-redux';
-import { getCompanies } from '../../store/actions/companyActions'; // <-- update path as needed
+import { getCompanies } from '../../store/actions/companies'; // <-- update path as needed
 
 export const CompaniesList = () => {
     const navigate = useNavigate();
@@ -123,7 +123,8 @@ export const CompaniesList = () => {
     ];
 
     // Redux state
-    const { companies, loading, error } = useSelector(state => state.company);
+    // const { companies, loading, error } = useSelector(state => state.companies);
+    const { companies, loading, error } = useSelector((state) => state.companies || { companies: [] })
 
     useEffect(() => {
         dispatch(getCompanies());
