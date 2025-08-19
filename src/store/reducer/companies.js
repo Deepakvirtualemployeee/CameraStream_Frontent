@@ -4,7 +4,7 @@ const initialState = {
   loading: false,
   error: null,
   success: null,
-  companies: []
+  companies: [],
 };
 
 const companiesReducer = (state = initialState, action) => {
@@ -14,16 +14,30 @@ const companiesReducer = (state = initialState, action) => {
         ...state,
         loading: true,
         error: null,
-        success: null
+        success: null,
       };
 
     case actionTypes.COMPANIES_SUCCESS:
       return {
         ...state,
         loading: false,
-        companies: action.payload !== null ? action.payload : state.companies,
-        success: action.message,
-        error: null
+        companies: action.payload,           // array of companies
+        success: action.message || null,
+        error: null,
+      };
+
+    case actionTypes.DELETE_COMPANY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        companies: state.companies.filter(c =>
+          c._id !== action.payload &&
+          c.id !== action.payload &&
+          c.companyId !== action.payload &&
+          c.timeZoneId !== action.payload
+        ),
+        success: action.message || null,
+        error: null,
       };
 
     case actionTypes.COMPANIES_FAIL:
@@ -31,7 +45,7 @@ const companiesReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         error: action.message,
-        success: null
+        success: null,
       };
 
     default:

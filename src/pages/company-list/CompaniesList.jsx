@@ -11,15 +11,26 @@ import ExternalIcon from '../../assets/images/icons/external.svg';
 import TrashIcon from '../../assets/images/icons/trash.svg';
 import { DeleteModal } from '../../components/DeleteModal';
 import { useDispatch, useSelector } from 'react-redux';
-import { getCompanies } from '../../store/actions/companies'; // <-- update path as needed
+import { getCompanies, deleteCompany } from '../../store/actions/companies'; // <-- update path as needed
 
 export const CompaniesList = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
+    const [companyToDelete, setCompanyToDelete] = useState(null); // State to keep the selected company ID
+    // console.log(companyToDelete);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const handleClose = () => setShowDeleteModal(false);
     const handleShow = () => setShowDeleteModal(true);
+
+    // Handler to delete company
+    const handleDelete = () => {
+        if (companyToDelete) {
+            console.log("ID", companyToDelete);
+          dispatch(deleteCompany(companyToDelete));
+          handleClose();
+        }
+      };      
 
     // Filter dropdown button
     const [open, setOpen] = useState(false);
@@ -36,10 +47,10 @@ export const CompaniesList = () => {
     const columns = [
         {
             name: 'Name',
-            selector: (row) => row.company_name,
+            selector: (row) => row.companyName,
             sortable: true,
             minWidth: '200px',
-            cell: (row) => (<div className='client-name fw-medium text-capitalize'>{row.company_name}</div>),
+            cell: (row) => (<div className='client-name fw-medium text-capitalize'>{row.companyName}</div>),
         },
         {
             name: 'Address',
@@ -48,7 +59,7 @@ export const CompaniesList = () => {
         },
         {
             name: 'Dot Number',
-            selector: (row) => row.dot_number,
+            selector: (row) => row.dotNumber,
             sortable: true,
             minWidth: '100px',
         },
@@ -76,37 +87,37 @@ export const CompaniesList = () => {
         },
         {
             name: 'ID',
-            selector: (row) => row.company_id,
+            selector: (row) => row.timeZoneId,
             sortable: true,
         },
         {
             name: 'Active Vehicles',
-            selector: (row) => row.active_vehicles,
+            selector: (row) => row.activeVehicles,
             sortable: true,
             minWidth: '150px',
         },
         {
             name: 'Sub. Vehicles',
-            selector: (row) => row.sub_vehicles,
+            selector: (row) => row.subVehicles,
             sortable: true,
             minWidth: '140px',
         },
         {
             name: 'Subscription',
-            selector: (row) => row.subscription,
+            selector: (row) => row.subscriptionStatus,
             cell: (row) => (
                 <Badge
                     className='fs-12 fw-medium bg-opacity-10'
                     pill
                     bg={
-                        row.subscription === 'Paid'
+                        row.subscriptionStatus === 'Paid'
                             ? 'success text-success'
-                            : row.subscription === 'Open'
+                            : row.subscriptionStatus === 'Open'
                                 ? 'danger text-danger'
                                 : ''
                     }
                 >
-                    {row.subscription}
+                    {row.subscriptionStatus}
                 </Badge>
             ),
         },
@@ -116,7 +127,10 @@ export const CompaniesList = () => {
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
                     <span className='pointer p-0' title='Details'><img src={ExternalIcon} alt="External Icon" /></span>
-                    <span className='pointer p-0' title='Delete' onClick={handleShow}><img src={TrashIcon} alt="Trash Icon" /></span>
+                    <span className='pointer p-0' title='Delete' onClick={() => {
+                        setCompanyToDelete(row._id); // store ID
+                        handleShow();
+                    }}><img src={TrashIcon} alt="Trash Icon" /></span>
                 </div>
             ),
         },
@@ -124,7 +138,7 @@ export const CompaniesList = () => {
 
     // Redux state
     // const { companies, loading, error } = useSelector(state => state.companies);
-    const { companies, loading, error } = useSelector((state) => state.companies || { companies: [] })
+    const { companies, loading, error } = useSelector((state) => state.companies || { companies: [] });
 
     useEffect(() => {
         dispatch(getCompanies());
@@ -220,7 +234,7 @@ export const CompaniesList = () => {
             </div>
 
             {/* Delete Table Record Modal */}
-            <DeleteModal show={showDeleteModal} handleClose={handleClose} />
+            <DeleteModal show={showDeleteModal} handleClose={handleClose} onConfirm={handleDelete} />
         </div>
     )
 }

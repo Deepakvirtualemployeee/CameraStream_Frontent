@@ -40,7 +40,8 @@ export const getCompanies = () => {
       }
     )
       .then(res => {
-        dispatch(companiesSuccess(res.data));
+        console.log(res.data);
+        dispatch(companiesSuccess(res.data.data.companies));
       })
       .catch(err => {
         dispatch(companiesFail(err?.response?.data?.message || "Failed to fetch companies"));
@@ -59,7 +60,7 @@ export const searchCompanies = (query) => {
           }
       })
       .then(res => {
-        dispatch(companiesSuccess(res.data));
+        dispatch(companiesSuccess(res.data.data.companies));
       })
       .catch(err => {
         dispatch(companiesFail(err?.response?.data?.message || "Search failed"));
@@ -78,7 +79,7 @@ export const filterCompaniesByStatus = (status) => {
           }
       })
       .then(res => {
-        dispatch(companiesSuccess(res.data));
+        dispatch(companiesSuccess(res.data.data.companies));
       })
       .catch(err => {
         dispatch(companiesFail(err?.response?.data?.message || "Status filter failed"));
@@ -137,20 +138,26 @@ export const updateCompany = (id, data, callback) => {
 
 // DELETE company
 export const deleteCompany = (id) => {
-  return (dispatch) => {
-    dispatch(startCompanies());
-    axios.delete(`/companies/${id}`,{
-          headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json"
-          }
-      })
-      .then(res => {
-        dispatch(companiesSuccess(null, res.data.message || "Company deleted successfully"));
-        dispatch(getCompanies());
-      })
-      .catch(err => {
-        dispatch(companiesFail(err?.response?.data?.message || "Failed to delete company"));
+  return async (dispatch) => {
+    try {
+      dispatch(startCompanies());
+      const token = localStorage.getItem("token");
+      const res = await axios.delete(`/companies/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
+
+      dispatch({
+        type: actionTypes.DELETE_COMPANY_SUCCESS,
+        payload: id,
+        message: res?.data?.message || "Company deleted successfully",
+      });
+
+      toast.success(res?.data?.message || "Company deleted successfully");
+    } catch (err) {
+      dispatch(companiesFail(err?.response?.data?.message || "Failed to delete company"));
+    }
   };
 };

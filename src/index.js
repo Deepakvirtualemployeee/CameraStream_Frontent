@@ -4,7 +4,9 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { legacy_createStore as createStore } from "redux";
 import { thunk } from "redux-thunk";
-import auth from './store/reducer/auth'
+import auth from './store/reducer/auth';
+import companiesReducer from './store/reducer/companies';
+
 // Import Bootstrap 5.3.3 CSS
 //import 'bootstrap/dist/css/bootstrap.min.css';  // Corrected Bootstrap import for styling
 import "bootstrap";
@@ -15,6 +17,7 @@ import { Provider } from "react-redux";
 const composeEnhancers = window?.__REDUX_DEVTOOLS_EXTENSION__?.() || compose;
 const rootReducer = combineReducers({
   auth: auth,
+  companies: companiesReducer,
 });
 
 const store = createStore(
