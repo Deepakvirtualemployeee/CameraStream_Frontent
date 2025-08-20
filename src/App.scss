@@ -259,6 +259,23 @@ input[type="time"]:invalid:before {
   min-height: 200px;
 }
 
+// react-phone-input-2 styyle customization
+.main-content {
+.react-tel-input {
+  .form-control {
+    border-color: $input-border-color;
+    border-radius: $input-border-radius;
+    background-color: transparent;
+  }
+
+  .flag-dropdown {
+    border-color: $input-border-color;
+    border-top-left-radius: $input-border-radius;
+    border-bottom-left-radius: $input-border-radius;
+  }
+}
+}
+
 // Start: React-slick NPM customize style
 .custom-select {
   .custom-select__control {
@@ -310,6 +327,7 @@ input[type="time"]:invalid:before {
       border-radius: 6px;
     }
   }
+
   .dropdown {
     list-style-type: none;
   }

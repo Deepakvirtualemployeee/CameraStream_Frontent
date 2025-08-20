@@ -31,7 +31,10 @@ import { CompanyViolations } from './pages/company-violations/CompanyViolations'
 import { AppFeedback } from './pages/app-feedback/AppFeedback';
 import { Resources } from './pages/resources-section/Resources';
 import { DriversList } from './pages/drivers-list/DriversList';
+import { AddDriver } from './pages/settings-section/Drivers/AddDriver';
 
+// Admin Section Layout Pages
+import { DriversListing } from './pages/settings-section/Drivers/DriversListing';
 import { ELDDevice } from './pages/settings-section/ELD-Devices/ELDDevice';
 import { AddELDDevice } from './pages/settings-section/ELD-Devices/AddELDDevice';
 import { EditELDDevice } from './pages/settings-section/ELD-Devices/EditELDDevice';
@@ -45,7 +48,6 @@ import { PortalUsers } from './pages/settings-section/Portal-Users/PortalUsers';
 import { ResourcesList } from './pages/settings-section/Resources/ResourcesList';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 
 function App() {
   return (
@@ -87,6 +89,8 @@ function App() {
 
         {/* Routes using Sidebar + Topbar */}
         <Route element={<Layout2 />}>
+          <Route path="settings/drivers-listing" element={<DriversListing />} />
+          <Route path="settings/drivers-listing/add-driver" element={<AddDriver />} />
           <Route path="settings/eld-devices" element={<ELDDevice />} />
           <Route path="settings/eld-devices/add-device" element={<AddELDDevice />} />
           <Route path="settings/eld-devices/edit-device" element={<EditELDDevice />} />
