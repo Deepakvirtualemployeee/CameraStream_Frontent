@@ -48,12 +48,12 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                         {!collapsed && <span>Logs</span>}
                     </Link>
                 </li>
-                <li className="nav-item">
+                {/* <li className="nav-item">
                     <Link to={'/delivery'} className={`${location.pathname === '/delivery' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-truck"></i>
                         {!collapsed && <span>Delivery</span>}
                     </Link>
-                </li>
+                </li> */}
                 <li className="nav-item">
                     <Link to={'/dvir'} className={`${location.pathname === '/dvir' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-wrench"></i>
@@ -72,12 +72,12 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                         {!collapsed && <span>Reports</span>}
                     </Link>
                 </li>
-                <li className="nav-item">
+                {/* <li className="nav-item">
                     <Link to={'/message'} className={`${location.pathname === '/message' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-chat"></i>
                         {!collapsed && <span>Message</span>}
                     </Link>
-                </li>
+                </li> */}
                 {/* Settings Dropdown */}
                 <li className={`nav-item ${isSettingsActive || openSettings ? 'active' : ''}`}>
                     <a className={`nav-link d-flex align-items-center gap-2 pointer ${isSettingsActive ? 'active' : ''}`} onClick={() => { toggleSettings(); openSidebar(); }}>
@@ -92,18 +92,13 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     {!collapsed && openSettings && (
                         <ul className="sub-menu list-unstyled">
                             <li className="nav-item">
-                                <Link to="/settings/eld-devices" className={`${location.pathname === '/settings/eld-devices' ? 'active' : ''}`}>
-                                    ELD Devices
-                                </Link>
-                            </li>
-                            <li className="nav-item">
                                 <Link to="/settings/vehicles-list" className={`${location.pathname === '/settings/vehicles-list' ? 'active' : ''}`}>
                                     Vehicles
                                 </Link>
                             </li>
                             <li className="nav-item">
-                                <Link to="/settings/company-info" className={`${location.pathname === '/settings/company-info' ? 'active' : ''}`}>
-                                    Company
+                                <Link to="/settings/eld-devices" className={`${location.pathname === '/settings/eld-devices' ? 'active' : ''}`}>
+                                    ELD Devices
                                 </Link>
                             </li>
                             <li className="nav-item">
@@ -112,10 +107,15 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                                 </Link>
                             </li>
                             <li className="nav-item">
+                                <Link to="/settings/company-info" className={`${location.pathname === '/settings/company-info' ? 'active' : ''}`}>
+                                    Company
+                                </Link>
+                            </li>
+                            {/* <li className="nav-item">
                                 <Link to="/settings/resources" className={`${location.pathname === '/settings/resources' ? 'active' : ''}`}>
                                     Resources
                                 </Link>
-                            </li>
+                            </li> */}
                         </ul>
                     )}
                 </li>

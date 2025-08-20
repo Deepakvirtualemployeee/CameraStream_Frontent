@@ -48,7 +48,7 @@ const CreateCompany = ({ createCompany }) => {
 
         createCompany(payload)
             .then(() => {
-                toast.success('Company created successfully!');
+                // toast.success('Company created successfully!');
                 navigate('/companies-list');
             })
             .catch((error) => {

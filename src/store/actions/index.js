@@ -16,3 +16,7 @@ export {
   updateCompany,
   deleteCompany,
 } from "./companies"
+
+export {
+  createUser,
+} from "./users";

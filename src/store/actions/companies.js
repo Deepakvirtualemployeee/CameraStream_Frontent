@@ -101,6 +101,7 @@ export const createCompany = (data, callback) => {
       }
     })
     .then(res => {
+      console.log(res);
       dispatch(companiesSuccess(null, res.data.message || "Company created successfully"));
       
       // Run callback if provided
@@ -110,6 +111,7 @@ export const createCompany = (data, callback) => {
       dispatch(getCompanies());
     })
     .catch(err => {
+      console.log(err);
       dispatch(companiesFail(err?.response?.data?.message || "Failed to create company"));
     });
   };
