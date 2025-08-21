@@ -12,10 +12,17 @@ export const EditCompanyInfo = () => {
         dotNumber: '0000000',
         timeZone: 'Eastern Standard Time',
         address: '1 Cristina Ln, Oxford PA, 19363',
-        terminals: [
-            { timeZone: 'Eastern Standard Time', address: 'Terminal 1 Address' },
-            { timeZone: 'Central Standard Time', address: 'Terminal 2 Address' },
-        ],
+        complianceMode: 'ELD',
+        hosRules: 'USA 70 Hour / 8 Day',
+        cargoType: 'Property',
+        restart: '34 Hour Restart',
+        restBreak: '30 Min Break',
+        shortHaulException: false,
+        splitSleeperBerth: false,
+        personalConveyance: false,
+        yardMove: false,
+        manualDriver: false,
+        restrictDriverFromCreation: true,
     };
 
     const [formData, setFormData] = useState({
@@ -23,7 +30,17 @@ export const EditCompanyInfo = () => {
         dotNumber: '',
         timeZone: '',
         address: '',
-        terminals: [],
+        complianceMode: '',
+        hosRules: '',
+        cargoType: '',
+        restart: '',
+        restBreak: '',
+        shortHaulException: false,
+        splitSleeperBerth: false,
+        personalConveyance: false,
+        yardMove: false,
+        manualDriver: false,
+        restrictDriverFromCreation: false,
     });
 
     useEffect(() => {
@@ -31,27 +48,10 @@ export const EditCompanyInfo = () => {
     }, []);
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, type, value, checked } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: value,
-        }));
-    };
-
-    const handleTerminalChange = (index, e) => {
-        const { name, value } = e.target;
-        const updatedTerminals = [...formData.terminals];
-        updatedTerminals[index][name] = value;
-        setFormData((prev) => ({
-            ...prev,
-            terminals: updatedTerminals,
-        }));
-    };
-
-    const removeTerminal = (indexToRemove) => {
-        setFormData((prev) => ({
-            ...prev,
-            terminals: prev.terminals.filter((_, i) => i !== indexToRemove),
+            [name]: type === 'checkbox' ? checked : value,
         }));
     };
 
@@ -75,7 +75,8 @@ export const EditCompanyInfo = () => {
 
                 <div className="form-wrapper">
                     <Form id="edit-company-form" onSubmit={handleSubmit}>
-                        <section className="bg-white w-100 border rounded-4 shadow-sm mb-4 px-3 px-md-4 py-4">
+                        {/* General Settings */}
+                        <section className="general-settings-section bg-white w-100 border rounded-4 shadow-sm mb-4 px-3 px-md-4 py-4">
                             <Row className="g-3 g-xl-4">
                                 <Col xs={12}>
                                     <Form.Group controlId="companyName">
@@ -111,13 +112,13 @@ export const EditCompanyInfo = () => {
                                             required
                                         >
                                             <option value="" hidden>Select Time zone</option>
-                                            <option value="Coordinated Universal Time">UTC (Coordinated Universal Time)</option>
-                                            <option value="Greenwich Mean Time">GMT (Greenwich Mean Time)</option>
-                                            <option value="India Standard Time">IST – India Standard Time</option>
-                                            <option value="Eastern Standard Time">EST – Eastern Standard Time</option>
-                                            <option value="Eastern Daylight Time">EDT – Eastern Daylight Time (USA)</option>
-                                            <option value="Central Standard Time">CST – Central Standard Time</option>
-                                            <option value="Central Daylight Time">CDT – Central Daylight Time (USA)</option>
+                                            <option value="Coordinated Universal Time">UTC</option>
+                                            <option value="Greenwich Mean Time">GMT</option>
+                                            <option value="India Standard Time">IST</option>
+                                            <option value="Eastern Standard Time">EST</option>
+                                            <option value="Eastern Daylight Time">EDT (USA)</option>
+                                            <option value="Central Standard Time">CST</option>
+                                            <option value="Central Daylight Time">CDT (USA)</option>
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
@@ -136,51 +137,142 @@ export const EditCompanyInfo = () => {
                             </Row>
                         </section>
 
-                        <section className="bg-white w-100 d-flex flex-column gap-4 border rounded-4 shadow-sm px-3 px-md-4 pt-3 pb-4">
-                            {formData.terminals.map((terminal, index) => (
-                                <div key={index} className="terminal-info pt-2">
-                                    <div className="heading-wrapper d-flex justify-content-between align-items-center mb-4">
-                                        <div className="main-heading pe-4">Terminal {index + 1}</div>
-                                        <div className="cancel-icon pointer" onClick={() => removeTerminal(index)} style={{ cursor: 'pointer' }}>
-                                            <img src={CancelIcon} alt="Cancel Icon" className="img-fluid" />
-                                        </div>
+                        {/* Terminal */}
+                        <section className="terminal-section mb-4">
+                            <div className="main-heading mb-3">Terminal</div>
+                            <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
+                                <Form.Group className="mb-3" controlId="terminalTimeZone">
+                                    <Form.Label>Time Zone</Form.Label>
+                                    <Form.Select
+                                        name="timeZone"
+                                        value={formData.timeZone}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="" disabled>Select Time zone</option>
+                                        <option value="Coordinated Universal Time">UTC</option>
+                                        <option value="Greenwich Mean Time">GMT</option>
+                                        <option value="India Standard Time">IST</option>
+                                        <option value="Eastern Standard Time">EST</option>
+                                        <option value="Eastern Daylight Time">EDT (USA)</option>
+                                        <option value="Central Standard Time">CST</option>
+                                        <option value="Central Daylight Time">CDT (USA)</option>
+                                    </Form.Select>
+                                </Form.Group>
+                                <Form.Group controlId="terminalAddress">
+                                    <Form.Label>Address</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="address"
+                                        value={formData.address}
+                                        onChange={handleChange}
+                                        placeholder='Enter address'
+                                        autoComplete='off'
+                                        required
+                                    />
+                                </Form.Group>
+                            </div>
+                        </section>
+
+                        {/* Compliance */}
+                        <section className="compliance-settings-section mb-4">
+                            <div className="main-heading mb-3">Compliance Settings</div>
+                            <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
+                                <Form.Group controlId="ComplianceMode">
+                                    <Form.Label>Compliance Mode</Form.Label>
+                                    <Form.Select
+                                        name="complianceMode"
+                                        value={formData.complianceMode}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="" disabled>Select compliance mode</option>
+                                        <option value="ELD">ELD</option>
+                                        <option value="ELD1">ELD1</option>
+                                        <option value="ELD2">ELD2</option>
+                                        <option value="ELD3">ELD3</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </div>
+                        </section>
+
+                        {/* Log Settings */}
+                        <section className="log-settings-section mb-4">
+                            <div className="main-heading mb-3">Default Driver Log Settings</div>
+                            <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
+                                <Form.Group className="mb-3" controlId="HOSRules">
+                                    <Form.Label>HOS Rules<span className="text-danger">*</span></Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="hosRules"
+                                        value={formData.hosRules}
+                                        onChange={handleChange}
+                                        placeholder="Enter HOS rules"
+                                        autoComplete='off'
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="CargoType">
+                                    <Form.Label>Cargo Type<span className="text-danger">*</span></Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="cargoType"
+                                        value={formData.cargoType}
+                                        onChange={handleChange}
+                                        placeholder="Enter cargo type"
+                                        autoComplete='off'
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="Restart">
+                                    <Form.Label>Restart<span className="text-danger">*</span></Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="restart"
+                                        value={formData.restart}
+                                        onChange={handleChange}
+                                        placeholder="Enter restart"
+                                        autoComplete='off'
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="RestBreak">
+                                    <Form.Label>Rest Break<span className="text-danger">*</span></Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="restBreak"
+                                        value={formData.restBreak}
+                                        onChange={handleChange}
+                                        placeholder="Enter rest break"
+                                        autoComplete='off'
+                                        required
+                                    />
+                                </Form.Group>
+
+                                <Form.Group>
+                                    <div className="checks-wrapper">
+                                        <Form.Check type="checkbox" name="shortHaulException" checked={formData.shortHaulException} onChange={handleChange}
+                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Short-Haul Exception</div>}
+                                            required
+                                        />
+                                        <Form.Check type="checkbox" name="splitSleeperBerth" checked={formData.splitSleeperBerth} onChange={handleChange}
+                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Split-Sleeper Berth</div>}
+                                        />
+                                        <Form.Check type="checkbox" name="personalConveyance" checked={formData.personalConveyance} onChange={handleChange}
+                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Personal Conveyance</div>}
+                                        />
+                                        <Form.Check type="checkbox" name="yardMove" checked={formData.yardMove} onChange={handleChange}
+                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Yard Move</div>}
+                                        />
+                                        <Form.Check type="checkbox" name="manualDriver" checked={formData.manualDriver} onChange={handleChange}
+                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Manual Driver</div>}
+                                        />
+                                        <Form.Check type="checkbox" name="restrictDriverFromCreation" checked={formData.restrictDriverFromCreation} onChange={handleChange}
+                                            className="fs-16" label={<div className="fs-6 text-dark text-opacity-75">Restrict Driver from Creation Date & Time</div>}
+                                        />
                                     </div>
-                                    <Row className="g-3 g-xl-4">
-                                        <Col xs={12}>
-                                            <Form.Group controlId={`terminalTimeZone-${index}`}>
-                                                <Form.Label>Time Zone</Form.Label>
-                                                <Form.Select
-                                                    name="timeZone"
-                                                    value={terminal.timeZone}
-                                                    onChange={(e) => handleTerminalChange(index, e)}
-                                                    required
-                                                >
-                                                    <option value="" hidden>Select Time zone</option>
-                                                    <option value="Coordinated Universal Time">UTC (Coordinated Universal Time)</option>
-                                                    <option value="Greenwich Mean Time">GMT (Greenwich Mean Time)</option>
-                                                    <option value="India Standard Time">IST – India Standard Time</option>
-                                                    <option value="Eastern Standard Time">EST – Eastern Standard Time</option>
-                                                    <option value="Eastern Daylight Time">EDT – Eastern Daylight Time (USA)</option>
-                                                    <option value="Central Standard Time">CST – Central Standard Time</option>
-                                                    <option value="Central Daylight Time">CDT – Central Daylight Time (USA)</option>
-                                                </Form.Select>
-                                            </Form.Group>
-                                        </Col>
-                                        <Col xs={12}>
-                                            <Form.Group controlId={`terminalAddress-${index}`}>
-                                                <Form.Label>Address</Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    name="address"
-                                                    value={terminal.address}
-                                                    onChange={(e) => handleTerminalChange(index, e)}
-                                                    required
-                                                />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-                                </div>
-                            ))}
+                                </Form.Group>
+                            </div>
                         </section>
                     </Form>
                 </div>

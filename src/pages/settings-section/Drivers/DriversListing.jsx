@@ -88,7 +88,7 @@ export const DriversListing = () => {
             minWidth: '120px',
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    <span className='pointer' title='Edit' onClick={() => navigate('/settings/vehicles-list/edit-vehicle')}><img src={EditIcon} alt="Edit Icon" /></span>
+                    <span className='pointer' title='Edit' onClick={() => navigate('/settings/drivers-listing/edit-driver')}><img src={EditIcon} alt="Edit Icon" /></span>
                     <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span>
                 </div>
             ),

@@ -4,35 +4,32 @@ import { useNavigate } from 'react-router-dom';
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
-export const AddDriver = () => {
+export const EditDriver = () => {
     const navigate = useNavigate();
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [confirmPassVisible, setconfirmPassVisible] = useState(false);
+    const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
-    const togglePassVisibility = () => {
-        setPasswordVisible(!passwordVisible);
-    };
+    const togglePassVisibility = () => setPasswordVisible(!passwordVisible);
+    const toggleConfirmPassVisibility = () => setConfirmPassVisible(!confirmPassVisible);
 
-    const toggleConfirmPassVisibility = () => {
-        setconfirmPassVisible(!confirmPassVisible);
-    };
-
+    // ✅ Prefilled data (can later come from API)
     const [formData, setFormData] = useState({
-        username: '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        phoneNumber: '',
-        password: '',
-        confirmPassword: '',
-        licenseIssuingState: '',
-        licenseNumber: '',
-        homeTerminal: '',
-        assignVehicles: '',
-        hosRules: '',
-        cargoType: '',
-        restart: '',
-        restBreak: '',
+        username: 'vasheem01',
+        firstName: 'Vasheem',
+        lastName: 'Ahmad',
+        email: 'vasheem@example.com',
+        phoneNumber: '919876543210',
+        password: 'Test@1234',
+        confirmPassword: 'Test@1234',
+        licenseIssuingState: 'Delhi',
+        licenseNumber: 'DL1234567890',
+        homeTerminal: 'Delhi HQ',
+        assignVehicles: 'ANDROID02',
+        assignCoDriver: 'Review Driver',
+        hosRules: 'USA 70 Hour / 8 Day',
+        cargoType: 'Property',
+        restart: '34 Hour Restart',
+        restBreak: '30 Min Break',
         shortHaulException: false,
         splitSleeperBerth: false,
         personalConveyance: false,
@@ -42,27 +39,11 @@ export const AddDriver = () => {
     });
 
     const {
-        username,
-        firstName,
-        lastName,
-        email,
-        phoneNumber,
-        password,
-        confirmPassword,
-        licenseIssuingState,
-        licenseNumber,
-        homeTerminal,
-        assignVehicles,
-        hosRules,
-        cargoType,
-        restart,
-        restBreak,
-        shortHaulException,
-        splitSleeperBerth,
-        personalConveyance,
-        yardMove,
-        manualDriver,
-        restrictDriverFromCreation,
+        username, firstName, lastName, email, phoneNumber,
+        password, confirmPassword, licenseIssuingState, licenseNumber,
+        homeTerminal, assignVehicles, hosRules, cargoType,
+        restart, restBreak, shortHaulException, splitSleeperBerth,
+        personalConveyance, yardMove, manualDriver, restrictDriverFromCreation,
     } = formData;
 
     const handleChange = (e) => {
@@ -88,25 +69,24 @@ export const AddDriver = () => {
             return;
         }
 
-        console.log('Submitted data:', formData);
-        alert('User added successfully!');
+        console.log('Updated driver data:', formData);
+        alert('Driver updated successfully!');
     };
 
     return (
-        <div className="AddDriver-page py-3">
+        <div className="EditDriver-page py-3">
             <div className="container-fluid" style={{ maxWidth: 'calc(1000px + 1.5rem)' }}>
                 <div className="heading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
                     <div className="main-heading">Personal Info</div>
                     <div className="btn-wrapper d-flex flex-wrap gap-2">
-                        <Button variant='white' className="bg-white border-gray" onClick={() => navigate(-1)}>Cancel</Button>
-                        <Button variant='primary' type="submit" form="add-user-form">
-                            <i className="bi bi-plus-lg fs-16"></i> Add Driver
-                        </Button>
+                        <Button variant="white" className="bg-white border-gray" onClick={() => navigate(-1)}>Cancel</Button>
+                        <Button variant='outline-danger'>Deactivate</Button>
+                        <Button variant="primary" type="submit" form="edit-user-form">Update Driver</Button>
                     </div>
                 </div>
 
                 <div className="form-wrapper">
-                    <Form id="add-user-form" onSubmit={handleSubmit}>
+                    <Form id="edit-user-form" onSubmit={handleSubmit}>
                         <section className="personal-info bg-white w-100 border rounded-4 shadow-sm mb-4 px-3 px-md-4 py-4">
                             <Row className="g-3 gx-xl-4">
                                 <Col xs={12}>
@@ -152,7 +132,7 @@ export const AddDriver = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6}>
-                                    <Form.Group controlId="UserEmail">
+                                    <Form.Group>
                                         <Form.Label>Email</Form.Label>
                                         <Form.Control
                                             type="email"
@@ -165,19 +145,17 @@ export const AddDriver = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6}>
-                                    <Form.Group controlId="PhoneNumber">
-                                        <Form.Label>Phone</Form.Label>
+                                    <Form.Group>
+                                        <Form.Label>Phone Number</Form.Label>
                                         <PhoneInput
                                             inputProps={{
                                                 name: "phoneNumber",
                                                 required: true,
                                                 autoFocus: false,
                                             }}
-                                            country={"in"}
-                                            // value={phone}
-                                            value={formData.phoneNumber}
+                                            country={'in'}
+                                            value={phoneNumber}
                                             onChange={handlePhoneChange}
-                                            // enableSearch={true}
                                             countryCodeEditable={false}
                                             inputClass="w-100 py-2"
                                             dropdownClass="text-start"
@@ -188,7 +166,7 @@ export const AddDriver = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6}>
-                                    <Form.Group controlId="Password">
+                                    <Form.Group>
                                         <Form.Label>Password<span className="text-danger">*</span></Form.Label>
                                         <div className="position-relative">
                                             <Form.Control
@@ -215,7 +193,7 @@ export const AddDriver = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6}>
-                                    <Form.Group controlId="ConfirmPassword">
+                                    <Form.Group>
                                         <Form.Label>Confirm Password<span className="text-danger">*</span></Form.Label>
                                         <div className="position-relative">
                                             <Form.Control
@@ -280,6 +258,7 @@ export const AddDriver = () => {
                                 </Col>
                             </Row>
                         </section>
+
                         <section className="carrier-section mb-4">
                             <div className="main-heading mb-3">Carrier Settings</div>
                             <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
@@ -295,7 +274,7 @@ export const AddDriver = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group controlId="AssignVehicles">
+                                <Form.Group className="mb-3" controlId="AssignVehicles">
                                     <Form.Label>Assign Vehicles</Form.Label>
                                     <Form.Select name="assignVehicles" value={formData.assignVehicles} onChange={handleChange} required >
                                         <option value="" disabled>Select a vehicle</option>
@@ -305,8 +284,18 @@ export const AddDriver = () => {
                                         <option value="ANDROID04">ANDROID04</option>
                                     </Form.Select>
                                 </Form.Group>
+                                <Form.Group controlId="AssignCoDriver">
+                                    <Form.Label>Assign Co-Driver</Form.Label>
+                                    <Form.Select name="assignCoDriver" value={formData.assignCoDriver} onChange={handleChange} required >
+                                        <option value="" disabled>Select a co-driver</option>
+                                        <option value="Review Driver">Review Driver</option>
+                                        <option value="Android Driver">Android Driver</option>
+                                        <option value="IOS Driver">IOS Driver</option>
+                                    </Form.Select>
+                                </Form.Group>
                             </div>
                         </section>
+
                         <section className="log-section">
                             <div className="main-heading mb-3">Log Settings</div>
                             <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
@@ -361,29 +350,23 @@ export const AddDriver = () => {
                                 <Form.Group>
                                     <div className="checks-wrapper">
                                         <Form.Check type="checkbox" name="shortHaulException" checked={shortHaulException} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Short-Haul Exception</div>}
+                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Short-Haul Exception</div>}
                                             required
                                         />
                                         <Form.Check type="checkbox" name="splitSleeperBerth" checked={splitSleeperBerth} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Split-Sleeper Berth</div>}
+                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Split-Sleeper Berth</div>}
                                         />
                                         <Form.Check type="checkbox" name="personalConveyance" checked={personalConveyance} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Personal Conveyance</div>}
+                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Personal Conveyance</div>}
                                         />
                                         <Form.Check type="checkbox" name="yardMove" checked={yardMove} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Yard Move</div>}
+                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Yard Move</div>}
                                         />
                                         <Form.Check type="checkbox" name="manualDriver" checked={manualDriver} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Manual Driver</div>}
+                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Manual Driver</div>}
                                         />
                                         <Form.Check type="checkbox" name="restrictDriverFromCreation" checked={restrictDriverFromCreation} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Restrict Driver from Creation Date & Time</div>}
+                                            className="fs-16" label={<div className="fs-6 text-dark text-opacity-75">Restrict Driver from Creation Date & Time</div>}
                                         />
                                     </div>
                                 </Form.Group>

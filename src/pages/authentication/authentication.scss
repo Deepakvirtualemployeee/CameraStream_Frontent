@@ -37,8 +37,13 @@
             border: 1px solid $theme3;
             border-top-left-radius: 0.5rem;
             border-bottom-left-radius: 0.5rem;
-            overflow: hidden;
         }
+    }
+}
+
+.react-tel-input {
+    .flag-dropdown {
+        overflow: hidden;
     }
 }
 
