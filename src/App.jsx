@@ -92,8 +92,12 @@ function App() {
           <Route path="settings/eld-devices/edit-device" element={<EditELDDevice />} />
           <Route path="settings/vehicles-list" element={<VehiclesList />} />
           <Route path="settings/vehicles-list/add-vehicle" element={<AddVehicles />} />
-          <Route path="settings/vehicles-list/edit-vehicle" element={<EditVehicles />} />
+          {/* <Route path="settings/vehicles-list/edit-vehicle" element={<EditVehicles />} /> */}
+          <Route path="settings/vehicles-list/edit-vehicle/:id" element={<EditVehicles />} />
+
+          {/* <Route path="settings/company-info/:id" element={<CompanyInfo />} /> */}
           <Route path="settings/company-info" element={<CompanyInfo />} />
+
           <Route path="settings/company-info/edit-company-info" element={<EditCompanyInfo />} />
           <Route path="settings/portal-users" element={<PortalUsers />} />
           <Route path="settings/resources" element={<ResourcesList />} />

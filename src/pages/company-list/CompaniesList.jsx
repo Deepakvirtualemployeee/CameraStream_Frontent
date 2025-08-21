@@ -11,7 +11,7 @@ import ExternalIcon from '../../assets/images/icons/external.svg';
 import TrashIcon from '../../assets/images/icons/trash.svg';
 import { DeleteModal } from '../../components/DeleteModal';
 import { useDispatch, useSelector } from 'react-redux';
-import { getCompanies, deleteCompany } from '../../store/actions/companies'; // <-- update path as needed
+import { getCompanies, deleteCompany } from '../../store/actions/companies';
 
 export const CompaniesList = () => {
     const navigate = useNavigate();
@@ -45,13 +45,31 @@ export const CompaniesList = () => {
     };
 
     const columns = [
+        // {
+        //     name: 'Name',
+        //     selector: (row) => row.companyName,
+        //     sortable: true,
+        //     minWidth: '200px',
+        //     cell: (row) => (<div className='client-name fw-medium text-capitalize'>{row.companyName}</div>),
+        // },
         {
             name: 'Name',
             selector: (row) => row.companyName,
             sortable: true,
             minWidth: '200px',
-            cell: (row) => (<div className='client-name fw-medium text-capitalize'>{row.companyName}</div>),
-        },
+            cell: (row) => (
+              <a
+                // href={`/company/${row._id}/dashboard`}
+                href={`/settings/company-info/${row._id}`}
+
+                target="_blank"
+                rel="noopener noreferrer"
+                className="client-name fw-medium text-capitalize text-primary text-decoration-underline"
+              >
+                {row.companyName}
+              </a>
+            ),
+          },          
         {
             name: 'Address',
             selector: (row) => row.address,
@@ -219,7 +237,7 @@ export const CompaniesList = () => {
                                     columns={columns}
                                     data={filteredData}
                                     pointerOnHover
-                                    onRowClicked={() => navigate('/settings/eld-devices')}
+                                    // onRowClicked={() => navigate('/settings/eld-devices')}
                                     striped
                                     pagination
                                     highlightOnHover

@@ -20,3 +20,10 @@ export {
 export {
   createUser,
 } from "./users";
+
+export {
+  getVehicles,
+  createVehicle,
+  updateVehicle,
+  deleteVehicle,
+} from "./vehicles";
