@@ -92,6 +92,11 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     {!collapsed && openSettings && (
                         <ul className="sub-menu list-unstyled">
                             <li className="nav-item">
+                                <Link to="/settings/drivers-listing" className={`${location.pathname === '/settings/drivers-listing' ? 'active' : ''}`}>
+                                    Drivers
+                                </Link>
+                            </li>
+                            <li className="nav-item">
                                 <Link to="/settings/vehicles-list" className={`${location.pathname === '/settings/vehicles-list' ? 'active' : ''}`}>
                                     Vehicles
                                 </Link>

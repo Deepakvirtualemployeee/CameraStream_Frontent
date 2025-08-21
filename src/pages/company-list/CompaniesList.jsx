@@ -27,10 +27,10 @@ export const CompaniesList = () => {
     const handleDelete = () => {
         if (companyToDelete) {
             console.log("ID", companyToDelete);
-          dispatch(deleteCompany(companyToDelete));
-          handleClose();
+            dispatch(deleteCompany(companyToDelete));
+            handleClose();
         }
-      };      
+    };
 
     // Filter dropdown button
     const [open, setOpen] = useState(false);

@@ -7,6 +7,7 @@ export const EditELDDevice = () => {
     const [formData, setFormData] = useState({
         serialNumber: 'SN-987654321',
         mac: ['AC', '12', 'EF', '45', '78', '9B'],
+        eldModel: 'PT30',
         vehicle: '7002',
         firmwareVersion: 'v2.2.5',
     });
@@ -57,6 +58,7 @@ export const EditELDDevice = () => {
         const finalData = {
             serialNumber: formData.serialNumber,
             macAddress,
+            eldModel: formData.eldModel,
             vehicle: formData.vehicle,
             firmwareVersion: formData.firmwareVersion,
         };
@@ -128,6 +130,23 @@ export const EditELDDevice = () => {
                                         <div className="text-muted mt-1">
                                             Please make sure ELD MAC Address was entered correctly. Once the eld record is created it cannot be changed.
                                         </div>
+                                    </Form.Group>
+                                </Col>
+
+                                <Col xs={12}>
+                                    <Form.Group controlId="EldModel">
+                                        <Form.Label>Eld Model<span className="text-danger">*</span></Form.Label>
+                                        <Form.Select
+                                            name="eldModel"
+                                            value={formData.eldModel}
+                                            onChange={handleChange}
+                                            required
+                                        >
+                                            <option value="" selected hidden>Select ELD Model</option>
+                                            <option value="PT30">PT30</option>
+                                            <option value="PT30U">PT30U</option>
+                                        </Form.Select>
+                                        <div className="text-muted mt-1">Please make sure ELD Model was entered correctly. Once the eld record is created it cannot be changed.</div>
                                     </Form.Group>
                                 </Col>
 

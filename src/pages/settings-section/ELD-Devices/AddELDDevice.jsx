@@ -7,6 +7,7 @@ export const AddELDDevice = () => {
     const [formData, setFormData] = useState({
         serialNumber: '',
         mac: ['', '', '', '', '', ''],
+        eldModel: '',
         vehicle: '',
     });
 
@@ -57,6 +58,7 @@ export const AddELDDevice = () => {
         const finalData = {
             serialNumber: formData.serialNumber,
             macAddress,
+            eldModel: formData.eldModel,
             vehicle: formData.vehicle,
         };
         console.log('Submitted ELD Device Data:', finalData);
@@ -125,7 +127,22 @@ export const AddELDDevice = () => {
                                     <div className="text-muted mt-1">Please make sure ELD MAC Address was entered correctly. Once the eld record is created it cannot be changed.</div>
                                 </Form.Group>
                             </Col>
-
+                            <Col xs={12}>
+                                <Form.Group controlId="EldModel">
+                                    <Form.Label>Eld Model<span className="text-danger">*</span></Form.Label>
+                                    <Form.Select
+                                        name="eldModel"
+                                        value={formData.eldModel}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="" selected hidden>Select ELD Model</option>
+                                        <option value="PT30">PT30</option>
+                                        <option value="PT30U">PT30U</option>
+                                    </Form.Select>
+                                    <div className="text-muted mt-1">Please make sure ELD Model was entered correctly. Once the eld record is created it cannot be changed.</div>
+                                </Form.Group>
+                            </Col>
                             <Col xs={12}>
                                 <Form.Group controlId="vehicle">
                                     <Form.Label>Assign Vehicle<span className="text-danger">*</span></Form.Label>

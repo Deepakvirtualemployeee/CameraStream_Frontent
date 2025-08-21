@@ -3,8 +3,8 @@ import './App.scss';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 
 // Auth Pages
-import LogIn  from './pages/authentication/LogIn';
-import SignUp  from './pages/authentication/SignUp';
+import LogIn from './pages/authentication/LogIn';
+import SignUp from './pages/authentication/SignUp';
 import { SignupFinished } from './pages/authentication/SignupFinished';
 import ForgotPassword from './pages/authentication/ForgotPassword';
 import VerifyEmail from './pages/authentication/VerifyEmail'
@@ -12,8 +12,8 @@ import VerifyEmail from './pages/authentication/VerifyEmail'
 // Main Layout and Pages
 import { Layout } from './components/layouts/Layout';
 import { Dashboard } from './pages/Dashboard';
-import {CompaniesList} from './pages/company-list/CompaniesList';
-import CreateCompany  from './pages/company-list/CreateCompany';
+import { CompaniesList } from './pages/company-list/CompaniesList';
+import CreateCompany from './pages/company-list/CreateCompany';
 
 import { UsersManagement } from './pages/system-users-management/UsersManagement';
 import { AddUser } from './pages/system-users-management/AddUser';
@@ -32,6 +32,10 @@ import { AppFeedback } from './pages/app-feedback/AppFeedback';
 import { Resources } from './pages/resources-section/Resources';
 import { DriversList } from './pages/drivers-list/DriversList';
 
+// Admin Section Layout Pages
+import { DriversListing } from './pages/settings-section/Drivers/DriversListing';
+import { AddDriver } from './pages/settings-section/Drivers/AddDriver';
+import { EditDriver } from './pages/settings-section/Drivers/EditDriver';
 import { ELDDevice } from './pages/settings-section/ELD-Devices/ELDDevice';
 import { AddELDDevice } from './pages/settings-section/ELD-Devices/AddELDDevice';
 import { EditELDDevice } from './pages/settings-section/ELD-Devices/EditELDDevice';
@@ -42,10 +46,11 @@ import { EditVehicles } from './pages/settings-section/Vehicles/EditVehicles';
 import { CompanyInfo } from './pages/settings-section/Company/CompanyInfo';
 import { EditCompanyInfo } from './pages/settings-section/Company/EditCompanyInfo';
 import { PortalUsers } from './pages/settings-section/Portal-Users/PortalUsers';
+import { AddPortalUser } from './pages/settings-section/Portal-Users/AddPortalUser';
+import { EditPortalUser } from './pages/settings-section/Portal-Users/EditPortalUser';
 import { ResourcesList } from './pages/settings-section/Resources/ResourcesList';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 
 function App() {
   return (
@@ -87,6 +92,9 @@ function App() {
 
         {/* Routes using Sidebar + Topbar */}
         <Route element={<Layout2 />}>
+          <Route path="settings/drivers-listing" element={<DriversListing />} />
+          <Route path="settings/drivers-listing/add-driver" element={<AddDriver />} />
+          <Route path="settings/drivers-listing/edit-driver" element={<EditDriver />} />
           <Route path="settings/eld-devices" element={<ELDDevice />} />
           <Route path="settings/eld-devices/add-device" element={<AddELDDevice />} />
           <Route path="settings/eld-devices/edit-device" element={<EditELDDevice />} />
@@ -100,6 +108,8 @@ function App() {
 
           <Route path="settings/company-info/edit-company-info" element={<EditCompanyInfo />} />
           <Route path="settings/portal-users" element={<PortalUsers />} />
+          <Route path="settings/portal-users/add-portal-user" element={<AddPortalUser />} />
+          <Route path="settings/portal-users/edit-portal-user" element={<EditPortalUser />} />
           <Route path="settings/resources" element={<ResourcesList />} />
         </Route>
       </Routes>
