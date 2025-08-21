@@ -6,6 +6,17 @@ import "react-phone-input-2/lib/style.css";
 
 export const AddDriver = () => {
     const navigate = useNavigate();
+    const [passwordVisible, setPasswordVisible] = useState(false);
+    const [confirmPassVisible, setconfirmPassVisible] = useState(false);
+
+    const togglePassVisibility = () => {
+        setPasswordVisible(!passwordVisible);
+    };
+
+    const toggleConfirmPassVisibility = () => {
+        setconfirmPassVisible(!confirmPassVisible);
+    };
+
     const [formData, setFormData] = useState({
         username: '',
         firstName: '',
@@ -16,8 +27,18 @@ export const AddDriver = () => {
         confirmPassword: '',
         licenseIssuingState: '',
         licenseNumber: '',
-        accessToAllCompanies: false,
-        group: '',
+        homeTerminal: '',
+        assignVehicles: '',
+        hosRules: '',
+        cargoType: '',
+        restart: '',
+        restBreak: '',
+        shortHaulException: false,
+        splitSleeperBerth: false,
+        personalConveyance: false,
+        yardMove: false,
+        manualDriver: false,
+        restrictDriverFromCreation: true,
     });
 
     const {
@@ -30,8 +51,18 @@ export const AddDriver = () => {
         confirmPassword,
         licenseIssuingState,
         licenseNumber,
-        accessToAllCompanies,
-        group,
+        homeTerminal,
+        assignVehicles,
+        hosRules,
+        cargoType,
+        restart,
+        restBreak,
+        shortHaulException,
+        splitSleeperBerth,
+        personalConveyance,
+        yardMove,
+        manualDriver,
+        restrictDriverFromCreation,
     } = formData;
 
     const requirements = {
@@ -53,6 +84,13 @@ export const AddDriver = () => {
         setFormData((prev) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
+        }));
+    };
+
+    const handlePhoneChange = (value) => {
+        setFormData((prev) => ({
+            ...prev,
+            phoneNumber: value,
         }));
     };
 
@@ -81,7 +119,7 @@ export const AddDriver = () => {
                     <div className="btn-wrapper d-flex flex-wrap gap-2">
                         <Button variant='white' className="bg-white border-gray" onClick={() => navigate(-1)}>Cancel</Button>
                         <Button variant='primary' type="submit" form="add-user-form">
-                            <i className="bi bi-plus-lg fs-16"></i> Add User
+                            <i className="bi bi-plus-lg fs-16"></i> Add Driver
                         </Button>
                     </div>
                 </div>
@@ -89,7 +127,7 @@ export const AddDriver = () => {
                 <div className="form-wrapper">
                     <Form id="add-user-form" onSubmit={handleSubmit}>
                         <section className="personal-info bg-white w-100 border rounded-4 shadow-sm mb-4 px-3 px-md-4 py-4">
-                            <Row className="g-3 g-xl-4">
+                            <Row className="g-3 gx-xl-4">
                                 <Col xs={12}>
                                     <Form.Group controlId="Username">
                                         <Form.Label>Username<span className="text-danger">*</span></Form.Label>
@@ -98,7 +136,7 @@ export const AddDriver = () => {
                                             name="username"
                                             value={username}
                                             onChange={handleChange}
-                                            placeholder="Enter Username"
+                                            placeholder="Enter username"
                                             autoComplete='off'
                                             required
                                         />
@@ -134,7 +172,7 @@ export const AddDriver = () => {
                                 </Col>
                                 <Col sm={6}>
                                     <Form.Group controlId="UserEmail">
-                                        <Form.Label>Email<span className="text-danger">*</span></Form.Label>
+                                        <Form.Label>Email</Form.Label>
                                         <Form.Control
                                             type="email"
                                             name="email"
@@ -142,13 +180,12 @@ export const AddDriver = () => {
                                             onChange={handleChange}
                                             placeholder="Enter email"
                                             autoComplete='off'
-                                            required
                                         />
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6}>
                                     <Form.Group controlId="PhoneNumber">
-                                        <Form.Label>Phone<span className="text-danger">*</span></Form.Label>
+                                        <Form.Label>Phone</Form.Label>
                                         <PhoneInput
                                             inputProps={{
                                                 name: "phoneNumber",
@@ -158,65 +195,75 @@ export const AddDriver = () => {
                                             country={"in"}
                                             // value={phone}
                                             value={formData.phoneNumber}
-                                            onChange={handleChange}
+                                            onChange={handlePhoneChange}
                                             // enableSearch={true}
                                             countryCodeEditable={false}
                                             inputClass="w-100 py-2"
                                             dropdownClass="text-start"
                                             inputStyle={{ height: "auto", minHeight: "44px" }}
-                                            placeholder="Please enter the phone number"
+                                            placeholder="Enter phone number"
                                             name="phoneNumber"
                                         />
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6}>
-                                    <Form.Group controlId="NewPassword">
+                                    <Form.Group controlId="Password">
                                         <Form.Label>Password<span className="text-danger">*</span></Form.Label>
-                                        <Form.Control
-                                            type="password"
-                                            name="password"
-                                            value={password}
-                                            onChange={handleChange}
-                                            placeholder="New Password"
-                                            isInvalid={password && !Object.values(requirements).every(Boolean)}
-                                            required
-                                        />
+                                        <div className="position-relative">
+                                            <Form.Control
+                                                type={passwordVisible ? "text" : "password"}
+                                                name="password"
+                                                value={password}
+                                                placeholder="Enter password"
+                                                minlength={6}
+                                                maxLength={24}
+                                                onChange={handleChange}
+                                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                                                title="Must be at least 6 characters long, include one uppercase letter, one lowercase letter, one number, and one special character."
+                                                autoComplete="new-password"
+                                                required
+                                            />
+                                            <span role="button" className="position-absolute top-50 translate-middle-y text-secondary" onClick={togglePassVisibility} style={{ right: "12px" }} >
+                                                {passwordVisible ? (
+                                                    <i className="bi bi-eye-slash-fill fs-16"></i>
+                                                ) : (
+                                                    <i className="bi bi-eye-fill fs-16"></i>
+                                                )}
+                                            </span>
+                                        </div>
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6}>
                                     <Form.Group controlId="ConfirmPassword">
                                         <Form.Label>Confirm Password<span className="text-danger">*</span></Form.Label>
-                                        <Form.Control
-                                            type="password"
-                                            name="confirmPassword"
-                                            value={confirmPassword}
-                                            onChange={handleChange}
-                                            placeholder="Confirm New Password"
-                                            isInvalid={confirmPassword && password !== confirmPassword}
-                                            required
-                                        />
+                                        <div className="position-relative">
+                                            <Form.Control
+                                                type={confirmPassVisible ? "text" : "password"}
+                                                value={confirmPassword}
+                                                name="confirmPassword"
+                                                placeholder="Enter confirm password"
+                                                minlength={6}
+                                                maxLength={24}
+                                                onChange={handleChange}
+                                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                                                title="Must be at least 6 characters long, include one uppercase letter, one lowercase letter, one number, and one special character."
+                                                autoComplete="new-password"
+                                                required
+                                            />
+                                            <span role="button" className="position-absolute top-50 translate-middle-y text-secondary" onClick={toggleConfirmPassVisibility} style={{ right: "12px" }}>
+                                                {confirmPassVisible ? (
+                                                    <i className="bi bi-eye-slash-fill fs-16"></i>
+                                                ) : (
+                                                    <i className="bi bi-eye-fill fs-16"></i>
+                                                )}
+                                            </span>
+                                        </div>
                                     </Form.Group>
                                 </Col>
                                 <Col xs={12}>
-                                    <div className="checkverify-wrapper mt-n2">
-                                        <div className="text-muted fw-medium">Passwords must contain:</div>
-                                        <ul className="list-unstyled d-flex flex-wrap gap-3 mt-2 mb-0">
-                                            <li className="d-flex align-items-center gap-1">
-                                                {renderCheck(requirements.length)} <span className={requirements.length ? 'text-primary' : 'text-gray'}>At least 8 characters</span>
-                                            </li>
-                                            <li className="d-flex align-items-center gap-1">
-                                                {renderCheck(requirements.uppercase)} <span className={requirements.uppercase ? 'text-primary' : 'text-gray'}>At least 1 uppercase</span>
-                                            </li>
-                                            <li className="d-flex align-items-center gap-1">
-                                                {renderCheck(requirements.lowercase)} <span className={requirements.lowercase ? 'text-primary' : 'text-gray'}>At least 1 lowercase</span>
-                                            </li>
-                                            <li className="d-flex align-items-center gap-1">
-                                                {renderCheck(requirements.digit)} <span className={requirements.digit ? 'text-primary' : 'text-gray'}>At least 1 digit</span>
-                                            </li>
-                                            <li className="d-flex align-items-center gap-1">
-                                                {renderCheck(requirements.special)} <span className={requirements.special ? 'text-primary' : 'text-gray'}>At least 1 special character</span>
-                                            </li>
-                                        </ul>
+                                    <div className="checkverify-wrapper">
+                                        <div className="text-black text-opacity-75 fw-medium mb-1">Passwords must contain at least:</div>
+                                        <div className="fs-6 text-dark text-opacity-75"><i className="bi bi-x-circle fs-6 text-danger"></i> 6 characters, max 24 characters</div>
                                     </div>
                                 </Col>
                                 <Col sm={6}>
@@ -228,7 +275,7 @@ export const AddDriver = () => {
                                             onChange={handleChange}
                                             required
                                         >
-                                            <option value="" disabled hidden>Select State</option>
+                                            <option value="" disabled>Select state</option>
                                             <option value="Uttar Pradesh">Uttar Pradesh</option>
                                             <option value="Rajasthan">Rajasthan</option>
                                             <option value="Bihar">Bihar</option>
@@ -255,59 +302,110 @@ export const AddDriver = () => {
                         <section className="carrier-section mb-4">
                             <div className="main-heading mb-3">Carrier Settings</div>
                             <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
-                                <Form.Group controlId="vehicle">
-                                    <Form.Label>Assign ELD</Form.Label>
-                                    <Form.Select name="assignEld" value={formData.assignEld} onChange={handleChange} required >
-                                        <option value="" hidden>Select ELD Device</option>
-                                        <option value="7000">7000</option>
-                                        <option value="7001">7001</option>
-                                        <option value="7002">7002</option>
-                                        <option value="7003">7003</option>
+                                <Form.Group className="mb-3" controlId="HomeTerminal">
+                                    <Form.Label>Home Terminal<span className="text-danger">*</span></Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="homeTerminal"
+                                        value={formData.homeTerminal}
+                                        onChange={handleChange}
+                                        placeholder="Enter home terminal"
+                                        autoComplete='off'
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="AssignVehicles">
+                                    <Form.Label>Assign Vehicles</Form.Label>
+                                    <Form.Select name="assignVehicles" value={formData.assignVehicles} onChange={handleChange} required >
+                                        <option value="" disabled>Select a vehicle</option>
+                                        <option value="ANDROID01">ANDROID01</option>
+                                        <option value="ANDROID02">ANDROID02</option>
+                                        <option value="ANDROID03">ANDROID03</option>
+                                        <option value="ANDROID04">ANDROID04</option>
                                     </Form.Select>
                                 </Form.Group>
                             </div>
                         </section>
                         <section className="log-section">
-                            <div className="main-heading mb-3">Logs Settings</div>
+                            <div className="main-heading mb-3">Log Settings</div>
                             <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
-                                <Row className="g-3 g-xl-4">
-                                    <Col xs={12}>
-                                        <Form.Group controlId="AccessToCompaniesCheck">
-                                            <Form.Label>Access to Companies<span className="text-danger">*</span></Form.Label>
-                                            <div className="checks-wrapper">
-                                                <Form.Check
-                                                    inline
-                                                    type="checkbox"
-                                                    name="accessToAllCompanies"
-                                                    checked={accessToAllCompanies}
-                                                    onChange={handleChange}
-                                                    className="fs-16 mb-1"
-                                                    label={<div className="fs-6 text-dark text-opacity-75">Allow Access to ALL Companies</div>}
-                                                    required
-                                                />
-                                                <div className="text-gray fw-normal">
-                                                    Check the box to allow the user to access to ALL companies.
-                                                    System will discard the “Assign Group” form field below.
-                                                </div>
-                                            </div>
-                                        </Form.Group>
-                                    </Col>
-                                    <Col xs={12}>
-                                        <Form.Group controlId="AssignGroup">
-                                            <Form.Label>Assign Group<span className="text-danger">*</span></Form.Label>
-                                            <Form.Select
-                                                name="group"
-                                                value={group}
-                                                onChange={handleChange}
-                                                required
-                                            >
-                                                <option value="" disabled hidden>Select Group</option>
-                                                <option value="Super Team">Super Team</option>
-                                                <option value="All Companies">All Companies</option>
-                                            </Form.Select>
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
+                                <Form.Group className="mb-3" controlId="HOSRules">
+                                    <Form.Label>HOS Rules<span className="text-danger">*</span></Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="hosRules"
+                                        value={formData.hosRules}
+                                        onChange={handleChange}
+                                        placeholder="Enter HOS rules"
+                                        autoComplete='off'
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="CargoType">
+                                    <Form.Label>Cargo Type<span className="text-danger">*</span></Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="cargoType"
+                                        value={formData.cargoType}
+                                        onChange={handleChange}
+                                        placeholder="Enter cargo type"
+                                        autoComplete='off'
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="Restart">
+                                    <Form.Label>Restart<span className="text-danger">*</span></Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="restart"
+                                        value={formData.restart}
+                                        onChange={handleChange}
+                                        placeholder="Enter restart"
+                                        autoComplete='off'
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="RestBreak">
+                                    <Form.Label>Rest Break<span className="text-danger">*</span></Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="restBreak"
+                                        value={formData.restBreak}
+                                        onChange={handleChange}
+                                        placeholder="Enter rest break"
+                                        autoComplete='off'
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group>
+                                    <div className="checks-wrapper">
+                                        <Form.Check type="checkbox" name="shortHaulException" checked={shortHaulException} onChange={handleChange}
+                                            className="fs-16 mb-1"
+                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Short-Haul Exception</div>}
+                                            required
+                                        />
+                                        <Form.Check type="checkbox" name="splitSleeperBerth" checked={splitSleeperBerth} onChange={handleChange}
+                                            className="fs-16 mb-1"
+                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Split-Sleeper Berth</div>}
+                                        />
+                                        <Form.Check type="checkbox" name="personalConveyance" checked={personalConveyance} onChange={handleChange}
+                                            className="fs-16 mb-1"
+                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Personal Conveyance</div>}
+                                        />
+                                        <Form.Check type="checkbox" name="yardMove" checked={yardMove} onChange={handleChange}
+                                            className="fs-16 mb-1"
+                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Yard Move</div>}
+                                        />
+                                        <Form.Check type="checkbox" name="manualDriver" checked={manualDriver} onChange={handleChange}
+                                            className="fs-16 mb-1"
+                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Manual Driver</div>}
+                                        />
+                                        <Form.Check type="checkbox" name="restrictDriverFromCreation" checked={restrictDriverFromCreation} onChange={handleChange}
+                                            className="fs-16 mb-1"
+                                            label={<div className="fs-6 text-dark text-opacity-75">Restrict Driver from Creation Date & Time</div>}
+                                        />
+                                    </div>
+                                </Form.Group>
                             </div>
                         </section>
                     </Form>

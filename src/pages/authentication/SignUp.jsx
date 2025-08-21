@@ -55,10 +55,10 @@ const SignUp = (props) => {
   const togglePassVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
+  
   const toggleConfirmPassVisibility = () => {
     setconfirmPassVisible(!confirmPassVisible);
   };
-
 
   const [step, setStep] = useState(0);
 

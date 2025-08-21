@@ -34,13 +34,13 @@ export const DriversListing = () => {
             name: 'Phone',
             selector: (row) => row.phone,
             sortable: true,
-            minWidth: '150px',
+            minWidth: '140px',
         },
         {
             name: 'HOS Rules',
             selector: (row) => row.hos_rules,
             sortable: true,
-            minWidth: '170px',
+            minWidth: '160px',
         },
         {
             name: 'Assigned Vehicle',
@@ -52,45 +52,43 @@ export const DriversListing = () => {
             name: 'Co-Driver',
             selector: (row) => row.co_driver,
             sortable: true,
-            minWidth: '160px',
+            minWidth: '150px',
         },
         {
             name: 'App Version',
-            minWidth: '120px',
+            minWidth: '110px',
             cell: (row) => (
                 <div className="app-version d-flex align-items-center gap-2"><img src={IOSIcon} alt="IOS Icon" className="img-fluid" /> {row.app_version}</div>
             ),
         },
         {
             name: 'Device',
-            minWidth: '80px',
+            minWidth: '70px',
             cell: (row) => (
                 <div className="device d-flex align-items-center gap-2"><i className="bi bi-pc-display fs-5"></i></div>
             ),
         },
         {
             name: 'Status',
-            minWidth: '120px',
+            minWidth: '90px',
             cell: (row) => <Badge className='fs-12 fw-medium bg-opacity-10' pill bg={row.status === 'Active' ? 'success text-success' : row.status === 'Inactive' ? 'danger text-danger' : 'secondary text-body'}>{row.status}</Badge>,
         },
         {
             name: 'Activated',
             selector: (row) => row.activated,
-            sortable: true,
-            minWidth: '150px',
+            minWidth: '140px',
         },
         {
             name: 'Terminated',
             selector: (row) => row.terminated,
-            sortable: true,
-            minWidth: '150px',
+            minWidth: '140px',
         },
         {
             name: 'Actions',
-            minWidth: '150px',
+            minWidth: '120px',
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    <span className='pointer ms-3' title='Edit' onClick={() => navigate('/settings/vehicles-list/edit-vehicle')}><img src={EditIcon} alt="Edit Icon" /></span>
+                    <span className='pointer' title='Edit' onClick={() => navigate('/settings/vehicles-list/edit-vehicle')}><img src={EditIcon} alt="Edit Icon" /></span>
                     <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span>
                 </div>
             ),
