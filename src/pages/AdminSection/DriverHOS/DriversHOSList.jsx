@@ -5,8 +5,8 @@ import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../../components/NoDataComponent';
 import TableFilter from '../../../components/TableFilter';
-import IOSIcon from '../../../assets/images/icons/ios.svg'
-import EditIcon from '../../../assets/images/icons/edit.svg'
+import BluetoothOnIcon from '../../../assets/images/icons/bluetooth-on.svg'
+import BluetoothOffIcon from '../../../assets/images/icons/bluetooth-off.svg'
 
 export const DriversHOSList = () => {
     const navigate = useNavigate();
@@ -24,7 +24,11 @@ export const DriversHOSList = () => {
             minWidth: '170px',
             cell: (row) => (
                 <div className="d-flex align-items-center gap-1">
-                    <span><i className="bi bi-bluetooth fs-5 text-success"></i></span>
+                    {(row.id === '02' || row.id === '05' || row.id === '07') ? (
+                        <span><img src={BluetoothOffIcon} alt="Bluetooth On Icon" className="img-fluid" /></span>
+                    ) : (
+                        <span><img src={BluetoothOnIcon} alt="Bluetooth Off Icon" className="img-fluid" /></span>
+                    )}
                     <span><i className="bi bi-geo-alt fs-5 text-body"></i></span>
                     <span className="fw-semibold text-body text-nowrap ms-1">{row.vehicle}</span>
                 </div>
@@ -34,7 +38,7 @@ export const DriversHOSList = () => {
             name: 'Status',
             minWidth: '130px',
             cell: (row) => (
-                <div className={`${row.status === "OFF Duty" ? "bg-secondary" : "bg-success"} bg-secondary text-white text-center rounded-3 px-3 py-2`} style={{width: '120px'}}>
+                <div className={`${row.status === "OFF Duty" ? "bg-secondary" : "bg-success"} bg-secondary text-white text-center rounded-3 px-3 py-2`} style={{ width: '120px' }}>
                     <div className="fs-14 fw-medium">{row.status}</div>
                     <div className="fs-10 mt-1">15 days ago</div>
                 </div>
@@ -75,9 +79,7 @@ export const DriversHOSList = () => {
             minWidth: '100px',
             cell: (row) => (
                 <div className="d-flex align-items-center gap-2 ms-4">
-                    {row.violations === true &&
-                        <i className="bi bi-clock fs-5 text-danger"></i>
-                    }
+                    {row.violations === "Violated" ? <i className="bi bi-clock fs-5 text-danger"></i> : ''}
                 </div>
             ),
         },
@@ -132,7 +134,7 @@ export const DriversHOSList = () => {
             cycle: '70:00',
             recap: '00:00',
             last_sync: '18 Hours',
-            violations: false,
+            violations: "Non Violated",
             logs: true,
             contact: '9647657654',
             device: true,
@@ -148,7 +150,7 @@ export const DriversHOSList = () => {
             cycle: '70:00',
             recap: '00:00',
             last_sync: '18 Hours',
-            violations: true,
+            violations: "Violated",
             logs: true,
             contact: '9647657654',
             device: true,
@@ -164,7 +166,7 @@ export const DriversHOSList = () => {
             cycle: '70:00',
             recap: '00:00',
             last_sync: '18 Hours',
-            violations: true,
+            violations: "Non Violated",
             logs: true,
             contact: '9647657654',
             device: true,
@@ -180,7 +182,7 @@ export const DriversHOSList = () => {
             cycle: '70:00',
             recap: '00:00',
             last_sync: '18 Hours',
-            violations: false,
+            violations: "Non Violated",
             logs: true,
             contact: '9647657654',
             device: true,
@@ -196,7 +198,7 @@ export const DriversHOSList = () => {
             cycle: '70:00',
             recap: '00:00',
             last_sync: '18 Hours',
-            violations: true,
+            violations: "Non Violated",
             logs: true,
             contact: '9647657654',
             device: true,
@@ -212,7 +214,7 @@ export const DriversHOSList = () => {
             cycle: '70:00',
             recap: '00:00',
             last_sync: '18 Hours',
-            violations: true,
+            violations: "Violated",
             logs: true,
             contact: '9647657654',
             device: true,
@@ -228,7 +230,7 @@ export const DriversHOSList = () => {
             cycle: '70:00',
             recap: '00:00',
             last_sync: '18 Hours',
-            violations: true,
+            violations: "Non Violated",
             logs: true,
             contact: '9647657654',
             device: true,
@@ -244,7 +246,7 @@ export const DriversHOSList = () => {
             cycle: '70:00',
             recap: '00:00',
             last_sync: '18 Hours',
-            violations: false,
+            violations: "Non Violated",
             logs: true,
             contact: '9647657654',
             device: true,
@@ -277,13 +279,13 @@ export const DriversHOSList = () => {
             value: filterDutyStatus,
             setValue: setFilterDutyStatus,
             placeholder: 'Filter by Duty Status',
-            options: ['All', 'Off Duty', 'Driving'],
+            options: ['All', 'OFF Duty', 'Driving'],
         },
         {
             value: filterViolationStatus,
             setValue: setFilterViolationStatus,
             placeholder: 'Filter by Violation Status',
-            options: ['All', 'Active', 'Inactive'],
+            options: ['All', 'Violated', 'Non Violated'],
         }
     ];
 
@@ -294,8 +296,8 @@ export const DriversHOSList = () => {
         );
 
         const matchesELDStatus = filterELDStatus === 'All' || filterELDStatus === '' || item.status === filterELDStatus;
-        const matchesDutyStatus = filterDutyStatus === 'All' || filterDutyStatus === '' || item.subscription === filterDutyStatus;
-        const matchesViolationStatus = filterViolationStatus === 'All' || filterViolationStatus === '' || item.invoices === filterViolationStatus;
+        const matchesDutyStatus = filterDutyStatus === 'All' || filterDutyStatus === '' || item.status === filterDutyStatus;
+        const matchesViolationStatus = filterViolationStatus === 'All' || filterViolationStatus === '' || item.violations === filterViolationStatus;
 
         return matchesSearch && matchesELDStatus && matchesDutyStatus && matchesViolationStatus;
     });
