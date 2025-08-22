@@ -37,7 +37,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/drivers-hos'} className={`${location.pathname === '/drivers-hos' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
+                    <Link to={'/driver-hos'} className={`${location.pathname === '/driver-hos' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-clock"></i>
                         {!collapsed && <span>Drivers HOS</span>}
                     </Link>
