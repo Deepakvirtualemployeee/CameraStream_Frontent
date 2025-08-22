@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { getVehicleById, updateVehicle, deactivateVehicle, activateVehicle, unassignEld } from "../../../store/actions/vehicles";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 
@@ -9,6 +9,12 @@ export const EditVehicles = () => {
     const { id } = useParams(); // vehicle id from URL
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    const location = useLocation();
+    const { companyId } = location.state || {};  // reading state
+    console.log("Company Id:", companyId);
+    console.log("Vehicle Id:", id);
+
 
     const { vehicle, loading } = useSelector((state) => state.vehicles);
     const [showDeactivate, setShowDeactivate] = useState(false);
@@ -29,14 +35,14 @@ export const EditVehicles = () => {
         status: "Active"
     });
 
-    // 🔹 Fetch single vehicle when id changes
+    // Fetch single vehicle when id changes
     useEffect(() => {
         if (id) {
             dispatch(getVehicleById(id));
         }
     }, [dispatch, id]);
 
-    // 🔹 Prefill form when vehicle is loaded
+    // Prefill form when vehicle is loaded
     useEffect(() => {
         if (vehicle) {
             setFormData({

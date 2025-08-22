@@ -92,25 +92,28 @@ function App() {
 
         {/* Routes using Sidebar + Topbar */}
         <Route element={<Layout2 />}>
-          <Route path="settings/drivers-listing" element={<DriversListing />} />
+          {/* <Route path="settings/drivers-listing" element={<DriversListing />} />
           <Route path="settings/drivers-listing/add-driver" element={<AddDriver />} />
-          <Route path="settings/drivers-listing/edit-driver" element={<EditDriver />} />
-          <Route path="settings/eld-devices" element={<ELDDevice />} />
-          <Route path="settings/eld-devices/add-device" element={<AddELDDevice />} />
-          <Route path="settings/eld-devices/edit-device" element={<EditELDDevice />} />
-          <Route path="settings/vehicles-list" element={<VehiclesList />} />
-          <Route path="settings/vehicles-list/add-vehicle" element={<AddVehicles />} />
+          <Route path="settings/drivers-listing/edit-driver" element={<EditDriver />} /> */}
+          <Route path="settings/drivers-listing/:id" element={<DriversListing />} />
+          <Route path="settings/drivers-listing/add-driver/:id" element={<AddDriver />} />
+          <Route path="settings/drivers-listing/edit-driver/:id" element={<EditDriver />} />
+          <Route path="settings/eld-devices/:id" element={<ELDDevice />} />
+          <Route path="settings/eld-devices/add-device/:id" element={<AddELDDevice />} />
+          <Route path="settings/eld-devices/edit-device/:id" element={<EditELDDevice />} />
+          <Route path="settings/vehicles-list/:id" element={<VehiclesList />} />
+          <Route path="settings/vehicles-list/add-vehicle/:id" element={<AddVehicles />} />
           {/* <Route path="settings/vehicles-list/edit-vehicle" element={<EditVehicles />} /> */}
           <Route path="settings/vehicles-list/edit-vehicle/:id" element={<EditVehicles />} />
 
-          {/* <Route path="settings/company-info/:id" element={<CompanyInfo />} /> */}
-          <Route path="settings/company-info" element={<CompanyInfo />} />
+          <Route path="settings/company-info/:id" element={<CompanyInfo />} />
+          {/* <Route path="settings/company-info" element={<CompanyInfo />} /> */}
 
-          <Route path="settings/company-info/edit-company-info" element={<EditCompanyInfo />} />
-          <Route path="settings/portal-users" element={<PortalUsers />} />
-          <Route path="settings/portal-users/add-portal-user" element={<AddPortalUser />} />
-          <Route path="settings/portal-users/edit-portal-user" element={<EditPortalUser />} />
-          <Route path="settings/resources" element={<ResourcesList />} />
+          <Route path="settings/company-info/edit-company-info/:id" element={<EditCompanyInfo />} />
+          <Route path="settings/portal-users/:id" element={<PortalUsers />} />
+          <Route path="settings/portal-users/add-portal-user/:id" element={<AddPortalUser />} />
+          <Route path="settings/portal-users/edit-portal-user/:id" element={<EditPortalUser />} />
+          {/* <Route path="settings/resources" element={<ResourcesList />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>

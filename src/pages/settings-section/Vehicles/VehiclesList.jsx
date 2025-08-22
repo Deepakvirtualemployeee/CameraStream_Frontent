@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button, Badge } from "react-bootstrap";
 import DataTable from "react-data-table-component";
 import dataTableCustomStyles from "../../../assets/style/dataTableCustomStyles";
@@ -13,8 +13,9 @@ import { getVehicles } from "../../../store/actions/vehicles";
 export const VehiclesList = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { id } = useParams(); // vehicle id from URL
 
-    // 🔹 Correct selector
+    // Correct selector
     const { vehicles, loading } = useSelector((state) => state.vehicles);
 
     useEffect(() => {
@@ -87,7 +88,7 @@ export const VehiclesList = () => {
                         className="pointer ms-3"
                         title="Edit"
                         onClick={() =>
-                            navigate(`/settings/vehicles-list/edit-vehicle/${row._id}`)
+                            navigate(`/settings/vehicles-list/edit-vehicle/${row._id}`, { state: { companyId: id } })
                         }
                     >
                         <img src={EditIcon} alt="Edit Icon" />
@@ -162,7 +163,7 @@ export const VehiclesList = () => {
                             </Button>
                             <Button
                                 variant="primary"
-                                onClick={() => navigate("/settings/vehicles-list/add-vehicle")}
+                                onClick={() => navigate(`/settings/vehicles-list/add-vehicle/${id}`)}
                             >
                                 <i className="bi bi-plus-lg fs-16"></i> Add Vehicle
                             </Button>

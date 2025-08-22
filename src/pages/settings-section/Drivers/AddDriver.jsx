@@ -1,31 +1,34 @@
-import React, { useState } from 'react';
-import { Form, Row, Col, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Form, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import { useDispatch, useSelector } from "react-redux";
+import { addDriver } from "../../../store/actions/drivers";
 
 export const AddDriver = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { id } = useParams(); // Company id
+
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPassVisible, setconfirmPassVisible] = useState(false);
 
-    const togglePassVisibility = () => {
-        setPasswordVisible(!passwordVisible);
-    };
+    const { loading, error, success } = useSelector((state) => state.driverAdd || {});
 
-    const toggleConfirmPassVisibility = () => {
-        setconfirmPassVisible(!confirmPassVisible);
-    };
+    const togglePassVisibility = () => setPasswordVisible(!passwordVisible);
+    const toggleConfirmPassVisibility = () => setconfirmPassVisible(!confirmPassVisible);
 
     const [formData, setFormData] = useState({
         username: '',
         firstName: '',
         lastName: '',
+        companyId: id,
         email: '',
         phoneNumber: '',
         password: '',
         confirmPassword: '',
-        licenseIssuingState: '',
+        licenseState: '',
         licenseNumber: '',
         homeTerminal: '',
         assignVehicles: '',
@@ -45,11 +48,12 @@ export const AddDriver = () => {
         username,
         firstName,
         lastName,
+        companyId,
         email,
         phoneNumber,
         password,
         confirmPassword,
-        licenseIssuingState,
+        licenseState,
         licenseNumber,
         homeTerminal,
         assignVehicles,
@@ -82,15 +86,19 @@ export const AddDriver = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         if (password !== confirmPassword) {
             alert('Passwords do not match!');
             return;
         }
-
-        console.log('Submitted data:', formData);
-        alert('User added successfully!');
+        console.log("Add driver data:", formData);
+        dispatch(addDriver(formData, navigate));
     };
+
+    useEffect(() => {
+        if (success) {
+            // navigate("/settings/drivers-list") already handled in action
+        }
+    }, [success, navigate]);
 
     return (
         <div className="AddDriver-page py-3">
@@ -99,11 +107,14 @@ export const AddDriver = () => {
                     <div className="main-heading">Personal Info</div>
                     <div className="btn-wrapper d-flex flex-wrap gap-2">
                         <Button variant='white' className="bg-white border-gray" onClick={() => navigate(-1)}>Cancel</Button>
-                        <Button variant='primary' type="submit" form="add-user-form">
-                            <i className="bi bi-plus-lg fs-16"></i> Add Driver
+                        <Button variant='primary' type="submit" form="add-user-form" disabled={loading}>
+                            {loading ? <Spinner size="sm" animation="border" /> : <><i className="bi bi-plus-lg fs-16"></i> Add Driver</>}
                         </Button>
                     </div>
                 </div>
+
+                {error && <Alert variant="danger">{error}</Alert>}
+                {success && <Alert variant="success">Driver added successfully!</Alert>}
 
                 <div className="form-wrapper">
                     <Form id="add-user-form" onSubmit={handleSubmit}>
@@ -248,11 +259,11 @@ export const AddDriver = () => {
                                     </div>
                                 </Col>
                                 <Col sm={6}>
-                                    <Form.Group controlId="LicenseIssuingState">
+                                    <Form.Group controlId="licenseState">
                                         <Form.Label>Driving License Issuing State<span className="text-danger">*</span></Form.Label>
                                         <Form.Select
-                                            name="licenseIssuingState"
-                                            value={licenseIssuingState}
+                                            name="licenseState"
+                                            value={licenseState}
                                             onChange={handleChange}
                                             required
                                         >

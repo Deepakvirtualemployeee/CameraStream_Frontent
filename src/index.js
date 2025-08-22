@@ -7,6 +7,7 @@ import { thunk } from "redux-thunk";
 import auth from './store/reducer/auth';
 import companiesReducer from './store/reducer/companies';
 import vehiclesReducer from './store/reducer/vehicles';
+import driverReducer from './store/reducer/drivers';
 
 // Import Bootstrap 5.3.3 CSS
 //import 'bootstrap/dist/css/bootstrap.min.css';  // Corrected Bootstrap import for styling
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   auth: auth,
   companies: companiesReducer,
   vehicles: vehiclesReducer,
+  drivers: driverReducer,
 
 });
 

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import ArrowLogoutIcon from '../assets/images/icons/arrow-bar-right.svg';
 
 const Sidebar = ({ collapsed, openSidebar }) => {
     const location = useLocation();
+    const { id } = useParams();
+
     const [openSettings, setOpenSettings] = useState(false);
     const toggleSettings = () => setOpenSettings(!openSettings);
 
@@ -91,31 +93,67 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     {/* Dropdown submenu */}
                     {!collapsed && openSettings && (
                         <ul className="sub-menu list-unstyled">
-                            <li className="nav-item">
+                            {/* <li className="nav-item">
                                 <Link to="/settings/drivers-listing" className={`${location.pathname === '/settings/drivers-listing' ? 'active' : ''}`}>
                                     Drivers
                                 </Link>
-                            </li>
+                            </li> */}
                             <li className="nav-item">
+                                <Link
+                                    to={`/settings/drivers-listing/${id}`}
+                                    className={`${location.pathname === `/settings/drivers-listing/${id}` ? 'active' : ''}`} >
+                                    Drivers
+                                </Link>
+                            </li>
+                            {/* <li className="nav-item">
                                 <Link to="/settings/vehicles-list" className={`${location.pathname === '/settings/vehicles-list' ? 'active' : ''}`}>
                                     Vehicles
                                 </Link>
-                            </li>
+                            </li> */}
                             <li className="nav-item">
+                                <Link
+                                    to={`/settings/vehicles-list/${id}`}
+                                    className={`${location.pathname === `/settings/vehicles-list/${id}` ? 'active' : ''}`} >
+                                    Vehicles
+                                </Link>
+                            </li>
+                            {/* <li className="nav-item">
                                 <Link to="/settings/eld-devices" className={`${location.pathname === '/settings/eld-devices' ? 'active' : ''}`}>
                                     ELD Devices
                                 </Link>
-                            </li>
+                            </li> */}
                             <li className="nav-item">
+                                <Link
+                                    to={`/settings/eld-devices/${id}`}
+                                    className={`${location.pathname === `/settings/eld-devices/${id}` ? 'active' : ''}`} >
+                                    ELD Devices
+                                </Link>
+                            </li>
+                            {/* <li className="nav-item">
                                 <Link to="/settings/portal-users" className={`${location.pathname === '/settings/portal-users' ? 'active' : ''}`}>
                                     Portal Users
                                 </Link>
-                            </li>
+                            </li> */}
                             <li className="nav-item">
+                                <Link
+                                    to={`/settings/portal-users/${id}`}
+                                    className={`${location.pathname === `/settings/portal-users/${id}` ? 'active' : ''}`} >
+                                    Portal Users
+                                </Link>
+                            </li>
+                            {/* <li className="nav-item">
                                 <Link to="/settings/company-info" className={`${location.pathname === '/settings/company-info' ? 'active' : ''}`}>
                                     Company
                                 </Link>
+                            </li> */}
+                            <li className="nav-item">
+                                <Link
+                                    to={`/settings/company-info/${id}`}
+                                    className={`${location.pathname === `/settings/company-info/${id}` ? 'active' : ''}`} >
+                                    Company
+                                </Link>
                             </li>
+                            
                             {/* <li className="nav-item">
                                 <Link to="/settings/resources" className={`${location.pathname === '/settings/resources' ? 'active' : ''}`}>
                                     Resources
