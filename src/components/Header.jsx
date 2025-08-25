@@ -24,7 +24,7 @@ export const Header = ({ collapsed, toggleSidebar }) => {
             </NavLink>
           </li>
           <li className="nav-item dropdown">
-            <NavLink to={'/'} className="nav-link active p-2">
+            <NavLink to={'/'} className="nav-link active me-2 me-md-0 p-2">
               <img src={BookIcon} alt="Book Icon" className="img-fluid" style={{minWidth:'24px'}} />
             </NavLink>
           </li>
@@ -36,7 +36,7 @@ export const Header = ({ collapsed, toggleSidebar }) => {
                   <div className="user-shortname fs-16 fw-medium text-black text-opacity-75 text-uppercase">K</div>
                   {/* <img className="w-100 h-100" src={require("../assets/images/dummy-user.jpeg")} alt="User" /> */}
                 </div>
-                <div className="user-info text-start text-truncate">
+                <div className="user-info text-start text-truncate d-none d-sm-block">
                   <div className="username fs-14 fw-medium text-black text-opacity-75 text-capitalize">kapil Prajapati</div>
                   <div className="user-email fs-12 text-muted text-lowercase text-truncate">kapil@virtualemployee.com</div>
                 </div>

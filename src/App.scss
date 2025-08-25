@@ -261,19 +261,19 @@ input[type="time"]:invalid:before {
 
 // react-phone-input-2 styyle customization
 .main-content {
-.react-tel-input {
-  .form-control {
-    border-color: $input-border-color;
-    border-radius: $input-border-radius;
-    background-color: transparent;
-  }
+  .react-tel-input {
+    .form-control {
+      border-color: $input-border-color;
+      border-radius: $input-border-radius;
+      background-color: transparent;
+    }
 
-  .flag-dropdown {
-    border-color: $input-border-color;
-    border-top-left-radius: $input-border-radius;
-    border-bottom-left-radius: $input-border-radius;
+    .flag-dropdown {
+      border-color: $input-border-color;
+      border-top-left-radius: $input-border-radius;
+      border-bottom-left-radius: $input-border-radius;
+    }
   }
-}
 }
 
 // Start: React-slick NPM customize style
@@ -318,6 +318,32 @@ input[type="time"]:invalid:before {
 }
 
 // End: React-slick NPM customize style
+
+// Date Picker npm customization
+.react-datepicker-wrapper {
+  min-width: 240px;
+
+  .react-datepicker__input-container {
+    display: inline-flex;
+    align-items: center;
+
+    .react-datepicker__calendar-icon {
+      margin-left: 3px;
+
+      path {
+        fill: $body-color;
+      }
+    }
+
+    input {
+      padding-left: 30px;
+    }
+
+    .react-datepicker__close-icon {
+      padding-right: 10px;
+    }
+  }
+}
 
 // Start: Top Header Css
 .top-header {

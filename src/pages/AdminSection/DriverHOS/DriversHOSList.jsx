@@ -326,7 +326,6 @@ export const DriversHOSList = () => {
                             data={filteredData}
                             pagination
                             highlightOnHover
-                            pointerOnHover
                             responsive
                             customStyles={dataTableCustomStyles}
                             noDataComponent={<NoDataComponent />}
