@@ -93,9 +93,9 @@ function App() {
 
         {/* Routes using Sidebar + Topbar */}
         <Route element={<Layout2 />}>
-<<<<<<< HEAD
+{/* <<<<<<< HEAD */}
           {/* <Route path="settings/drivers-listing" element={<DriversListing />} />
-=======
+
           <Route path="driver-hos" element={<DriversHOSList />} />
           <Route path="settings/drivers-listing" element={<DriversListing />} />
 >>>>>>> 58d87bcb5887f9a0e0b7283ee177f183be1f600c
