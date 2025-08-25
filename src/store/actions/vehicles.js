@@ -5,10 +5,10 @@ import { toast } from "react-toastify";
 const token = localStorage.getItem("token");
 
 // Get all vehicles
-export const getVehicles = () => async (dispatch) => {
+export const getVehicles = (companyId) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_VEHICLES_REQUEST });
-    const res = await axios.get("/vehicles", {
+    const res = await axios.get(`/vehicles?companyId=${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -29,7 +29,7 @@ export const getVehicles = () => async (dispatch) => {
 };
 
 // Create vehicle
-export const createVehicle = (vehicleData, navigate) => async (dispatch) => {
+export const createVehicle = (companyId, vehicleData, navigate) => async (dispatch) => {
     try {
       dispatch({ type: actionTypes.CREATE_VEHICLE_REQUEST });
   
@@ -48,10 +48,10 @@ export const createVehicle = (vehicleData, navigate) => async (dispatch) => {
       toast.success("Vehicle created successfully!");
   
       // refresh list
-      dispatch(getVehicles());
+      dispatch(getVehicles(companyId));
   
       // redirect to list page
-      if (navigate) navigate("/settings/vehicles-list");
+      if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
     } catch (err) {
       dispatch({
         type: actionTypes.CREATE_VEHICLE_FAILURE,
@@ -62,10 +62,10 @@ export const createVehicle = (vehicleData, navigate) => async (dispatch) => {
   };
   
 // Update vehicle
-export const updateVehicle = (id, vehicleData, navigate) => async (dispatch) => {
+export const updateVehicle = (companyId, id, vehicleData, navigate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.UPDATE_VEHICLE_REQUEST });
-    const res = await axios.put(`/vehicles/${id}`, vehicleData, {
+    const res = await axios.put(`/vehicles?vehicleId=${id}`, vehicleData, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -78,7 +78,7 @@ export const updateVehicle = (id, vehicleData, navigate) => async (dispatch) => 
     });
     toast.success("Vehicle updated successfully!");
 
-    if (navigate) navigate("/settings/vehicles-list");
+    if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
 
   } catch (err) {
     dispatch({
@@ -90,11 +90,11 @@ export const updateVehicle = (id, vehicleData, navigate) => async (dispatch) => 
 };
 
 // Get vehicle by ID
-export const getVehicleById = (id) => async (dispatch) => {
+export const getVehicleById = (companyId, id) => async (dispatch) => {
     try {
       dispatch({ type: actionTypes.GET_VEHICLE_BY_ID_REQUEST });
   
-      const res = await axios.get(`/vehicles/${id}`, {
+      const res = await axios.get(`/vehicles?companyId=${companyId}&vehicleId=${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -114,11 +114,11 @@ export const getVehicleById = (id) => async (dispatch) => {
   };
   
 // Deactivate Vehicle
-export const deactivateVehicle = (id, navigate) => async (dispatch) => {
+export const deactivateVehicle = (companyId, id, navigate) => async (dispatch) => {
     try {
       dispatch({ type: actionTypes.DEACTIVATE_VEHICLE_REQUEST });
   
-      const res = await axios.put(`/vehicles/${id}/deactivate`, {}, {
+      const res = await axios.put(`/vehicles/deactivate?companyId=${companyId}&vehicleId=${id}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -131,7 +131,7 @@ export const deactivateVehicle = (id, navigate) => async (dispatch) => {
       });
   
       toast.success("Vehicle deactivated successfully!");
-      if (navigate) navigate("/settings/vehicles-list");
+      if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
 
       return true;
     } catch (err) {
@@ -145,12 +145,12 @@ export const deactivateVehicle = (id, navigate) => async (dispatch) => {
   };
   
   // Activate Vehicle
-export const activateVehicle = (id, navigate) => async (dispatch) => {
+export const activateVehicle = (companyId, id, navigate) => async (dispatch) => {
     try {
       dispatch({ type: actionTypes.ACTIVATE_VEHICLE_REQUEST });
   
       const res = await axios.put(
-        `/vehicles/${id}/activate`,
+        `/vehicles/activate?companyId=${companyId}&vehicleId=${id}`,
         {},
         {
           headers: {
@@ -166,7 +166,7 @@ export const activateVehicle = (id, navigate) => async (dispatch) => {
       });
   
       toast.success("Vehicle activated successfully!");
-      if (navigate) navigate("/settings/vehicles-list");
+      if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
     } catch (err) {
       dispatch({
         type: actionTypes.ACTIVATE_VEHICLE_FAILURE,
@@ -177,11 +177,11 @@ export const activateVehicle = (id, navigate) => async (dispatch) => {
   };
   
   // Unassign ELD from Vehicle
-  export const unassignEld = (id, navigate) => async (dispatch) => {
+  export const unassignEld = (companyId, id, navigate) => async (dispatch) => {
     try {
       dispatch({ type: actionTypes.UNASSIGN_ELD_REQUEST });
   
-      const res = await axios.put(`/vehicles/${id}/unassign-eld`, {}, {
+      const res = await axios.put(`/vehicles/unassign-eld?companyId=${companyId}&vehicleId=${id}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -194,7 +194,7 @@ export const activateVehicle = (id, navigate) => async (dispatch) => {
       });
   
       toast.success("ELD unassigned successfully!");
-      if (navigate) navigate("/settings/vehicles-list");
+      if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
       return true;
     } catch (err) {
       dispatch({
@@ -207,10 +207,10 @@ export const activateVehicle = (id, navigate) => async (dispatch) => {
   };
   
 // Delete vehicle
-export const deleteVehicle = (id) => async (dispatch) => {
+export const deleteVehicle = (companyId, id) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.DELETE_VEHICLE_REQUEST });
-    await axios.delete(`/vehicles/${id}`, {
+    await axios.delete(`/vehicles?companyId=${companyId}&vehicleId=${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

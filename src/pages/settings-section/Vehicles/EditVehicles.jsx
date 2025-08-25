@@ -24,6 +24,7 @@ export const EditVehicles = () => {
 
     const [formData, setFormData] = useState({
         vehicleNumber: "",
+        companyId: companyId,
         make: "",
         model: "",
         year: "",
@@ -38,7 +39,7 @@ export const EditVehicles = () => {
     // Fetch single vehicle when id changes
     useEffect(() => {
         if (id) {
-            dispatch(getVehicleById(id));
+            dispatch(getVehicleById(companyId, id));
         }
     }, [dispatch, id]);
 
@@ -70,7 +71,7 @@ export const EditVehicles = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (id) {
-            dispatch(updateVehicle(id, formData, navigate)); // navigate handled in action
+            dispatch(updateVehicle(companyId, id, formData, navigate)); // navigate handled in action
         }
     };
 
@@ -84,7 +85,7 @@ export const EditVehicles = () => {
     const confirmUnassignEld = async () => {
         if (!id) return;
     
-        const success = await dispatch(unassignEld(id, navigate));
+        const success = await dispatch(unassignEld(companyId, id, navigate));
         if (success) {
             setIsUnassigned(true); // disable the button
         }
@@ -95,7 +96,7 @@ export const EditVehicles = () => {
     const confirmDeactivate = () => {
         if (!id) return;
 
-        dispatch(deactivateVehicle(id, navigate));
+        dispatch(deactivateVehicle(companyId, id, navigate));
         setShowDeactivate(false);
     };
 
@@ -103,7 +104,7 @@ export const EditVehicles = () => {
     const confirmActivate = () => {
         if (!id) return;
 
-        dispatch(activateVehicle(id, navigate));
+        dispatch(activateVehicle(companyId, id, navigate));
         setShowActivate(false);
     };
 

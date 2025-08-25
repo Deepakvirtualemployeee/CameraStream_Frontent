@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,7 +9,10 @@ import { addDriver } from "../../../store/actions/drivers";
 export const AddDriver = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { id } = useParams(); // Company id
+    // const { id } = useParams(); // Company id
+
+    const location = useLocation();
+    const { companyId } = location.state || {};  // reading state
 
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPassVisible, setconfirmPassVisible] = useState(false);
@@ -23,7 +26,7 @@ export const AddDriver = () => {
         username: '',
         firstName: '',
         lastName: '',
-        companyId: id,
+        companyId: companyId,
         email: '',
         phoneNumber: '',
         password: '',
@@ -48,7 +51,6 @@ export const AddDriver = () => {
         username,
         firstName,
         lastName,
-        companyId,
         email,
         phoneNumber,
         password,

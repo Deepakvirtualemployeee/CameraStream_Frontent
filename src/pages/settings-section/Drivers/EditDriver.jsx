@@ -25,6 +25,7 @@ export const EditDriver = () => {
   const [formData, setFormData] = useState({
     username: "",
     firstName: "",
+    companyId: companyId,
     lastName: "",
     email: "",
     phoneNumber: "",
@@ -50,7 +51,7 @@ export const EditDriver = () => {
   // Fetch driver by ID on mount
   useEffect(() => {
     if (id) {
-      dispatch(getDriverById(id));
+      dispatch(getDriverById(companyId, id));
     }
   }, [id, dispatch]);
 
@@ -101,7 +102,7 @@ useEffect(() => {
       return;
     }
 
-    dispatch(updateDriver(id, formData, navigate));
+    dispatch(updateDriver(companyId, id, formData, navigate));
   };
 
   if (loading) {

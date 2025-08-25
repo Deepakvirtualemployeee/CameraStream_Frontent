@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createVehicle, updateVehicle, getVehicles } from "../../../store/actions/vehicles";
 
 export const AddVehicles = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { id } = useParams(); // if editing vehicle
+  // const { id } = useParams(); // vehicle id from url
+
+  const location = useLocation();
+  const { companyId } = location.state || {};  // reading state
 
 //   const { vehicleDetails, loading } = useSelector((state) => state.vehicles);
   const { vehicleDetails, loading } = useSelector((state) => state.vehicles || { vehicleDetails: [] });
@@ -15,6 +18,7 @@ export const AddVehicles = () => {
 
   const [formData, setFormData] = useState({
     vehicleNumber: "",
+    companyId: companyId,
     make: "",
     model: "",
     year: "",
@@ -27,20 +31,20 @@ export const AddVehicles = () => {
   });
 
   // Fetch vehicle details if editing
-  useEffect(() => {
-    if (id) {
-    //   dispatch(getVehicleById(id));
-      dispatch(getVehicles);
+  // useEffect(() => {
+  //   if (id) {
+  //   //   dispatch(getVehicleById(id));
+  //     dispatch(getVehicles(companyId));
 
-    }
-  }, [id, dispatch]);
+  //   }
+  // }, [id, dispatch]);
 
   // Pre-fill data when editing
-  useEffect(() => {
-    if (id && vehicleDetails) {
-      setFormData(vehicleDetails);
-    }
-  }, [vehicleDetails, id]);
+  // useEffect(() => {
+  //   if (id && vehicleDetails) {
+  //     setFormData(vehicleDetails);
+  //   }
+  // }, [vehicleDetails, id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,13 +57,13 @@ export const AddVehicles = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (id) {
-      // Editing existing vehicle
-      dispatch(updateVehicle(id, formData, navigate));
-    } else {
+    // if (id) {
+    //   // Editing existing vehicle
+    //   dispatch(updateVehicle(companyId, id, formData, navigate));
+    // } else {
       // Adding new vehicle
-      dispatch(createVehicle(formData, navigate));
-    }
+      dispatch(createVehicle(companyId, formData, navigate));
+    // }
   };
 
   return (
@@ -70,7 +74,9 @@ export const AddVehicles = () => {
       >
         <div className="heading-wrapper d-flex justify-content-between align-items-center mb-4">
           <div className="main-heading">
-            {id ? "Edit Vehicle" : "Add Vehicle"}
+            {/* {id ? "Edit Vehicle" : "Add Vehicle"} */}
+            {"Add Vehicle"}
+
           </div>
           <div className="btn-wrapper d-flex flex-wrap gap-2">
             <Button
@@ -86,7 +92,8 @@ export const AddVehicles = () => {
               form="add-vehicle-form"
               disabled={loading}
             >
-              {id ? "Update Vehicle" : "Add Vehicle"}
+              {/* {id ? "Update Vehicle" : "Add Vehicle"} */}
+              {"Add Vehicle"}
             </Button>
           </div>
         </div>
