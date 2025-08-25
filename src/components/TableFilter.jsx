@@ -1,10 +1,13 @@
 // components/TableFilter.jsx
-import React from 'react';
+import React, {useState} from 'react';
 import { Form, Button } from 'react-bootstrap';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import SearchIcon from '../assets/images/icons/search.svg';
 import ReloadIcon from '../assets/images/icons/reload.svg';
 
-const TableFilter = ({ searchText, setSearchText, searchPlaceholder = 'Search...', filters = [], onReset }) => {
+const TableFilter = ({ searchText, setSearchText, searchPlaceholder = 'Search...', filters = [], startDate, endDate, setDateRange, showDateFilter = false, onReset }) => {
+    
     return (
         <div className="filter-wrapper d-flex flex-column flex-sm-row flex-wrap gap-2 flex-fill">
             {/* Search input */}
@@ -12,6 +15,20 @@ const TableFilter = ({ searchText, setSearchText, searchPlaceholder = 'Search...
                 <Form.Control type="search" value={searchText} placeholder={searchPlaceholder} onChange={e => setSearchText(e.target.value)} />
                 <img src={SearchIcon} alt="Search Icon" className="icon" />
             </div>
+
+            {/* Date Picker */}
+            {showDateFilter && (
+            <DatePicker 
+                className="form-control w-100"
+                showIcon
+                selectsRange={true}
+                startDate={startDate}
+                endDate={endDate}
+                onChange={(update) => setDateRange(update)}
+                isClearable={true}
+                placeholderText="Select date range"
+            />
+            )}
 
             {/* Custom filter selects */}
             {filters.map((filter, idx) => (

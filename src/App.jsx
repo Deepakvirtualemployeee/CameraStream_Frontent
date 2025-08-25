@@ -34,6 +34,8 @@ import { DriversList } from './pages/drivers-list/DriversList';
 
 // Admin Section Layout Pages
 import { DriversHOSList } from './pages/AdminSection/DriverHOS/DriversHOSList';
+import { LogsList } from './pages/AdminSection/Logs/LogsList';
+import { Location } from './pages/AdminSection/Locations/Location';
 import { DriversListing } from './pages/settings-section/Drivers/DriversListing';
 import { AddDriver } from './pages/settings-section/Drivers/AddDriver';
 import { EditDriver } from './pages/settings-section/Drivers/EditDriver';
@@ -97,6 +99,8 @@ function App() {
           {/* <Route path="settings/drivers-listing" element={<DriversListing />} />
 
           <Route path="driver-hos" element={<DriversHOSList />} />
+          <Route path="logs" element={<LogsList />} />
+          <Route path="location" element={<Location />} />
           <Route path="settings/drivers-listing" element={<DriversListing />} />
 >>>>>>> 58d87bcb5887f9a0e0b7283ee177f183be1f600c
           <Route path="settings/drivers-listing/add-driver" element={<AddDriver />} />
