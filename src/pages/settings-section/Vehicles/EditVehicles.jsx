@@ -47,6 +47,7 @@ export const EditVehicles = () => {
     useEffect(() => {
         if (vehicle) {
             setFormData({
+                companyId: companyId,
                 vehicleNumber: vehicle.vehicleNumber || "",
                 make: vehicle.make || "",
                 model: vehicle.model || "",
@@ -57,6 +58,8 @@ export const EditVehicles = () => {
                 licensePlateNumber: vehicle.licensePlateNumber || "",
                 eldSerialNumber: vehicle.eldSerialNumber || "",
             });
+            // if there’s no ELD assigned in backend → disable button
+    setIsUnassigned(!vehicle.eldSerialNumber);
         }
     }, [vehicle]);
 
@@ -68,6 +71,13 @@ export const EditVehicles = () => {
         }));
     };
 
+    // Re-enable Unassign button when ELD is assigned again
+// useEffect(() => {
+//     if (formData.eldSerialNumber) {
+//       setIsUnassigned(false);
+//     }
+//   }, [formData.eldSerialNumber]);
+  
     const handleSubmit = (e) => {
         e.preventDefault();
         if (id) {
@@ -82,15 +92,30 @@ export const EditVehicles = () => {
     //     setShowUnassign(false);
     // };
 
+    // const confirmUnassignEld = async () => {
+    //     if (!id) return;
+    
+    //     const success = await dispatch(unassignEld(companyId, id, navigate));
+    //     if (success) {
+    //         setIsUnassigned(true); // disable the button
+    //     }
+    //     setShowUnassign(false);
+    // };
+
     const confirmUnassignEld = async () => {
         if (!id) return;
-    
+      
         const success = await dispatch(unassignEld(companyId, id, navigate));
         if (success) {
-            setIsUnassigned(true); // disable the button
+          setIsUnassigned(true); // disable the button
+          setFormData((prev) => ({
+            ...prev,
+            eldSerialNumber: "" // clear from form as well
+          }));
         }
         setShowUnassign(false);
-    };
+      };
+      
 
     // Deactivate vehicle
     const confirmDeactivate = () => {

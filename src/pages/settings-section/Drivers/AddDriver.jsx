@@ -9,10 +9,11 @@ import { addDriver } from "../../../store/actions/drivers";
 export const AddDriver = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    // const { id } = useParams(); // Company id
+    const { id } = useParams(); // Company id
 
-    const location = useLocation();
-    const { companyId } = location.state || {};  // reading state
+    // const location = useLocation();
+    // const { companyId } = location.state || {};  // reading state
+
 
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPassVisible, setconfirmPassVisible] = useState(false);
@@ -26,7 +27,7 @@ export const AddDriver = () => {
         username: '',
         firstName: '',
         lastName: '',
-        companyId: companyId,
+        companyId: id,
         email: '',
         phoneNumber: '',
         password: '',
@@ -93,7 +94,7 @@ export const AddDriver = () => {
             return;
         }
         console.log("Add driver data:", formData);
-        dispatch(addDriver(formData, navigate));
+        dispatch(addDriver(id, formData, navigate));
     };
 
     useEffect(() => {

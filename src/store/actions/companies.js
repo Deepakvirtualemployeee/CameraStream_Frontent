@@ -40,8 +40,8 @@ export const getCompanies = () => {
       }
     )
       .then(res => {
-        console.log(res.data);
-        dispatch(companiesSuccess(res.data.data.companies));
+        console.log("Companies:", res.data);
+        dispatch(companiesSuccess(res.data.data));
       })
       .catch(err => {
         dispatch(companiesFail(err?.response?.data?.message || "Failed to fetch companies"));

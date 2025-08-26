@@ -7,18 +7,18 @@ import { createVehicle, updateVehicle, getVehicles } from "../../../store/action
 export const AddVehicles = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const { id } = useParams(); // vehicle id from url
+  const { id } = useParams(); // company id from url
 
-  const location = useLocation();
-  const { companyId } = location.state || {};  // reading state
-
+//   const location = useLocation();
+//   const { companyId } = location.state || {};  // reading state
+// console.log("Company id:", companyId);
 //   const { vehicleDetails, loading } = useSelector((state) => state.vehicles);
   const { vehicleDetails, loading } = useSelector((state) => state.vehicles || { vehicleDetails: [] });
 
 
   const [formData, setFormData] = useState({
     vehicleNumber: "",
-    companyId: companyId,
+    companyId: id,
     make: "",
     model: "",
     year: "",
@@ -62,7 +62,7 @@ export const AddVehicles = () => {
     //   dispatch(updateVehicle(companyId, id, formData, navigate));
     // } else {
       // Adding new vehicle
-      dispatch(createVehicle(companyId, formData, navigate));
+      dispatch(createVehicle(id, formData, navigate));
     // }
   };
 
@@ -207,7 +207,7 @@ export const AddVehicles = () => {
             <section>
               <div className="main-heading mb-3">ELD Settings</div>
               <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
-                <Form.Group controlId="vehicle">
+                <Form.Group controlId="eldSerialNumber">
                   <Form.Label>Assign ELD</Form.Label>
                   <Form.Select
                     name="eldSerialNumber"

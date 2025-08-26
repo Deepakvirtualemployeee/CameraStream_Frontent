@@ -13,7 +13,7 @@ import { fetchDrivers } from '../../../store/actions/drivers';
 export const DriversListing = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // Company id from url
-  
+  console.log(id);
   const dispatch = useDispatch();
 
   // Get data from redux

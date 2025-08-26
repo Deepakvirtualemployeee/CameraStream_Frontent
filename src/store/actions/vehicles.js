@@ -39,7 +39,7 @@ export const createVehicle = (companyId, vehicleData, navigate) => async (dispat
           "Content-Type": "application/json",
         },
       });
-  
+      console.log("Vehicle Data Create", vehicleData);
       dispatch({
         type: actionTypes.CREATE_VEHICLE_SUCCESS,
         payload: res.data.data,
@@ -48,11 +48,12 @@ export const createVehicle = (companyId, vehicleData, navigate) => async (dispat
       toast.success("Vehicle created successfully!");
   
       // refresh list
-      dispatch(getVehicles(companyId));
+      // dispatch(getVehicles(companyId));
   
       // redirect to list page
       if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
     } catch (err) {
+      console.log(err);
       dispatch({
         type: actionTypes.CREATE_VEHICLE_FAILURE,
         payload: err.response?.data?.message || err.message,
@@ -63,6 +64,7 @@ export const createVehicle = (companyId, vehicleData, navigate) => async (dispat
   
 // Update vehicle
 export const updateVehicle = (companyId, id, vehicleData, navigate) => async (dispatch) => {
+  console.log("Veh data", vehicleData);
   try {
     dispatch({ type: actionTypes.UPDATE_VEHICLE_REQUEST });
     const res = await axios.put(`/vehicles?vehicleId=${id}`, vehicleData, {
@@ -71,7 +73,7 @@ export const updateVehicle = (companyId, id, vehicleData, navigate) => async (di
         "Content-Type": "application/json",
       },
     });
-
+    console.log("Update Veh:", res);
     dispatch({
       type: actionTypes.UPDATE_VEHICLE_SUCCESS,
       payload: res.data.data,
@@ -81,11 +83,13 @@ export const updateVehicle = (companyId, id, vehicleData, navigate) => async (di
     if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
 
   } catch (err) {
+    console.log("Update Veh:", err);
+
     dispatch({
       type: actionTypes.UPDATE_VEHICLE_FAILURE,
       payload: err.response?.data?.message || err.message,
     });
-    toast.error("Failed to update vehicle");
+    toast.error(err.response?.data?.message || "Failed to update vehicle");
   }
 };
 
@@ -99,10 +103,10 @@ export const getVehicleById = (companyId, id) => async (dispatch) => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+      console.log("Vehicles:", res.data.data);
       dispatch({
         type: actionTypes.GET_VEHICLE_BY_ID_SUCCESS,
-        payload: res.data.data,
+        payload: res.data.data[0],
       });
     } catch (err) {
       dispatch({

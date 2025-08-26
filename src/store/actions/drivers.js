@@ -6,12 +6,12 @@ import * as actionTypes from "../actions/actionTypes";
 const token = localStorage.getItem("token"); // or however you store JWT
 
 // Add Driver Action
-export const addDriver = (driverData, navigate) => async (dispatch) => {
+export const addDriver = (companyId, driverData, navigate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.ADD_DRIVER_REQUEST });
 
     const res = await axios.post(
-      "/drivers", // API endpoint for adding driver
+      `/drivers?companyId=${companyId}`, // API endpoint for adding driver
       driverData,
       {
         headers: {
@@ -21,6 +21,7 @@ export const addDriver = (driverData, navigate) => async (dispatch) => {
       }
     );
 
+    console.log("Driver data", driverData);
     dispatch({
       type: actionTypes.ADD_DRIVER_SUCCESS,
       payload: res.data.data,
@@ -30,6 +31,7 @@ export const addDriver = (driverData, navigate) => async (dispatch) => {
     if (navigate) navigate("/settings/drivers-list"); // redirect after success
     return true;
   } catch (err) {
+    console.log(err);
     dispatch({
       type: actionTypes.ADD_DRIVER_FAILURE,
       payload: err.response?.data?.message || err.message,
@@ -44,16 +46,17 @@ export const fetchDrivers = (companyId) => async (dispatch) => {
     try {
       dispatch({ type: actionTypes.FETCH_DRIVERS_REQUEST });
   
-    //   const { data } = await axios.get(`/companies/${companyId}/drivers`, {
-    //     headers: {
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //   });
-     const { data } = await axios.get(`/drivers`, {
+      const { data } = await axios.get(`/drivers?companyId=${companyId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+    //  const { data } = await axios.get(`/drivers`, {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   });
+    console.log(data);
       dispatch({
         type: actionTypes.FETCH_DRIVERS_SUCCESS,
         payload: data.data,

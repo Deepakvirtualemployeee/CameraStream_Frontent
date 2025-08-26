@@ -33,9 +33,9 @@ import { Resources } from './pages/resources-section/Resources';
 import { DriversList } from './pages/drivers-list/DriversList';
 
 // Admin Section Layout Pages
-import { DriversHOSList } from './pages/AdminSection/DriverHOS/DriversHOSList';
-import { LogsList } from './pages/AdminSection/Logs/LogsList';
-import { Location } from './pages/AdminSection/Locations/Location';
+// import { DriversHOSList } from './pages/AdminSection/DriverHOS/DriversHOSList';
+// import { LogsList } from './pages/AdminSection/Logs/LogsList';
+// import { Location } from './pages/AdminSection/Locations/Location';
 import { DriversListing } from './pages/settings-section/Drivers/DriversListing';
 import { AddDriver } from './pages/settings-section/Drivers/AddDriver';
 import { EditDriver } from './pages/settings-section/Drivers/EditDriver';
