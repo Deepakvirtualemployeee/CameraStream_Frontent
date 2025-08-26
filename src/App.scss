@@ -217,13 +217,13 @@ input[type="time"]:invalid:before {
   position: relative;
 
   input {
-    padding-left: 42px;
+    padding-left: 35px;
   }
 
   .icon {
     position: absolute;
     top: 50%;
-    left: 1rem;
+    left: 12px;
     transform: translateY(-50%);
   }
 }
