@@ -67,9 +67,9 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/reports'} className={`${location.pathname === '/reports' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
+                    <Link to={'/fmcsa-records'} className={`${location.pathname === '/fmcsa-records' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-clipboard-data"></i>
-                        {!collapsed && <span>Reports</span>}
+                        {!collapsed && <span>FMCSA Records</span>}
                     </Link>
                 </li>
                 {/* <li className="nav-item">
