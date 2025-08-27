@@ -34,8 +34,8 @@ import { DriversList } from './pages/drivers-list/DriversList';
 
 // Admin Section Layout Pages
 import { DriversHOSList } from './pages/AdminSection/DriverHOS/DriversHOSList';
-import { LogsList } from './pages/AdminSection/Logs/LogsList';
 import { FMCSARecords } from './pages/AdminSection/FMCSA-Records/FMCSA-Records';
+import { LogsList } from './pages/AdminSection/LogsSection/LogsList';
 import { Location } from './pages/AdminSection/Locations/Location';
 import { DriversListing } from './pages/settings-section/Drivers/DriversListing';
 import { AddDriver } from './pages/settings-section/Drivers/AddDriver';
