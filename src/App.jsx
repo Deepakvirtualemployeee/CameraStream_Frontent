@@ -34,6 +34,7 @@ import { DriversList } from './pages/drivers-list/DriversList';
 
 // Admin Section Layout Pages
 import { DriversHOSList } from './pages/AdminSection/DriverHOS/DriversHOSList';
+import { GraphDetails } from './pages/AdminSection/DriverHOS/GraphDetails';
 import { FMCSARecords } from './pages/AdminSection/FMCSA-Records/FMCSA-Records';
 import { LogsList } from './pages/AdminSection/LogsSection/LogsList';
 import { Location } from './pages/AdminSection/Locations/Location';
@@ -85,7 +86,6 @@ function App() {
           <Route path="fmcsa-transfer" element={<FmcsaTransfer />} />
           <Route path="billing-management" element={<BillingManagement />} />
           <Route path="driven-hours" element={<DrivenHours />} />
-
           <Route path="group-management" element={<GroupManagement />} />
           <Route path="company-violations" element={<CompanyViolations />} />
           <Route path="app-feedback" element={<AppFeedback />} />
@@ -97,6 +97,7 @@ function App() {
         {/* Routes using Sidebar + Topbar */}
         <Route element={<Layout2 />}>
           <Route path="driver-hos" element={<DriversHOSList />} />
+          <Route path="driver-hos/graph-details" element={<GraphDetails />} />
           <Route path="logs" element={<LogsList />} />
           <Route path="fmcsa-records" element={<FMCSARecords />} />
           <Route path="location" element={<Location />} />

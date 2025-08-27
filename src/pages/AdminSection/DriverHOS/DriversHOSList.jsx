@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Badge } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../../components/NoDataComponent';
 import TableFilter from '../../../components/TableFilter';
-import BluetoothOnIcon from '../../../assets/images/icons/bluetooth-on.svg'
-import BluetoothOffIcon from '../../../assets/images/icons/bluetooth-off.svg'
+import BluetoothOnIcon from '../../../assets/images/icons/bluetooth-on.svg';
+import BluetoothOffIcon from '../../../assets/images/icons/bluetooth-off.svg';
+import './DriverHOS.scss';
 
 export const DriversHOSList = () => {
     const navigate = useNavigate();
@@ -324,8 +324,10 @@ export const DriversHOSList = () => {
                         <DataTable
                             columns={columns}
                             data={filteredData}
-                            pagination
+                            onRowClicked={()=> navigate('/driver-hos/graph-details')}
+                            pointerOnHover
                             highlightOnHover
+                            pagination
                             responsive
                             customStyles={dataTableCustomStyles}
                             noDataComponent={<NoDataComponent />}
