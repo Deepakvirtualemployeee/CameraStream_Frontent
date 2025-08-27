@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { getVehicleById, updateVehicle, deactivateVehicle, activateVehicle, unassignEld } from "../../../store/actions/vehicles";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
+import { getUnassignedElds } from "../../../store/actions/eldDevices";
 
 export const EditVehicles = () => {
     const { id } = useParams(); // vehicle id from URL
@@ -17,6 +18,8 @@ export const EditVehicles = () => {
 
 
     const { vehicle, loading } = useSelector((state) => state.vehicles);
+    const { unassignedElds, loadings } = useSelector((state) => state.eldDevices);
+
     const [showDeactivate, setShowDeactivate] = useState(false);
     const [showActivate, setShowActivate] = useState(false);
     const [showUnassign, setShowUnassign] = useState(false);
@@ -33,15 +36,24 @@ export const EditVehicles = () => {
         licensePlateState: "",
         licensePlateNumber: "",
         eldSerialNumber: "",
+        eldId: "",
         status: "Active"
     });
 
     // Fetch single vehicle when id changes
+    // useEffect(() => {
+    //     if (id) {
+    //         dispatch(getVehicleById(companyId, id));
+    //     }
+    // }, [dispatch, id]);
+
+    // Fetch vehicle + unassigned ELDs
     useEffect(() => {
         if (id) {
             dispatch(getVehicleById(companyId, id));
         }
-    }, [dispatch, id]);
+        dispatch(getUnassignedElds(companyId));
+    }, [dispatch, id, companyId]);
 
     // Prefill form when vehicle is loaded
     useEffect(() => {
@@ -57,27 +69,37 @@ export const EditVehicles = () => {
                 licensePlateState: vehicle.licensePlateState || "",
                 licensePlateNumber: vehicle.licensePlateNumber || "",
                 eldSerialNumber: vehicle.eldSerialNumber || "",
+                eldId: vehicle.eldId || "",
             });
             // if there’s no ELD assigned in backend → disable button
-    setIsUnassigned(!vehicle.eldSerialNumber);
+            setIsUnassigned(!vehicle.eldSerialNumber);
         }
     }, [vehicle]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        if (name === "eldSerialNumber") {
+            const selectedEld = unassignedElds.find((eld) => eld.serialNumber === value);
+            setFormData((prev) => ({
+                ...prev,
+                eldSerialNumber: value,
+                eldId: selectedEld?._id || "",  // assign eldId
+            }));
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        }
     };
 
     // Re-enable Unassign button when ELD is assigned again
-// useEffect(() => {
-//     if (formData.eldSerialNumber) {
-//       setIsUnassigned(false);
-//     }
-//   }, [formData.eldSerialNumber]);
-  
+    // useEffect(() => {
+    //     if (formData.eldSerialNumber) {
+    //       setIsUnassigned(false);
+    //     }
+    //   }, [formData.eldSerialNumber]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (id) {
@@ -94,7 +116,7 @@ export const EditVehicles = () => {
 
     // const confirmUnassignEld = async () => {
     //     if (!id) return;
-    
+
     //     const success = await dispatch(unassignEld(companyId, id, navigate));
     //     if (success) {
     //         setIsUnassigned(true); // disable the button
@@ -104,18 +126,18 @@ export const EditVehicles = () => {
 
     const confirmUnassignEld = async () => {
         if (!id) return;
-      
+
         const success = await dispatch(unassignEld(companyId, id, navigate));
         if (success) {
-          setIsUnassigned(true); // disable the button
-          setFormData((prev) => ({
-            ...prev,
-            eldSerialNumber: "" // clear from form as well
-          }));
+            setIsUnassigned(true); // disable the button
+            setFormData((prev) => ({
+                ...prev,
+                eldSerialNumber: "" // clear from form as well
+            }));
         }
         setShowUnassign(false);
-      };
-      
+    };
+
 
     // Deactivate vehicle
     const confirmDeactivate = () => {
@@ -324,7 +346,7 @@ export const EditVehicles = () => {
                             <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
                                 <Form.Group controlId="eldSerialNumber">
                                     <Form.Label>Assign ELD</Form.Label>
-                                    <Form.Select
+                                    {/* <Form.Select
                                         name="eldSerialNumber"
                                         value={formData.eldSerialNumber}
                                         onChange={handleChange}
@@ -337,7 +359,24 @@ export const EditVehicles = () => {
                                         <option value="7001">7001</option>
                                         <option value="7002">7002</option>
                                         <option value="7003">7003</option>
+                                    </Form.Select> */}
+                                    <Form.Select
+                                        name="eldSerialNumber"
+                                        value={formData.eldSerialNumber}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="">Select ELD</option>
+                                        {loadings ? (
+                                            <option>Loading...</option>
+                                        ) : (
+                                            unassignedElds.map((eld) => (
+                                                <option key={eld._id} value={eld.serialNumber}>
+                                                    {eld.serialNumber} ({eld.macAddress})
+                                                </option>
+                                            ))
+                                        )}
                                     </Form.Select>
+
                                 </Form.Group>
                             </div>
                         </section>

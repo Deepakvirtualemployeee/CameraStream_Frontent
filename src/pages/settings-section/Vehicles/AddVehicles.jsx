@@ -3,19 +3,23 @@ import { Form, Row, Col, Button } from "react-bootstrap";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createVehicle, updateVehicle, getVehicles } from "../../../store/actions/vehicles";
+import { getUnassignedElds } from "../../../store/actions/eldDevices";
 
 export const AddVehicles = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams(); // company id from url
 
-//   const location = useLocation();
-//   const { companyId } = location.state || {};  // reading state
-// console.log("Company id:", companyId);
-//   const { vehicleDetails, loading } = useSelector((state) => state.vehicles);
+  //   const location = useLocation();
+  //   const { companyId } = location.state || {};  // reading state
+  // console.log("Company id:", companyId);
+  //   const { vehicleDetails, loading } = useSelector((state) => state.vehicles);
   const { vehicleDetails, loading } = useSelector((state) => state.vehicles || { vehicleDetails: [] });
+  // const { eldDevices, loadings } = useSelector((state) => state.eldDevices);
+  const { unassignedElds, loadings } = useSelector((state) => state.eldDevices);
 
 
+  // console.log("add eld", eldDevices);
   const [formData, setFormData] = useState({
     vehicleNumber: "",
     companyId: id,
@@ -27,8 +31,13 @@ export const AddVehicles = () => {
     licensePlateState: "",
     licensePlateNumber: "",
     eldSerialNumber: "",
+    eldId: "",
     status: "Active"
   });
+
+  useEffect(() => {
+    dispatch(getUnassignedElds(id));
+  }, [dispatch]);
 
   // Fetch vehicle details if editing
   // useEffect(() => {
@@ -46,13 +55,33 @@ export const AddVehicles = () => {
   //   }
   // }, [vehicleDetails, id]);
 
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [name]: value,
+  //   }));
+  // };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  
+    // Special case for ELD select
+    if (name === "eldSerialNumber") {
+      const selectedEld = unassignedElds.find((eld) => eld.serialNumber === value);
+      setFormData((prev) => ({
+        ...prev,
+        eldSerialNumber: value,
+        eldId: selectedEld?._id || "",   // store _id alongside
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -61,8 +90,8 @@ export const AddVehicles = () => {
     //   // Editing existing vehicle
     //   dispatch(updateVehicle(companyId, id, formData, navigate));
     // } else {
-      // Adding new vehicle
-      dispatch(createVehicle(id, formData, navigate));
+    // Adding new vehicle
+    dispatch(createVehicle(id, formData, navigate));
     // }
   };
 
@@ -209,7 +238,7 @@ export const AddVehicles = () => {
               <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
                 <Form.Group controlId="eldSerialNumber">
                   <Form.Label>Assign ELD</Form.Label>
-                  <Form.Select
+                  {/* <Form.Select
                     name="eldSerialNumber"
                     value={formData.eldSerialNumber}
                     onChange={handleChange}
@@ -222,7 +251,25 @@ export const AddVehicles = () => {
                     <option value="7001">7001</option>
                     <option value="7002">7002</option>
                     <option value="7003">7003</option>
+                  </Form.Select> */}
+                  <Form.Select
+                    name="eldSerialNumber"
+                    value={formData.eldSerialNumber}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select ELD</option>
+                    {loadings ? (
+                      <option>Loading...</option>
+                    ) : (
+                      unassignedElds.map((eld) => (
+                        <option key={eld._id} value={eld.serialNumber}>
+                          {eld.serialNumber} ({eld.macAddress})
+                        </option>
+                      ))
+                    )}
                   </Form.Select>
+
                 </Form.Group>
               </div>
             </section>

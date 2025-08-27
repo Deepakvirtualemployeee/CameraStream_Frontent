@@ -27,3 +27,11 @@ export {
   updateVehicle,
   deleteVehicle,
 } from "./vehicles";
+
+export {
+  fetchEldDevices,
+  addEldDevice,
+  getEldDeviceById,
+  updateEldDevice,
+  getUnassignedElds
+} from "./eldDevices";

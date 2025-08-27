@@ -8,6 +8,7 @@ import auth from './store/reducer/auth';
 import companiesReducer from './store/reducer/companies';
 import vehiclesReducer from './store/reducer/vehicles';
 import driverReducer from './store/reducer/drivers';
+import eldDeviceReducer from './store/reducer/eldDevices';
 
 // Import Bootstrap 5.3.3 CSS
 //import 'bootstrap/dist/css/bootstrap.min.css';  // Corrected Bootstrap import for styling
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   companies: companiesReducer,
   vehicles: vehiclesReducer,
   drivers: driverReducer,
+  eldDevices: eldDeviceReducer,
 
 });
 
