@@ -139,6 +139,7 @@ export const AddVehicles = () => {
                       name="vehicleNumber"
                       value={formData.vehicleNumber}
                       onChange={handleChange}
+                      placeholder="Enter vehicle number"
                       required
                     />
                   </Form.Group>
@@ -151,6 +152,7 @@ export const AddVehicles = () => {
                       name="make"
                       value={formData.make}
                       onChange={handleChange}
+                      placeholder="Enter make"
                       required
                     />
                   </Form.Group>
@@ -163,6 +165,7 @@ export const AddVehicles = () => {
                       name="model"
                       value={formData.model}
                       onChange={handleChange}
+                      placeholder="Enter model"
                       required
                     />
                   </Form.Group>
@@ -175,6 +178,7 @@ export const AddVehicles = () => {
                       name="year"
                       value={formData.year}
                       onChange={handleChange}
+                      placeholder="Enter year"
                       required
                     />
                   </Form.Group>
@@ -187,6 +191,7 @@ export const AddVehicles = () => {
                       name="vin"
                       value={formData.vin}
                       onChange={handleChange}
+                      placeholder="Enter vin"
                       required
                     />
                     <div className="text-muted mt-1">
@@ -203,6 +208,7 @@ export const AddVehicles = () => {
                       name="fuelType"
                       value={formData.fuelType}
                       onChange={handleChange}
+                      placeholder="Enter fuel type"
                       required
                     />
                   </Form.Group>
@@ -215,6 +221,7 @@ export const AddVehicles = () => {
                       name="licensePlateState"
                       value={formData.licensePlateState}
                       onChange={handleChange}
+                      placeholder="Enter Issuing state"
                       required
                     />
                   </Form.Group>
@@ -227,6 +234,7 @@ export const AddVehicles = () => {
                       name="licensePlateNumber"
                       value={formData.licensePlateNumber}
                       onChange={handleChange}
+                      placeholder="Enter license number"
                       required
                     />
                   </Form.Group>

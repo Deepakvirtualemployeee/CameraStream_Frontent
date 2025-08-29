@@ -9,10 +9,10 @@ export const fetchEldDevices = (companyId) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.FETCH_ELD_DEVICES_REQUEST });
 
-    const { data } = await axios.get(`/eld-devices?companyId=${companyId}`, {
+    const { data } = await axios.get(`/elds?companyId=${companyId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
+    
     dispatch({
       type: actionTypes.FETCH_ELD_DEVICES_SUCCESS,
       payload: data.data,

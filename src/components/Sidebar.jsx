@@ -56,18 +56,18 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                         {!collapsed && <span>Delivery</span>}
                     </Link>
                 </li> */}
-                <li className="nav-item">
+                {/* <li className="nav-item">
                     <Link to={'/dvir'} className={`${location.pathname === '/dvir' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-wrench"></i>
                         {!collapsed && <span>DVIR</span>}
                     </Link>
-                </li>
-                <li className="nav-item">
+                </li> */}
+                {/* <li className="nav-item">
                     <Link to={'/eld-events'} className={`${location.pathname === '/eld-events' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-layers"></i>
                         {!collapsed && <span>ELD Events</span>}
                     </Link>
-                </li>
+                </li> */}
                 <li className="nav-item">
                     <Link to={'/fmcsa-records'} className={`${location.pathname === '/fmcsa-records' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-clipboard-data"></i>

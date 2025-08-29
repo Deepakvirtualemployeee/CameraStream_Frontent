@@ -26,6 +26,7 @@ export {
   createVehicle,
   updateVehicle,
   deleteVehicle,
+  getAssignableVehicles
 } from "./vehicles";
 
 export {

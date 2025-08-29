@@ -27,7 +27,7 @@ export const Menubar = (props) => {
                         <li className="nav-item">
                             <Link to={'/companies-list'} className={`${currentPath.includes('companies-list') ? 'active' : ''} nav-link d-flex align-items-center gap-2`}>Companies List</Link>
                         </li>
-                        <li className="nav-item">
+                        {/* <li className="nav-item">
                             <Link to={'/system-users-management'} className={`${currentPath.includes('system-users-management') ? 'active' : ' '} nav-link d-flex align-items-center gap-2`}>System Users Management</Link>
                         </li>
                         <li className="nav-item">
@@ -56,7 +56,7 @@ export const Menubar = (props) => {
                         </li>
                         <li className="nav-item">
                             <Link to={'/vehicles-list'} className={`${currentPath.includes('vehicles-list') ? 'active' : ' '} nav-link d-flex align-items-center gap-2`}>Vehicles</Link>
-                        </li>
+                        </li> */}
                     </ul>
                     {/* Scroll Arrow Button */}
                     <button onClick={scrollRight} className="position-absolute end-0 top-0 bg-theme2 border-0 border-start border-white rounded-end-3" style={{ padding: '8px 12px', zIndex: 10 }}>

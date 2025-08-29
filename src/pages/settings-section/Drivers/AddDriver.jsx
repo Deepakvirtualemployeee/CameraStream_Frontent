@@ -4,7 +4,8 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useDispatch, useSelector } from "react-redux";
-import { addDriver } from "../../../store/actions/drivers";
+import { addDriver, getDriversIssuingState } from "../../../store/actions/drivers";
+import { getAssignableVehicles } from "../../../store/actions/vehicles";
 
 export const AddDriver = () => {
     const navigate = useNavigate();
@@ -19,12 +20,14 @@ export const AddDriver = () => {
     const [confirmPassVisible, setconfirmPassVisible] = useState(false);
 
     const { loading, error, success } = useSelector((state) => state.driverAdd || {});
+    const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
+    const { issuingState, loading: issuingStateLoading } = useSelector((state) => state.drivers);
 
     const togglePassVisibility = () => setPasswordVisible(!passwordVisible);
     const toggleConfirmPassVisibility = () => setconfirmPassVisible(!confirmPassVisible);
 
     const [formData, setFormData] = useState({
-        username: '',
+        userName: '',
         firstName: '',
         lastName: '',
         companyId: id,
@@ -35,21 +38,22 @@ export const AddDriver = () => {
         licenseState: '',
         licenseNumber: '',
         homeTerminal: '',
-        assignVehicles: '',
+        // assignVehicles: '',
+        assignedVehicleId: '',
         hosRules: '',
         cargoType: '',
         restart: '',
         restBreak: '',
-        shortHaulException: false,
-        splitSleeperBerth: false,
-        personalConveyance: false,
-        yardMove: false,
-        manualDriver: false,
-        restrictDriverFromCreation: true,
+        allowShortHaulException: false,
+        allowSplitSleeperBerth: false,
+        allowPersonalConveyance: false,
+        allowYardMove: false,
+        allowManualDriver: false,
+        restrictDriverFromCreationDateAndTime: true,
     });
 
     const {
-        username,
+        userName,
         firstName,
         lastName,
         email,
@@ -59,17 +63,17 @@ export const AddDriver = () => {
         licenseState,
         licenseNumber,
         homeTerminal,
-        assignVehicles,
+        // assignVehicles,
         hosRules,
         cargoType,
         restart,
         restBreak,
-        shortHaulException,
-        splitSleeperBerth,
-        personalConveyance,
-        yardMove,
-        manualDriver,
-        restrictDriverFromCreation,
+        allowShortHaulException,
+        allowSplitSleeperBerth,
+        allowPersonalConveyance,
+        allowYardMove,
+        allowManualDriver,
+        restrictDriverFromCreationDateAndTime,
     } = formData;
 
     const handleChange = (e) => {
@@ -96,6 +100,20 @@ export const AddDriver = () => {
         console.log("Add driver data:", formData);
         dispatch(addDriver(id, formData, navigate));
     };
+
+    // Fetch issuing state
+    useEffect(() => {
+        if (id) {
+            dispatch(getDriversIssuingState(id));
+        }
+    }, [id, dispatch]);
+
+    // Fetch Assignable Vehicles
+    useEffect(() => {
+        if (id) {
+            dispatch(getAssignableVehicles(id));
+        }
+    }, [id, dispatch]);
 
     useEffect(() => {
         if (success) {
@@ -128,8 +146,8 @@ export const AddDriver = () => {
                                         <Form.Label>Username<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
                                             type="text"
-                                            name="username"
-                                            value={username}
+                                            name="userName"
+                                            value={userName}
                                             onChange={handleChange}
                                             placeholder="Enter username"
                                             autoComplete='off'
@@ -270,16 +288,23 @@ export const AddDriver = () => {
                                             onChange={handleChange}
                                             required
                                         >
-                                            <option value="" disabled>Select state</option>
+                                            {/* <option value="" disabled>Select state</option>
                                             <option value="Uttar Pradesh">Uttar Pradesh</option>
                                             <option value="Rajasthan">Rajasthan</option>
                                             <option value="Bihar">Bihar</option>
-                                            <option value="Delhi">Delhi</option>
+                                            <option value="Delhi">Delhi</option> */}
+                                            <option value="">Select state</option>
+                                            {issuingStateLoading && <option>Loading...</option>}
+                                            {issuingState?.map((d) => (
+                                                <option key={d.state} value={d.state}>
+                                                    {d.state}
+                                                </option>
+                                            ))}
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6}>
-                                    <Form.Group controlId="LicenseNumber">
+                                    <Form.Group controlId="licenseNumber">
                                         <Form.Label>Driver License Number<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
                                             type="text"
@@ -309,16 +334,50 @@ export const AddDriver = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group controlId="AssignVehicles">
+                                {/* <Form.Group className="mb-3" controlId="AssignVehicles">
                                     <Form.Label>Assign Vehicles</Form.Label>
-                                    <Form.Select name="assignVehicles" value={formData.assignVehicles} onChange={handleChange} required >
-                                        <option value="" disabled>Select a vehicle</option>
-                                        <option value="ANDROID01">ANDROID01</option>
-                                        <option value="ANDROID02">ANDROID02</option>
-                                        <option value="ANDROID03">ANDROID03</option>
-                                        <option value="ANDROID04">ANDROID04</option>
+                                    <Form.Select
+                                        name="assignVehicles"
+                                        value={formData.assignVehicles}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="">Select a vehicle</option>
+                                        {vehiclesLoading && <option>Loading...</option>}
+                                        {assignableVehicles?.map((v) => (
+                                            <option key={v._id} value={v._id}>
+                                                {v.vehicleNumber}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                </Form.Group> */}
+                                <Form.Group className="mb-3" controlId="assignedVehicleId">
+                                    <Form.Label>Assign Vehicles</Form.Label>
+                                    <Form.Select
+                                        name="assignedVehicleId"
+                                        value={formData.assignedVehicleId}
+                                        onChange={(e) => {
+                                            const selectedId = e.target.value;
+                                            const selectedVehicle = assignableVehicles.find(v => v._id === selectedId);
+
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                assignedVehicleId: selectedId,
+                                                // vehicleNumber: selectedVehicle ? selectedVehicle.vehicleNumber : ""
+                                            }));
+                                        }}
+                                        required
+                                    >
+                                        <option value="">Select a vehicle</option>
+                                        {vehiclesLoading && <option>Loading...</option>}
+                                        {assignableVehicles?.map((v) => (
+                                            <option key={v._id} value={v._id}>
+                                                {v.vehicleNumber}
+                                            </option>
+                                        ))}
                                     </Form.Select>
                                 </Form.Group>
+
                             </div>
                         </section>
                         <section className="log-section">
@@ -374,28 +433,28 @@ export const AddDriver = () => {
                                 </Form.Group>
                                 <Form.Group>
                                     <div className="checks-wrapper">
-                                        <Form.Check type="checkbox" name="shortHaulException" checked={shortHaulException} onChange={handleChange}
+                                        <Form.Check type="checkbox" name="allowShortHaulException" checked={allowShortHaulException} onChange={handleChange}
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Allow Short-Haul Exception</div>}
                                             required
                                         />
-                                        <Form.Check type="checkbox" name="splitSleeperBerth" checked={splitSleeperBerth} onChange={handleChange}
+                                        <Form.Check type="checkbox" name="allowSplitSleeperBerth" checked={allowSplitSleeperBerth} onChange={handleChange}
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Allow Split-Sleeper Berth</div>}
                                         />
-                                        <Form.Check type="checkbox" name="personalConveyance" checked={personalConveyance} onChange={handleChange}
+                                        <Form.Check type="checkbox" name="allowPersonalConveyance" checked={allowPersonalConveyance} onChange={handleChange}
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Allow Personal Conveyance</div>}
                                         />
-                                        <Form.Check type="checkbox" name="yardMove" checked={yardMove} onChange={handleChange}
+                                        <Form.Check type="checkbox" name="allowYardMove" checked={allowYardMove} onChange={handleChange}
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Allow Yard Move</div>}
                                         />
-                                        <Form.Check type="checkbox" name="manualDriver" checked={manualDriver} onChange={handleChange}
+                                        <Form.Check type="checkbox" name="allowManualDriver" checked={allowManualDriver} onChange={handleChange}
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Allow Manual Driver</div>}
                                         />
-                                        <Form.Check type="checkbox" name="restrictDriverFromCreation" checked={restrictDriverFromCreation} onChange={handleChange}
+                                        <Form.Check type="checkbox" name="restrictDriverFromCreationDateAndTime" checked={restrictDriverFromCreationDateAndTime} onChange={handleChange}
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Restrict Driver from Creation Date & Time</div>}
                                         />

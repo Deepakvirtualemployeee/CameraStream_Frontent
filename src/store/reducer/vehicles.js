@@ -2,6 +2,7 @@ import * as actionTypes from "../actions/actionTypes";
 
 const initialState = {
   vehicles: [],
+  assignableVehicles: [],
   loading: false,
   error: null,
 };
@@ -56,6 +57,24 @@ const vehiclesReducer = (state = initialState, action) => {
       
       case actionTypes.GET_VEHICLE_BY_ID_FAILURE:
         return { ...state, loading: false, error: action.payload };
+
+       // Vehicles
+    case actionTypes.START_ASSIGNABLE_VEHICLES:
+      return { ...state, loading: true };
+
+    case actionTypes.ASSIGNABLE_VEHICLES_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        assignableVehicles: action.payload,
+      };
+
+    case actionTypes.ASSIGNABLE_VEHICLES_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
 
     default:
       return state;

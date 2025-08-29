@@ -54,19 +54,21 @@ export const DriversListing = () => {
     },
     {
       name: 'HOS Rules',
-      selector: (row) => row.hos_rules,
+      selector: (row) => row.hosRules,
       sortable: true,
       minWidth: '160px',
     },
     {
       name: 'Assigned Vehicle',
-      selector: (row) => row.assigned_vehicle,
+      selector: (row) => row.assignedVehicleId?.vehicleNumber || '',
       sortable: true,
       minWidth: '160px',
     },
     {
       name: 'Co-Driver',
-      selector: (row) => row.co_driver,
+      selector: (row) => row.coDriverId 
+      ? `${row.coDriverId.firstName} ${row.coDriverId.lastName}`
+      : '',
       sortable: true,
       minWidth: '150px',
     },
@@ -75,7 +77,7 @@ export const DriversListing = () => {
       minWidth: '110px',
       cell: (row) => (
         <div className="app-version d-flex align-items-center gap-2">
-          <img src={IOSIcon} alt="IOS Icon" className="img-fluid" /> {row.app_version}
+          <img src={IOSIcon} alt="IOS Icon" className="img-fluid" /> {row.appVersion}
         </div>
       ),
     },
@@ -109,12 +111,12 @@ export const DriversListing = () => {
     },
     {
       name: 'Activated',
-      selector: (row) => row.activated,
+      selector: (row) => row.activatedAt,
       minWidth: '140px',
     },
     {
       name: 'Terminated',
-      selector: (row) => row.terminated,
+      selector: (row) => row.deactivatedAt,
       minWidth: '140px',
     },
     {
@@ -223,7 +225,7 @@ export const DriversListing = () => {
               striped
               progressPending={loading}
             />
-            {error && <div className="text-danger mt-2">{error}</div>}
+            {/* {error && <div className="text-danger mt-2">{error}</div>} */}
           </div>
         </div>
       </div>

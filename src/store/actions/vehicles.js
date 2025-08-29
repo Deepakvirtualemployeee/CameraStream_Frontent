@@ -113,7 +113,7 @@ export const getVehicleById = (companyId, id) => async (dispatch) => {
         type: actionTypes.GET_VEHICLE_BY_ID_FAILURE,
         payload: err.response?.data?.message || err.message,
       });
-      toast.error("Failed to fetch vehicle details");
+      toast.error(err.response?.data?.message || "Failed to fetch vehicle details");
     }
   };
   
@@ -143,7 +143,7 @@ export const deactivateVehicle = (companyId, id, navigate) => async (dispatch) =
         type: actionTypes.DEACTIVATE_VEHICLE_FAILURE,
         payload: err.response?.data?.message || err.message,
       });
-      toast.error("Failed to deactivate vehicle");
+      toast.error(err.response?.data?.message || "Failed to deactivate vehicle");
       return false;
     }
   };
@@ -176,7 +176,7 @@ export const activateVehicle = (companyId, id, navigate) => async (dispatch) => 
         type: actionTypes.ACTIVATE_VEHICLE_FAILURE,
         payload: err.response?.data?.message || err.message,
       });
-      toast.error("Failed to activate vehicle");
+      toast.error(err.response?.data?.message || "Failed to activate vehicle");
     }
   };
   
@@ -205,13 +205,13 @@ export const activateVehicle = (companyId, id, navigate) => async (dispatch) => 
         type: actionTypes.UNASSIGN_ELD_FAILURE,
         payload: err.response?.data?.message || err.message,
       });
-      toast.error("Failed to unassign ELD");
+      toast.error(err.response?.data?.message || "Failed to unassign ELD");
       return false;
     }
   };
   
 // Delete vehicle
-export const deleteVehicle = (companyId, id) => async (dispatch) => {
+export const deleteVehicle = (companyId, id, navigate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.DELETE_VEHICLE_REQUEST });
     await axios.delete(`/vehicles?companyId=${companyId}&vehicleId=${id}`, {
@@ -224,11 +224,39 @@ export const deleteVehicle = (companyId, id) => async (dispatch) => {
     // just remove from redux by id
     dispatch({ type: actionTypes.DELETE_VEHICLE_SUCCESS, payload: id });
     toast.success("Vehicle deleted successfully!");
+    if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
+
   } catch (err) {
     dispatch({
       type: actionTypes.DELETE_VEHICLE_FAILURE,
       payload: err.response?.data?.message || err.message,
     });
-    toast.error("Failed to delete vehicle");
+    toast.error(err.response?.data?.message || "Failed to delete vehicle");
+  }
+};
+
+// Get assignable vehicles for a driver
+export const getAssignableVehicles = (companyId) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.START_ASSIGNABLE_VEHICLES });
+
+    const res = await axios.get(
+      `/vehicles/available?companyId=${companyId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    dispatch({
+      type: actionTypes.ASSIGNABLE_VEHICLES_SUCCESS,
+      payload: res.data.data,
+    });
+  } catch (err) {
+    console.error("Error fetching vehicles:", err);
+    dispatch({
+      type: actionTypes.ASSIGNABLE_VEHICLES_FAIL,
+      payload: err.response?.data?.message || err.message,
+    });
+    toast.error(err.response?.data?.message || "Failed to fetch vehicles");
   }
 };
