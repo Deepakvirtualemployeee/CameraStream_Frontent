@@ -31,6 +31,7 @@ export const EditVehicles = () => {
   const [showUnassign, setShowUnassign] = useState(false);
   const [showDelete, setShowDelete] = useState(false); // new
   const [isUnassigned, setIsUnassigned] = useState(false);
+  const [eldOptions, setEldOptions] = useState([]); // merged ELD options
 
   const [formData, setFormData] = useState({
     vehicleNumber: "",
@@ -74,6 +75,31 @@ export const EditVehicles = () => {
       setIsUnassigned(!vehicle.eldSerialNumber);
     }
   }, [vehicle, companyId]);
+
+  // Merge assigned ELD with unassigned
+  useEffect(() => {
+    if (!vehicle) return;
+
+    // Assigned ELD from vehicle
+    const assignedEld = vehicle.eldSerialNumber
+      ? {
+        _id: vehicle.eldId,
+        serialNumber: vehicle.eldSerialNumber,
+        macAddress: vehicle.eldMacAddress || "", // if backend returns mac
+      }
+      : null;
+
+    let merged = [...unassignedElds];
+    if (
+      assignedEld &&
+      !unassignedElds.some((eld) => eld._id === assignedEld._id)
+    ) {
+      merged = [assignedEld, ...unassignedElds];
+    }
+
+    setEldOptions(merged);
+  }, [vehicle, unassignedElds]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -340,7 +366,7 @@ export const EditVehicles = () => {
             <section>
               <div className="main-heading mb-3">ELD Settings</div>
               <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
-                <Form.Group controlId="eldSerialNumber">
+                {/* <Form.Group controlId="eldSerialNumber">
                   <Form.Label>Assign ELD</Form.Label>
                   <Form.Select
                     name="eldSerialNumber"
@@ -358,7 +384,28 @@ export const EditVehicles = () => {
                       ))
                     )}
                   </Form.Select>
+                </Form.Group> */}
+
+                <Form.Group controlId="eldSerialNumber">
+                  <Form.Label>Assign ELD</Form.Label>
+                  <Form.Select
+                    name="eldSerialNumber"
+                    value={formData.eldSerialNumber}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select ELD</option>
+                    {loadings ? (
+                      <option>Loading...</option>
+                    ) : (
+                      eldOptions.map((eld) => (
+                        <option key={eld._id} value={eld.serialNumber}>
+                          {eld.serialNumber} {eld.macAddress ? `(${eld.macAddress})` : ""}
+                        </option>
+                      ))
+                    )}
+                  </Form.Select>
                 </Form.Group>
+
               </div>
             </section>
           </Form>

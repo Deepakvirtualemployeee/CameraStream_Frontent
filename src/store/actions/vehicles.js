@@ -246,7 +246,7 @@ export const getAssignableVehicles = (companyId) => async (dispatch) => {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-
+    console.log("Available veh:", res);
     dispatch({
       type: actionTypes.ASSIGNABLE_VEHICLES_SUCCESS,
       payload: res.data.data,

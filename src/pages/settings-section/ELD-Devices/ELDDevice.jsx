@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button, Badge, Spinner } from "react-bootstrap";
 import DataTable from "react-data-table-component";
 import dataTableCustomStyles from "../../../assets/style/dataTableCustomStyles";
@@ -14,20 +14,21 @@ export const ELDDevice = () => {
   const dispatch = useDispatch();
   const { eldDevices, loading } = useSelector((state) => state.eldDevices);
 
-  const companyId = localStorage.getItem("companyId");
+  // const companyId = localStorage.getItem("companyId");
+  const { id } = useParams(); // Company id from url
 
   useEffect(() => {
-    if (companyId) {
-      dispatch(fetchEldDevices(companyId));
+    if (id) {
+      dispatch(fetchEldDevices(id));
     }
-  }, [dispatch, companyId]);
+  }, [dispatch, id]);
 
   const columns = [
-    { name: "ELD SN (MAC)", selector: (row) => row.eld_sm, sortable: true, minWidth: "300px" },
-    { name: "ELD Model", selector: (row) => row.eld_model, sortable: true, minWidth: "150px" },
-    { name: "Assigned Vehicle", selector: (row) => row.assigned_vehicle, sortable: true, minWidth: "170px" },
-    { name: "BLE Version", selector: (row) => row.ble_version, sortable: true, minWidth: "150px" },
-    { name: "Firmware Version", selector: (row) => row.firmware_version, sortable: true, minWidth: "170px" },
+    { name: "ELD SN (MAC)", selector: (row) => `${row.serialNumber} (${row.macAddress || ""})`, sortable: true, minWidth: "300px" },
+    { name: "ELD Model", selector: (row) => row.eldModel, sortable: true, minWidth: "150px" },
+    { name: "Assigned Vehicle", selector: (row) => row.assignedVehicleId?.vehicleNumber, sortable: true, minWidth: "170px" },
+    { name: "BLE Version", selector: (row) => row.bleVersion || '1.5.6', sortable: true, minWidth: "150px" },
+    { name: "Firmware Version", selector: (row) => row.firmwareVersion, sortable: true, minWidth: "170px" },
     {
       name: "Status",
       minWidth: "120px",
@@ -49,7 +50,9 @@ export const ELDDevice = () => {
           <span
             className="pointer ms-3"
             title="Edit"
-            onClick={() => navigate(`/settings/eld-devices/edit-device/${row.id}`)}
+            onClick={() => navigate(`/settings/eld-devices/edit-device/${row._id}`, {
+              state: { companyId: id },
+            })}
           >
             <img src={EditIcon} alt="Edit Icon" />
           </span>
@@ -93,7 +96,7 @@ export const ELDDevice = () => {
               filters={filters}
               onReset={resetFilters}
             />
-            <Button variant="primary" onClick={() => navigate("/settings/eld-devices/add-device")}>
+            <Button variant="primary" onClick={() => navigate(`/settings/eld-devices/add-device/${id}`)}>
               <i className="bi bi-plus-lg fs-16"></i> Add ELD Device
             </Button>
           </div>

@@ -28,7 +28,56 @@ export const EditDriver = () => {
     const [showDelete, setShowDelete] = useState(false); // new
     const [showDeactivate, setShowDeactivate] = useState(false);
     const [showActivate, setShowActivate] = useState(false);
+    const [vehicleOptions, setVehicleOptions] = useState([]); // merged vehicle options
+    const [coDriverOptions, setCoDriverOptions] = useState([]); // merged co-driver options
 
+    // Whenever driver or assignableVehicles change, merge them
+    useEffect(() => {
+        if (!driver) return;
+
+        // Assigned vehicle from driver
+        const assignedVehicle = driver.assignedVehicleId
+            ? {
+                _id: driver.assignedVehicleId._id,
+                vehicleNumber: driver.assignedVehicleId.vehicleNumber,
+            }
+            : null;
+
+        // Make sure assigned vehicle is in dropdown
+        let merged = [...assignableVehicles];
+        if (
+            assignedVehicle &&
+            !assignableVehicles.some((v) => v._id === assignedVehicle._id)
+        ) {
+            merged = [assignedVehicle, ...assignableVehicles];
+        }
+
+        setVehicleOptions(merged);
+    }, [driver, assignableVehicles]);
+
+    // Merge assigned co-driver with available co-drivers
+    useEffect(() => {
+        if (!driver) return;
+
+        // Assigned co-driver from driver
+        const assignedCoDriver = driver.coDriverId
+            ? {
+                _id: driver.coDriverId._id,
+                firstName: driver.coDriverId.firstName,
+                lastName: driver.coDriverId.lastName,
+            }
+            : null;
+
+        let merged = [...coDrivers];
+        if (
+            assignedCoDriver &&
+            !coDrivers.some((c) => c._id === assignedCoDriver._id)
+        ) {
+            merged = [assignedCoDriver, ...coDrivers];
+        }
+
+        setCoDriverOptions(merged);
+    }, [driver, coDrivers]);
 
     const togglePassVisibility = () => setPasswordVisible(!passwordVisible);
     const toggleConfirmPassVisibility = () =>
@@ -543,7 +592,7 @@ export const EditDriver = () => {
                                     </Form.Select>
                                 </Form.Group> */}
 
-                                <Form.Group className="mb-3" controlId="AssignVehicles">
+                                {/* <Form.Group className="mb-3" controlId="AssignVehicles">
                                     <Form.Label>Assign Vehicles</Form.Label>
                                     <Form.Select
                                         name="assignedVehicleId"
@@ -565,8 +614,31 @@ export const EditDriver = () => {
                                             </option>
                                         ))}
                                     </Form.Select>
-                                </Form.Group>
+                                </Form.Group> */}
 
+                                <Form.Group className="mb-3" controlId="AssignVehicles">
+                                    <Form.Label>Assign Vehicles</Form.Label>
+                                    <Form.Select
+                                        name="assignedVehicleId"
+                                        value={formData.assignedVehicleId}   // <-- selected by ID
+                                        onChange={(e) => {
+                                            const selectedVehicle = vehicleOptions.find(v => v._id === e.target.value);
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                assignedVehicleId: e.target.value || "",
+                                                assignVehicles: selectedVehicle?.vehicleNumber || ""
+                                            }));
+                                        }}
+                                    >
+                                        <option value="">Select a vehicle</option>
+                                        {vehiclesLoading && <option>Loading...</option>}
+                                        {vehicleOptions?.map((v) => (
+                                            <option key={v._id} value={v._id}>
+                                                {v.vehicleNumber}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                </Form.Group>
 
                                 {/* <Form.Group controlId="AssignCoDriver">
                                     <Form.Label>Assign Co-Driver</Form.Label>
@@ -581,7 +653,7 @@ export const EditDriver = () => {
                                         ))}
                                     </Form.Select>
                                 </Form.Group> */}
-                                <Form.Group controlId="AssignCoDriver">
+                                {/* <Form.Group controlId="AssignCoDriver">
                                     <Form.Label>Assign Co-Driver</Form.Label>
                                     <Form.Select
                                         name="coDriverId"
@@ -603,8 +675,35 @@ export const EditDriver = () => {
                                             </option>
                                         ))}
                                     </Form.Select>
+                                </Form.Group> */}
+                                <Form.Group controlId="AssignCoDriver">
+                                    <Form.Label>Assign Co-Driver</Form.Label>
+                                    <Form.Select
+                                        name="coDriverId"
+                                        value={formData.coDriverId}
+                                        onChange={(e) => {
+                                            const selectedCoDriver = coDriverOptions.find(
+                                                (d) => d._id === e.target.value
+                                            );
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                coDriverId: e.target.value || "",
+                                                // Optional: store name if needed for UI
+                                                assignCoDriver: selectedCoDriver
+                                                    ? `${selectedCoDriver.firstName} ${selectedCoDriver.lastName}`
+                                                    : "",
+                                            }));
+                                        }}
+                                    >
+                                        <option value="">Select Co-Driver</option>
+                                        {coDriversLoading && <option>Loading...</option>}
+                                        {coDriverOptions?.map((d) => (
+                                            <option key={d._id} value={d._id}>
+                                                {d.firstName} {d.lastName}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
                                 </Form.Group>
-
                             </div>
                         </section>
 
