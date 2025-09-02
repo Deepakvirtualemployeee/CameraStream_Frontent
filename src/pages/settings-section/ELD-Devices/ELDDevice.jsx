@@ -14,7 +14,6 @@ export const ELDDevice = () => {
   const dispatch = useDispatch();
   const { eldDevices, loading } = useSelector((state) => state.eldDevices);
 
-  // const companyId = localStorage.getItem("companyId");
   const { id } = useParams(); // Company id from url
 
   useEffect(() => {

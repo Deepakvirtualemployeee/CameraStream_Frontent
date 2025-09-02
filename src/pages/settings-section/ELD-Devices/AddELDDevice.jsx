@@ -3,7 +3,7 @@ import { Form, Row, Col, Button, Spinner, Alert } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addEldDevice } from "../../../store/actions/eldDevices";
-import { getAssignableVehicles } from "../../../store/actions/vehicles";
+import { getAssignableVehiclesForEld } from "../../../store/actions/vehicles";
 
 export const AddELDDevice = () => {
   const navigate = useNavigate();
@@ -78,7 +78,7 @@ export const AddELDDevice = () => {
   // Fetch vehicles
   useEffect(() => {
     if (id) {
-      dispatch(getAssignableVehicles(id));
+      dispatch(getAssignableVehiclesForEld(id));
     }
   }, [id, dispatch]);
 

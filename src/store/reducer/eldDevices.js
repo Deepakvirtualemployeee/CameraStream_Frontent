@@ -12,8 +12,8 @@ const eldDeviceReducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.FETCH_ELD_DEVICES_REQUEST:
     case actionTypes.ADD_ELD_DEVICE_REQUEST:
-    case "GET_ELD_DEVICE_REQUEST":
-    case "UPDATE_ELD_DEVICE_REQUEST":
+    case actionTypes.GET_ELD_DEVICE_REQUEST:
+    case actionTypes.UPDATE_ELD_DEVICE_REQUEST:
       return { ...state, loadings: true, error: null };
 
     case actionTypes.FETCH_ELD_DEVICES_SUCCESS:
@@ -26,16 +26,16 @@ const eldDeviceReducer = (state = initialState, action) => {
         eldDevices: [...state.eldDevices, action.payload],
       };
 
-    case "GET_ELD_DEVICE_SUCCESS":
+    case actionTypes.GET_ELD_DEVICE_SUCCESS:
       return { ...state, loadings: false, eldDevice: action.payload };
 
-    case "UPDATE_ELD_DEVICE_SUCCESS":
+    case actionTypes.UPDATE_ELD_DEVICE_SUCCESS:
       return { ...state, loadings: false, eldDevice: action.payload };
 
     case actionTypes.FETCH_ELD_DEVICES_FAILURE:
     case actionTypes.ADD_ELD_DEVICE_FAILURE:
-    case "GET_ELD_DEVICE_FAILURE":
-    case "UPDATE_ELD_DEVICE_FAILURE":
+    case actionTypes.GET_ELD_DEVICE_FAILURE:
+    case actionTypes.UPDATE_ELD_DEVICE_FAILURE:
       return { ...state, loadings: false, error: action.payload };
 
     // handle unassigned ELDs

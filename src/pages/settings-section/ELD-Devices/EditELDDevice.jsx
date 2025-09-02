@@ -6,10 +6,11 @@ import {
     getEldDeviceById,
     updateEldDevice,
     deactivateEld,
+    activateEld,
     deleteEld,
     unassignVehicleFromEld,
 } from "../../../store/actions/eldDevices";
-import { getAssignableVehicles } from "../../../store/actions/vehicles";
+import { getAssignableVehiclesForEld } from "../../../store/actions/vehicles";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 
 export const EditELDDevice = () => {
@@ -20,9 +21,9 @@ export const EditELDDevice = () => {
     const dispatch = useDispatch();
 
     const { eldDevice, loading } = useSelector((state) => state.eldDevices);
-    const { unassignedVehicles, loadings } = useSelector((state) => state.vehicles);
+    const { assignableVehicles, loading: loadings } = useSelector((state) => state.vehicles);
     const [vehicleOptions, setVehicleOptions] = useState([]); // merged vehicles for ELD
-    console.log(vehicleOptions);
+    console.log("vehicleOptions", assignableVehicles);
 
     const [formData, setFormData] = useState({
         serialNumber: "",
@@ -33,6 +34,7 @@ export const EditELDDevice = () => {
     });
 
     const [showDeactivate, setShowDeactivate] = useState(false);
+    const [showActivate, setShowActivate] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     const [showUnassign, setShowUnassign] = useState(false);
     const [isUnassigned, setIsUnassigned] = useState(false);
@@ -44,7 +46,7 @@ export const EditELDDevice = () => {
         if (id) {
             dispatch(getEldDeviceById(companyId, id));
         }
-        dispatch(getAssignableVehicles(companyId));
+        dispatch(getAssignableVehiclesForEld(companyId));
     }, [dispatch, id, companyId]);
 
     // Prefill form
@@ -54,56 +56,27 @@ export const EditELDDevice = () => {
                 serialNumber: eldDevice.serialNumber || "",
                 mac: eldDevice.macAddress ? eldDevice.macAddress.split(":") : ["", "", "", "", "", ""],
                 eldModel: eldDevice.eldModel || "",
-                // vehicle: eldDevice.assignedVehicle?.vehicleNumber || "",
-                vehicle: eldDevice.assignedVehicle?._id || "",
+                vehicle: eldDevice.assignedVehicleId?._id || "",   // extract ID from object
                 firmwareVersion: eldDevice.firmwareVersion || "",
             });
-            setIsUnassigned(!eldDevice.assignedVehicle);
+            setIsUnassigned(!eldDevice.assignedVehicleId);
         }
     }, [eldDevice]);
 
-    // Merge assigned assign vehicle for dropdown
-    //     useEffect(() => {
-    //     if (!eldDevice) return;
-
-    //     // Assigned vehicle from ELD
-    //     const assignedVehicle = eldDevice.assignedVehicle
-    //       ? {
-    //           _id: eldDevice.assignedVehicle._id,
-    //           vehicleNumber: eldDevice.assignedVehicle.vehicleNumber,
-    //         }
-    //       : null;
-
-    //     // Merge assigned vehicle into unassigned list
-    //     let merged = [...(unassignedVehicles || [])];
-    //     if (
-    //       assignedVehicle &&
-    //       !merged.some((v) => v._id === assignedVehicle._id)
-    //     ) {
-    //       merged = [assignedVehicle, ...merged];
-    //     }
-
-    //     setVehicleOptions(merged);
-    //   }, [eldDevice, unassignedVehicles]);
-
+    // Merge assigned vehicle into dropdown
     useEffect(() => {
         if (!eldDevice) return;
 
-        let merged = [...(unassignedVehicles || [])];
+        let merged = [...(assignableVehicles || [])];
 
-        // Case 1: ELD already has an assigned vehicle ID
-        if (eldDevice.assignedVehicleId) {
-            // Try to find the vehicle in unassigned list
-            const existing = merged.find((v) => v._id === eldDevice.assignedVehicleId);
+        if (eldDevice.assignedVehicleId?._id) {
+            const existing = merged.find(v => v._id === eldDevice.assignedVehicleId._id);
 
-            // If not found in unassigned, create a placeholder option
             if (!existing) {
                 merged = [
                     {
-                        _id: eldDevice.assignedVehicleId,
-                        vehicleNumber: eldDevice.assignedVehicle
-                            ? eldDevice.assignedVehicle
-                            : `Assigned Vehicle (${eldDevice.assignedVehicle})`,
+                        _id: eldDevice.assignedVehicleId._id,
+                        vehicleNumber: eldDevice.assignedVehicleId.vehicleNumber || "Assigned Vehicle",
                     },
                     ...merged,
                 ];
@@ -111,8 +84,12 @@ export const EditELDDevice = () => {
         }
 
         setVehicleOptions(merged);
-    }, [eldDevice, unassignedVehicles]);
+    }, [eldDevice, assignableVehicles]);
 
+
+    console.log("eldDevice:", eldDevice);
+    console.log("assignableVehicles:", assignableVehicles);
+    console.log("vehicleOptions:", vehicleOptions);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -180,6 +157,11 @@ export const EditELDDevice = () => {
         setShowDeactivate(false);
     };
 
+    const confirmActivate = () => {
+        dispatch(activateEld(companyId, id, navigate));
+        setShowActivate(false);
+    };
+
     const confirmDelete = () => {
         dispatch(deleteEld(companyId, id, navigate));
         setShowDelete(false);
@@ -199,9 +181,24 @@ export const EditELDDevice = () => {
                         <Button variant="outline-danger" onClick={() => setShowUnassign(true)} disabled={isUnassigned}>
                             {isUnassigned ? "Unassigned" : "Unassign Vehicle"}
                         </Button>
-                        <Button variant="outline-danger" onClick={() => setShowDeactivate(true)}>
+                        {/* <Button variant="outline-danger" onClick={() => setShowDeactivate(true)}>
                             Deactivate
-                        </Button>
+                        </Button> */}
+                        {eldDevice?.status === "Active" ? (
+                            <Button
+                                variant="outline-danger"
+                                onClick={() => setShowDeactivate(true)}
+                            >
+                                Deactivate
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="outline-success"
+                                onClick={() => setShowActivate(true)}
+                            >
+                                Activate
+                            </Button>
+                        )}
                         <Button variant="danger" onClick={() => setShowDelete(true)}>
                             Delete Device
                         </Button>
@@ -220,6 +217,16 @@ export const EditELDDevice = () => {
                     confirmText="Deactivate"
                     confirmVariant="danger"
                     iconClass="bi-exclamation-triangle"
+                />
+                {/* Confirm Modals */}
+                <ConfirmModal
+                    show={showActivate}
+                    handleClose={() => setShowActivate(false)}
+                    onConfirm={confirmActivate}
+                    title="Are you sure you want to activate this ELD device?"
+                    confirmText="Activate"
+                    confirmVariant="success"
+                    iconClass="bi-check-circle"
                 />
                 <ConfirmModal
                     show={showDelete}
@@ -313,23 +320,9 @@ export const EditELDDevice = () => {
                                         <Form.Label>
                                             Assign Vehicle<span className="text-danger"></span>
                                         </Form.Label>
-                                        {/* <Form.Select name="vehicle" value={formData.vehicle} onChange={handleChange}>
-                      <option value="" hidden>
-                        Select Vehicle
-                      </option>
-                      {loadings ? (
-                        <option>Loading...</option>
-                      ) : (
-                        unassignedVehicles.map((v) => (
-                          <option key={v._id} value={v.vehicleNumber}>
-                            {v.vehicleNumber}
-                          </option>
-                        ))
-                      )}
-                    </Form.Select> */}
-                                        {/* <Form.Select
+                                        <Form.Select
                                             name="vehicle"
-                                            value={formData.vehicle} // store vehicle _id instead of number
+                                            value={formData.vehicle}
                                             onChange={(e) => {
                                                 const selectedVehicle = vehicleOptions.find(
                                                     (v) => v._id === e.target.value
@@ -337,7 +330,7 @@ export const EditELDDevice = () => {
                                                 setFormData((prev) => ({
                                                     ...prev,
                                                     vehicle: e.target.value || "",
-                                                    vehicleNumber: selectedVehicle?.vehicleNumber || "", // optional, if you want to display
+                                                    vehicleNumber: selectedVehicle?.vehicleNumber || "",
                                                 }));
                                             }}
                                         >
@@ -348,31 +341,7 @@ export const EditELDDevice = () => {
                                                     {v.vehicleNumber}
                                                 </option>
                                             ))}
-                                        </Form.Select> */}
-                                        <Form.Select
-  name="vehicle"
-  value={formData.vehicle} // will store the _id
-  onChange={(e) => {
-    const selectedVehicle = vehicleOptions.find(
-      (v) => v._id === e.target.value
-    );
-    setFormData((prev) => ({
-      ...prev,
-      vehicle: e.target.value || "", // store vehicle _id
-      vehicleNumber: selectedVehicle?.vehicleNumber || "", // optional (in case you want to use it somewhere else)
-    }));
-  }}
->
-  <option value="">Select Vehicle</option>
-  {loadings && <option>Loading...</option>}
-  {vehicleOptions?.map((v) => (
-    <option key={v._id} value={v._id}>
-      {v.vehicleNumber} {/* only show vehicleNumber */}
-    </option>
-  ))}
-</Form.Select>
-
-
+                                        </Form.Select>
                                     </Form.Group>
                                 </Col>
                             </Row>
@@ -391,7 +360,7 @@ export const EditELDDevice = () => {
                                         value={formData.firmwareVersion || ""} // fallback to "" if null/undefined
 
                                         onChange={handleChange}
-                                        // required
+                                    // required
                                     >
                                         <option value="">
                                             Select Firmware

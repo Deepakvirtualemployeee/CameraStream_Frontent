@@ -260,3 +260,29 @@ export const getAssignableVehicles = (companyId) => async (dispatch) => {
     toast.error(err.response?.data?.message || "Failed to fetch vehicles");
   }
 };
+
+// Get assignable vehicles for a eld
+export const getAssignableVehiclesForEld = (companyId) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.START_ASSIGNABLE_ELD_VEHICLES });
+
+    const res = await axios.get(
+      `/vehicles/aviable-for-eld?companyId=${companyId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    console.log("aviable-for-eld veh:", res);
+    dispatch({
+      type: actionTypes.ASSIGNABLE_ELD_VEHICLES_SUCCESS,
+      payload: res.data.data,
+    });
+  } catch (err) {
+    console.error("Error fetching vehicles:", err);
+    dispatch({
+      type: actionTypes.ASSIGNABLE_ELD_VEHICLES_FAIL,
+      payload: err.response?.data?.message || err.message,
+    });
+    toast.error(err.response?.data?.message || "Failed to fetch vehicles");
+  }
+};

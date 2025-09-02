@@ -131,31 +131,43 @@ export const getUnassignedElds = (companyId) => async (dispatch) => {
   };
 
 // DELETE ELD device
-export const deleteEld = (companyId, id) => {
-  return (dispatch) => {
-    axios.delete(`/eld/${id}`, {
+export const deleteEld = (companyId, id, navigate) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.DELETE_ELD_REQUEST });
+
+    const res = await axios.delete(`/elds/delete?eldId=${id}&companyId=${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-    })
-    .then((res) => {
-      toast.success("ELD device deleted successfully");
-      // Optionally fetch list again to refresh
-      dispatch(fetchEldDevices(token));
-    })
-    .catch((err) => {
-      toast.error(err.response?.data?.message || "Failed to delete ELD device");
     });
-  };
+
+    dispatch({
+      type: actionTypes.DELETE_ELD_SUCCESS,
+      payload: res.data.data,
+    });
+
+    toast.success("Eld delete successfully!");
+    if (navigate) navigate(`/settings/eld-devices/${companyId}`);
+
+    return true;
+  } catch (err) {
+    console.log(err);
+    dispatch({
+      type: actionTypes.DELETE_ELD_FAILURE,
+      payload: err.response?.data?.message || err.message,
+    });
+    toast.error(err.response?.data?.message || "Failed to delete eld");
+    return false;
+  }
 };
 
 // Deactivate ELD
 export const deactivateEld = (companyId, id, navigate) => async (dispatch) => {
   try {
-    dispatch({ type: actionTypes.DEACTIVATE_VEHICLE_REQUEST });
+    dispatch({ type: actionTypes.DEACTIVATE_ELD_REQUEST });
 
-    const res = await axios.put(`/vehicles/deactivate?companyId=${companyId}&vehicleId=${id}`, {}, {
+    const res = await axios.put(`/elds/deactivate?companyId=${companyId}&eldId=${id}`, {}, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -163,20 +175,51 @@ export const deactivateEld = (companyId, id, navigate) => async (dispatch) => {
     });
 
     dispatch({
-      type: actionTypes.DEACTIVATE_VEHICLE_SUCCESS,
+      type: actionTypes.DEACTIVATE_ELD_SUCCESS,
       payload: res.data.data,
     });
 
-    toast.success("Vehicle deactivated successfully!");
-    if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
+    toast.success("Eld deactivated successfully!");
+    if (navigate) navigate(`/settings/eld-devices/${companyId}`);
 
     return true;
   } catch (err) {
     dispatch({
-      type: actionTypes.DEACTIVATE_VEHICLE_FAILURE,
+      type: actionTypes.DEACTIVATE_ELD_FAILURE,
       payload: err.response?.data?.message || err.message,
     });
-    toast.error(err.response?.data?.message || "Failed to deactivate vehicle");
+    toast.error(err.response?.data?.message || "Failed to deactivate eld");
+    return false;
+  }
+};
+
+// Activate ELD
+export const activateEld = (companyId, id, navigate) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.ACTIVATE_ELD_REQUEST });
+
+    const res = await axios.put(`/elds/activate?companyId=${companyId}&eldId=${id}`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    dispatch({
+      type: actionTypes.ACTIVATE_ELD_SUCCESS,
+      payload: res.data.data,
+    });
+
+    toast.success("Eld activated successfully!");
+    if (navigate) navigate(`/settings/eld-devices/${companyId}`);
+
+    return true;
+  } catch (err) {
+    dispatch({
+      type: actionTypes.ACTIVATE_ELD_FAILURE,
+      payload: err.response?.data?.message || err.message,
+    });
+    toast.error(err.response?.data?.message || "Failed to activate eld");
     return false;
   }
 };
@@ -186,7 +229,7 @@ export const deactivateEld = (companyId, id, navigate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.UNASSIGN_ELD_REQUEST });
 
-    const res = await axios.put(`/vehicles/unassign-eld?companyId=${companyId}&vehicleId=${id}`, {}, {
+    const res = await axios.put(`/elds/unassign-vehicle?companyId=${companyId}&eldId=${id}`, {}, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -199,7 +242,7 @@ export const deactivateEld = (companyId, id, navigate) => async (dispatch) => {
     });
 
     toast.success("ELD unassigned successfully!");
-    if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
+    if (navigate) navigate(`/settings/eld-devices/${companyId}`);
     return true;
   } catch (err) {
     dispatch({
