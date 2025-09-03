@@ -366,26 +366,6 @@ export const EditVehicles = () => {
             <section>
               <div className="main-heading mb-3">ELD Settings</div>
               <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
-                {/* <Form.Group controlId="eldSerialNumber">
-                  <Form.Label>Assign ELD</Form.Label>
-                  <Form.Select
-                    name="eldSerialNumber"
-                    value={formData.eldSerialNumber}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select ELD</option>
-                    {loadings ? (
-                      <option>Loading...</option>
-                    ) : (
-                      unassignedElds.map((eld) => (
-                        <option key={eld._id} value={eld.serialNumber}>
-                          {eld.serialNumber} ({eld.macAddress})
-                        </option>
-                      ))
-                    )}
-                  </Form.Select>
-                </Form.Group> */}
-
                 <Form.Group controlId="eldSerialNumber">
                   <Form.Label>Assign ELD</Form.Label>
                   <Form.Select
@@ -405,7 +385,6 @@ export const EditVehicles = () => {
                     )}
                   </Form.Select>
                 </Form.Group>
-
               </div>
             </section>
           </Form>

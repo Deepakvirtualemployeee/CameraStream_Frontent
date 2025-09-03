@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button, Badge } from "react-bootstrap";
 import DataTable from "react-data-table-component";
 import dataTableCustomStyles from "../../../assets/style/dataTableCustomStyles";
@@ -14,9 +14,6 @@ export const VehiclesList = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { id } = useParams(); // company id from URL
-
-    // const location = useLocation();
-    // const { companyId } = location.state || {};  // reading state
 
     // Correct selector
     const { vehicles, loading } = useSelector((state) => state.vehicles);
@@ -96,7 +93,6 @@ export const VehiclesList = () => {
                     >
                         <img src={EditIcon} alt="Edit Icon" />
                     </span>
-                    {/* Add delete button here later */}
                 </div>
             ),
         },

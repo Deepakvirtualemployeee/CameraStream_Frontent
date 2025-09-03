@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { createVehicle, updateVehicle, getVehicles } from "../../../store/actions/vehicles";
+import { createVehicle } from "../../../store/actions/vehicles";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
 
 export const AddVehicles = () => {
@@ -10,14 +10,8 @@ export const AddVehicles = () => {
   const dispatch = useDispatch();
   const { id } = useParams(); // company id from url
 
-  //   const location = useLocation();
-  //   const { companyId } = location.state || {};  // reading state
-  // console.log("Company id:", companyId);
-  //   const { vehicleDetails, loading } = useSelector((state) => state.vehicles);
   const { vehicleDetails, loading } = useSelector((state) => state.vehicles || { vehicleDetails: [] });
-  // const { eldDevices, loadings } = useSelector((state) => state.eldDevices);
   const { unassignedElds, loadings } = useSelector((state) => state.eldDevices);
-
 
   // console.log("add eld", eldDevices);
   const [formData, setFormData] = useState({
@@ -39,30 +33,6 @@ export const AddVehicles = () => {
     dispatch(getUnassignedElds(id));
   }, [dispatch]);
 
-  // Fetch vehicle details if editing
-  // useEffect(() => {
-  //   if (id) {
-  //   //   dispatch(getVehicleById(id));
-  //     dispatch(getVehicles(companyId));
-
-  //   }
-  // }, [id, dispatch]);
-
-  // Pre-fill data when editing
-  // useEffect(() => {
-  //   if (id && vehicleDetails) {
-  //     setFormData(vehicleDetails);
-  //   }
-  // }, [vehicleDetails, id]);
-
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //   }));
-  // };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
   
@@ -81,18 +51,11 @@ export const AddVehicles = () => {
       }));
     }
   };
-  
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // if (id) {
-    //   // Editing existing vehicle
-    //   dispatch(updateVehicle(companyId, id, formData, navigate));
-    // } else {
     // Adding new vehicle
     dispatch(createVehicle(id, formData, navigate));
-    // }
   };
 
   return (
@@ -103,9 +66,7 @@ export const AddVehicles = () => {
       >
         <div className="heading-wrapper d-flex justify-content-between align-items-center mb-4">
           <div className="main-heading">
-            {/* {id ? "Edit Vehicle" : "Add Vehicle"} */}
             {"Add Vehicle"}
-
           </div>
           <div className="btn-wrapper d-flex flex-wrap gap-2">
             <Button
@@ -121,7 +82,6 @@ export const AddVehicles = () => {
               form="add-vehicle-form"
               disabled={loading}
             >
-              {/* {id ? "Update Vehicle" : "Add Vehicle"} */}
               {"Add Vehicle"}
             </Button>
           </div>
@@ -246,20 +206,6 @@ export const AddVehicles = () => {
               <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
                 <Form.Group controlId="eldSerialNumber">
                   <Form.Label>Assign ELD</Form.Label>
-                  {/* <Form.Select
-                    name="eldSerialNumber"
-                    value={formData.eldSerialNumber}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="" hidden>
-                      Select ELD Device
-                    </option>
-                    <option value="7000">7000</option>
-                    <option value="7001">7001</option>
-                    <option value="7002">7002</option>
-                    <option value="7003">7003</option>
-                  </Form.Select> */}
                   <Form.Select
                     name="eldSerialNumber"
                     value={formData.eldSerialNumber}
@@ -277,7 +223,6 @@ export const AddVehicles = () => {
                       ))
                     )}
                   </Form.Select>
-
                 </Form.Group>
               </div>
             </section>
