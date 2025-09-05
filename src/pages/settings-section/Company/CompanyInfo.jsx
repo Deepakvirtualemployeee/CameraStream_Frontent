@@ -35,15 +35,15 @@ export const CompanyInfo = () => {
   const carrierSettings = [
     { label: "Compliance Mode", value: company.complianceMode || "-" },
     { label: "Vehicle Motion Threshold", value: company.vehicleMotionThreshold || 0 },
-    { label: "Cycle Rule", value: company.cycle || "-" },
+    { label: "Cycle Rule", value: company.hosRules || "-" },
     { label: "Cargo Type", value: company.cargoType || "-" },
     { label: "Restart", value: company.restartHours || "-" },
     { label: "Rest Break", value: company.restBreak || "-" },
-    { label: "Short-Haul Exception", value: company.shortHaulAllowed === true ? "Allowed" : "Forbidden" },
-    { label: "Split-Sleeper Birth", value: company.splitSBAllowed === true ? "Allowed" : "Forbidden" },
-    { label: "Personal Conveyance", value: company.pcAllowed === true ? "Allowed" : "Forbidden" },
-    { label: "Yard Move", value: company.ymAllowed === true ? "Allowed" : "Forbidden" },
-    { label: "Manual Drive", value: company.manualDriveAllowed === true ? "Allowed" : "Forbidden" },
+    { label: "Short-Haul Exception", value: company.allowShortHaul === true ? "Allowed" : "Forbidden" },
+    { label: "Split-Sleeper Birth", value: company.allowSplitSleeper === true ? "Allowed" : "Forbidden" },
+    { label: "Personal Conveyance", value: company.allowPersonalConveyance === true ? "Allowed" : "Forbidden" },
+    { label: "Yard Move", value: company.allowYardMove === true ? "Allowed" : "Forbidden" },
+    { label: "Manual Drive", value: company.allowManualDriver === true ? "Allowed" : "Forbidden" },
   ];
 
   return (

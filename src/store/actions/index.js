@@ -10,8 +10,8 @@ export {
 
 export {
   getCompanies,
-  searchCompanies,
-  filterCompaniesByStatus, 
+  // searchCompanies,
+  // filterCompaniesByStatus, 
   createCompany,
   updateCompany,
   deleteCompany,

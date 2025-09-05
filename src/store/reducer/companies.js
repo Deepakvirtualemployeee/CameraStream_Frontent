@@ -49,8 +49,8 @@ const companiesReducer = (state = initialState, action) => {
         success: null,
       };
 
-      // Get company info by id
-      case actionTypes.START_COMPANY_INFO:
+    // Get company info by id
+    case actionTypes.START_COMPANY_INFO:
       return { ...state, loading: true, error: null };
     case actionTypes.COMPANY_INFO_SUCCESS:
       return { ...state, loading: false, company: action.payload };
