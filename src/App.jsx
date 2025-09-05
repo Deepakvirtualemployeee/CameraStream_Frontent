@@ -96,11 +96,11 @@ function App() {
 
         {/* Routes using Sidebar + Topbar */}
         <Route element={<Layout2 />}>
-          <Route path="driver-hos" element={<DriversHOSList />} />
-          <Route path="driver-hos/graph-details" element={<GraphDetails />} />
-          <Route path="logs" element={<LogsList />} />
-          <Route path="fmcsa-records" element={<FMCSARecords />} />
-          <Route path="location" element={<Location />} />
+          <Route path="driver-hos/:id" element={<DriversHOSList />} />
+          <Route path="driver-hos/graph-details/:id" element={<GraphDetails />} />
+          <Route path="logs/:id" element={<LogsList />} />
+          <Route path="fmcsa-records/:id" element={<FMCSARecords />} />
+          <Route path="location/:id" element={<Location />} />
           <Route path="settings/drivers-listing/:id" element={<DriversListing />} />
           <Route path="settings/drivers-listing/add-driver/:id" element={<AddDriver />} />
           <Route path="settings/drivers-listing/edit-driver/:id" element={<EditDriver />} />

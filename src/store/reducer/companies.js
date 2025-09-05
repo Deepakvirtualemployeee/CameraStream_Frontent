@@ -5,6 +5,7 @@ const initialState = {
   error: null,
   success: null,
   companies: [],
+  company: null,
 };
 
 const companiesReducer = (state = initialState, action) => {
@@ -47,6 +48,14 @@ const companiesReducer = (state = initialState, action) => {
         error: action.message,
         success: null,
       };
+
+      // Get company info by id
+      case actionTypes.START_COMPANY_INFO:
+      return { ...state, loading: true, error: null };
+    case actionTypes.COMPANY_INFO_SUCCESS:
+      return { ...state, loading: false, company: action.payload };
+    case actionTypes.COMPANY_INFO_ERROR:
+      return { ...state, loading: false, error: action.payload };
 
     default:
       return state;

@@ -27,6 +27,88 @@ export const companiesFail = (message) => {
   };
 };
 
+// Action Creators
+export const startCompanyInfo = () => ({
+  type: actionTypes.START_COMPANY_INFO,
+});
+
+export const companyInfoSuccess = (data) => ({
+  type: actionTypes.COMPANY_INFO_SUCCESS,
+  payload: data,
+});
+
+export const companyInfoError = (error) => ({
+  type: actionTypes.COMPANY_INFO_ERROR,
+  payload: error,
+});
+
+// Fetch company info
+export const getCompanyInfo = (companyId) => {
+  return async (dispatch) => {
+    dispatch(startCompanyInfo());
+    try {
+      const res = await axios.get(`/companies/getById?id=${companyId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      dispatch(companyInfoSuccess(res.data?.data || {}));
+    } catch (err) {
+      dispatch(companyInfoError(err.response?.data?.message || "Error fetching company info"));
+    }
+  };
+};
+
+// Get company details
+// export const getCompany = () => {
+//   return async (dispatch) => {
+//     try {
+//       dispatch({ type: GET_COMPANY_REQUEST });
+
+//       const { data } = await axios.get("/api/company"); // adjust endpoint
+
+//       dispatch({
+//         type: GET_COMPANY_SUCCESS,
+//         payload: data, // assuming backend returns company object
+//       });
+//     } catch (error) {
+//       dispatch({
+//         type: GET_COMPANY_FAIL,
+//         payload:
+//           error.response && error.response.data.message
+//             ? error.response.data.message
+//             : error.message,
+//       });
+//     }
+//   };
+// };
+
+// Update company details
+export const updateCompanyById = (companyId, companyData, navigate) => {
+  return async (dispatch) => {
+    try {
+      dispatch({ type: actionTypes.UPDATE_COMPANY_REQUEST });
+
+      const { data } = await axios.put(`/companies/update?id=${companyId}`, companyData);
+
+      dispatch({
+        type: actionTypes.UPDATE_COMPANY_SUCCESS,
+        payload: data,
+      });
+      toast.success("Company updated successfully!");
+      if (navigate) navigate(`/settings/vehicles-list/${companyId}`);
+    } catch (error) {
+      dispatch({
+        type: actionTypes.UPDATE_COMPANY_FAIL,
+        payload:
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+      });
+      toast.error(error.response?.data?.message || "Failed to update company");
+
+    }
+  };
+};
+
 // GET all companies
 export const getCompanies = () => {
   return (dispatch) => {

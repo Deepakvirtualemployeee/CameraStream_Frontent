@@ -64,11 +64,11 @@ export const DriversHOSList = () => {
             selector: (row) => row.cycle,
             minWidth: '80px',
         },
-        {
-            name: 'Recap',
-            selector: (row) => row.recap,
-            minWidth: '80px',
-        },
+        // {
+        //     name: 'Recap',
+        //     selector: (row) => row.recap,
+        //     minWidth: '80px',
+        // },
         {
             name: 'Last Sync',
             minWidth: '100px',

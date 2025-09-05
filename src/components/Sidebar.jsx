@@ -33,19 +33,19 @@ const Sidebar = ({ collapsed, openSidebar }) => {
 
             <ul className="sidebar-item-cover list-inline overflow-auto flex-fill m-0">
                 <li className="nav-item">
-                    <Link to={'/dashboard'} className={`${location.pathname === '/dashboard' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
+                    <Link to={`/location/${id}`} className={`${location.pathname === `/location/${id}` ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-house-door"></i>
                         {!collapsed && <span>Dashboard</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/driver-hos'} className={`${location.pathname === '/driver-hos' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
+                    <Link to={`/driver-hos/${id}`} className={`${location.pathname === `/driver-hos/${id}` ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-clock"></i>
                         {!collapsed && <span>Drivers HOS</span>}
                     </Link>
                 </li>
                 <li className="nav-item">
-                    <Link to={'/logs'} className={`${location.pathname === '/logs' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
+                    <Link to={`/logs/${id}`} className={`${location.pathname === `/logs/${id}` ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-activity"></i>
                         {!collapsed && <span>Logs</span>}
                     </Link>
@@ -69,7 +69,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     </Link>
                 </li> */}
                 <li className="nav-item">
-                    <Link to={'/fmcsa-records'} className={`${location.pathname === '/fmcsa-records' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
+                    <Link to={`/fmcsa-records/${id}`} className={`${location.pathname === `/fmcsa-records/${id}` ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
                         <i className="bi bi-clipboard-data"></i>
                         {!collapsed && <span>FMCSA Records</span>}
                     </Link>

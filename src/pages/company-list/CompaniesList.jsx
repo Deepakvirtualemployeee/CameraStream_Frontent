@@ -60,7 +60,8 @@ export const CompaniesList = () => {
             cell: (row) => (
               <a
                 // href={`/company/${row._id}/dashboard`}
-                href={`/settings/company-info/${row._id}`}
+                // href={`/settings/company-info/${row._id}`}
+                href={`/location/${row._id}`}
 
                 target="_blank"
                 rel="noopener noreferrer"
