@@ -118,6 +118,7 @@ export const EditCompanyInfo = () => {
                                             name="companyName"
                                             value={formData.companyName}
                                             onChange={handleChange}
+                                            placeholder="Enter company name"
                                             required
                                         />
                                     </Form.Group>
@@ -129,6 +130,7 @@ export const EditCompanyInfo = () => {
                                             type="text"
                                             name="dotNumber"
                                             value={formData.dotNumber}
+                                            placeholder="Enter dot number"
                                             onChange={handleChange}
                                             required
                                         />
@@ -147,6 +149,10 @@ export const EditCompanyInfo = () => {
                                                 Select Time zone
                                             </option>
                                             <option value="America/Chicago">America/Chicago (CST/CDT)</option>
+                                            <option value="UTC">UTC</option>
+                                            <option value="GMT">GMT</option>
+                                            <option value="IST">IST</option>
+                                            {/* <option value="America/Chicago">America/Chicago (CST/CDT)</option>
                                             <option value="America/Los_Angeles">America/Los_Angeles</option>
                                             <option value="Coordinated Universal Time">UTC</option>
                                             <option value="Greenwich Mean Time">GMT</option>
@@ -154,7 +160,7 @@ export const EditCompanyInfo = () => {
                                             <option value="Eastern Standard Time">EST</option>
                                             <option value="Eastern Daylight Time">EDT (USA)</option>
                                             <option value="Central Standard Time">CST</option>
-                                            <option value="Central Daylight Time">CDT (USA)</option>
+                                            <option value="Central Daylight Time">CDT (USA)</option> */}
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
@@ -166,6 +172,7 @@ export const EditCompanyInfo = () => {
                                             name="address"
                                             value={formData.address}
                                             onChange={handleChange}
+                                            placeholder="Enter address"
                                             required
                                         />
                                     </Form.Group>
@@ -235,6 +242,7 @@ export const EditCompanyInfo = () => {
                                         name="complianceMode"
                                         value={formData.complianceMode}
                                         onChange={handleChange}
+                                        placeholder="Enter compliance mode"
                                         //   required
                                         disabled
                                     />
@@ -264,7 +272,7 @@ export const EditCompanyInfo = () => {
                                     <Form.Label>
                                         Cargo Type<span className="text-danger">*</span>
                                     </Form.Label>
-                                    <Form.Control
+                                    {/* <Form.Control
                                         type="text"
                                         name="cargoType"
                                         value={formData.cargoType}
@@ -272,7 +280,19 @@ export const EditCompanyInfo = () => {
                                         placeholder="Enter cargo type"
                                         autoComplete="off"
                                         required
-                                    />
+                                    /> */}
+                                    <Form.Select
+                                        name="cargoType"
+                                        value={formData.cargoType}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="" hidden>
+                                            Select Cargo Type
+                                        </option>
+                                        <option value="PROPERTY">PROPERTY</option>
+                                        <option value="PASSENGER">PASSENGER</option>
+                                    </Form.Select>
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="restartHours">
                                     <Form.Label>

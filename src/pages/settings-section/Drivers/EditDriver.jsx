@@ -724,7 +724,7 @@ export const EditDriver = () => {
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="CargoType">
                                     <Form.Label>Cargo Type<span className="text-danger">*</span></Form.Label>
-                                    <Form.Control
+                                    {/* <Form.Control
                                         type="text"
                                         name="cargoType"
                                         value={formData.cargoType}
@@ -732,7 +732,19 @@ export const EditDriver = () => {
                                         placeholder="Enter cargo type"
                                         autoComplete='off'
                                         required
-                                    />
+                                    /> */}
+                                    <Form.Select
+                                        name="cargoType"
+                                        value={formData.cargoType}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="" hidden>
+                                            Select Cargo Type
+                                        </option>
+                                        <option value="PROPERTY">PROPERTY</option>
+                                        <option value="PASSENGER">PASSENGER</option>
+                                    </Form.Select>
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="Restart">
                                     <Form.Label>Restart<span className="text-danger">*</span></Form.Label>
