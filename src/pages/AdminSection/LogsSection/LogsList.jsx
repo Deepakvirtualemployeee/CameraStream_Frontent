@@ -167,10 +167,10 @@ export const LogsList = () => {
                             onReset={resetFilters}
                         />
 
-                        <div className="btn-wrapper d-flex flex-wrap gap-2">
+                        {/* <div className="btn-wrapper d-flex flex-wrap gap-2">
                             <Button variant='primary' className="d-flex align-items-center justify-center gap-1"><i className="bi bi-cloud-upload fs-16"></i> Transfer Data</Button>
                             <Button variant='warning' className="d-flex align-items-center justify-center gap-1"><i className="bi bi-file-earmark-arrow-down fs-16"></i> Download Data</Button>
-                        </div>
+                        </div> */}
                     </div>
                     <div className='table-responsive table-custom-wrapper'>
                         <DataTable

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../../components/NoDataComponent';
@@ -7,14 +8,15 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button, Form } from "react-bootstrap";
 import ReloadIcon from '../../../assets/images/icons/reload.svg';
-import BluetoothOnIcon from '../../../assets/images/icons/bluetooth-on.svg';
-import BluetoothOffIcon from '../../../assets/images/icons/bluetooth-off.svg';
+import EditIcon from '../../../assets/images/icons/edit.svg'
+import ExternalIcon from '../../../assets/images/icons/external.svg'
 import LogChart from "./LogChart";
 
 export const GraphDetails = () => {
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [logsEnabled, setLogsEnabled] = useState(false);
+    // const [logsEnabled, setLogsEnabled] = useState(false);
 
+    const navigate = useNavigate();
     const handlePrevDay = () => {
         setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
     };
@@ -25,243 +27,252 @@ export const GraphDetails = () => {
 
     const columns = [
         {
-            name: 'Driver',
-            selector: (row) => row.driver_name,
+            name: '#',
+            selector: (row) => row.id,
             sortable: true,
-            minWidth: '150px',
+            minWidth: '50px',
+        },
+        // {
+        //     name: 'Start (PDT)',
+        //     selector: (row) => row.start_PDT,
+        //     minWidth: '170px',
+        //     cell: (row) => (
+        //         <div className="d-flex align-items-center gap-1">
+        //             {(row.id === '02' || row.id === '05' || row.id === '07') ? (
+        //                 <span><img src={BluetoothOffIcon} alt="Bluetooth On Icon" className="img-fluid" /></span>
+        //             ) : (
+        //                 <span><img src={BluetoothOnIcon} alt="Bluetooth Off Icon" className="img-fluid" /></span>
+        //             )}
+        //             <span><i className="bi bi-geo-alt fs-5 text-body"></i></span>
+        //             <span className="fw-semibold text-body text-nowrap ms-1">{row.vehicle}</span>
+        //         </div>
+        //     ),
+        // },
+        {
+            name: 'Status',
+            minWidth: '180px',
+            cell: (row) => (
+                <div className={`${row.status === "OFF Duty" ? "bg-success" : "bg-secondary"} bg-secondary text-white text-center rounded-3 px-3 py-2`} style={{ width: '120px' }}>
+                    <div className="fs-14 fw-medium">{row.status}</div>
+                    {/* <div className="fs-10 mt-1">15 days ago</div> */}
+                </div>
+            ),
+        },
+        {
+            name: 'Start (PDT)',
+            selector: (row) => row.start_PDT,
+            minWidth: '230px'
+        },
+        {
+            name: 'Duration',
+            selector: (row) => row.duration,
+            minWidth: '120px',
+        },
+        {
+            name: 'Location',
+            // selector: (row) => row.location,
+            minWidth: '250px',
+            cell: (row) => (
+                <div className="d-flex align-items-center gap-1">
+                    <span className="fw-semibold text-body text-nowrap ms-1">{row.location}</span>
+                    <span><img src={ExternalIcon} alt="ExternalIcon" className="img-fluid" /></span>
+                    <span><i className="bi bi-copy fs-5 text-body"></i></span>
+                </div>
+            ),
         },
         {
             name: 'Vehicle',
-            sortable: true,
-            minWidth: '170px',
-            cell: (row) => (
-                <div className="d-flex align-items-center gap-1">
-                    {(row.id === '02' || row.id === '05' || row.id === '07') ? (
-                        <span><img src={BluetoothOffIcon} alt="Bluetooth On Icon" className="img-fluid" /></span>
-                    ) : (
-                        <span><img src={BluetoothOnIcon} alt="Bluetooth Off Icon" className="img-fluid" /></span>
-                    )}
-                    <span><i className="bi bi-geo-alt fs-5 text-body"></i></span>
-                    <span className="fw-semibold text-body text-nowrap ms-1">{row.vehicle}</span>
-                </div>
-            ),
-        },
-        {
-            name: 'Status',
-            minWidth: '130px',
-            cell: (row) => (
-                <div className={`${row.status === "OFF Duty" ? "bg-secondary" : "bg-success"} bg-secondary text-white text-center rounded-3 px-3 py-2`} style={{ width: '120px' }}>
-                    <div className="fs-14 fw-medium">{row.status}</div>
-                    <div className="fs-10 mt-1">15 days ago</div>
-                </div>
-            ),
-        },
-        {
-            name: 'Break',
-            selector: (row) => row.break,
+            selector: (row) => row.vehicle,
             minWidth: '80px',
         },
         {
-            name: 'Drive',
-            selector: (row) => row.drive,
+            name: 'Odometer',
+            selector: (row) => row.odometer,
+            minWidth: '120px',
+        },
+        {
+            name: 'Engine Hours',
+            minWidth: '120px',
+            selector: (row) => row.engine_hours,
+        },
+        {
+            name: 'Origin',
             minWidth: '80px',
+            selector: (row) => row.origin,
         },
         {
-            name: 'Shift',
-            selector: (row) => row.shift,
-            minWidth: '80px',
-        },
-        {
-            name: 'Cycle',
-            selector: (row) => row.cycle,
-            minWidth: '80px',
-        },
-        {
-            name: 'Recap',
-            selector: (row) => row.recap,
-            minWidth: '80px',
-        },
-        {
-            name: 'Last Sync',
-            minWidth: '100px',
-            selector: (row) => row.last_sync,
-        },
-        {
-            name: 'Violations',
-            minWidth: '100px',
-            cell: (row) => (
-                <div className="d-flex align-items-center gap-2 ms-4">
-                    {row.violations === "Violated" ? <i className="bi bi-clock fs-5 text-danger"></i> : ''}
-                </div>
-            ),
-        },
-        {
-            name: 'Logs',
-            minWidth: '80px',
+            name: 'Trailers',
+            minWidth: '120px',
             cell: (row) => (
                 <div className="d-flex align-items-center gap-2 ms-2">
-                    {row.logs === true &&
+                    {row.trailers === false &&
                         <i className="bi bi-activity fs-5 text-body"></i>
                     }
                 </div>
             ),
         },
         {
-            name: 'Contacts',
-            selector: (row) => row.contact,
-            minWidth: '110px',
+            name: 'Shipping Docs',
+            cell: (row) => (
+                <div className="d-flex align-items-center gap-2 ms-2">
+                    {row.shiping_docs === false &&
+                        <i className="bi bi-activity fs-5 text-body"></i>
+                    }
+                </div>
+            ),
+            minWidth: '150px',
         },
         {
-            name: 'Device',
+            name: 'Notes',
             minWidth: '80px',
             cell: (row) => (
                 <div className="d-flex align-items-center gap-2 ms-2 ps-1">
-                    {row.logs === true &&
-                        <i className="bi bi-pc-display fs-5 text-muted"></i>
+                    {row.notes === true &&
+                        <span className="text-body text-nowrap ms-1">Break</span>
                     }
                 </div>
             ),
         },
-        // {
-        //     name: 'Actions',
-        //     minWidth: '120px',
-        //     cell: (row) => (
-        //         <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-        //             <span className='pointer' title='Edit' onClick={() => navigate('/settings/drivers-listing/edit-driver')}><img src={EditIcon} alt="Edit Icon" /></span>
-        //             <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span>
-        //         </div>
-        //     ),
-        // },
+        {
+            name: 'Actions',
+            minWidth: '120px',
+            cell: (row) => (
+                <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
+                    <span className='pointer' title='Edit' onClick={() => navigate('/settings/drivers-listing/edit-driver')}><img src={EditIcon} alt="Edit Icon" /></span>
+                    <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span>
+                </div>
+            ),
+        },
     ];
 
     const data = [
         {
             id: '01',
-            driver_name: 'Android Review',
-            vehicle: 'ANDROID01',
             status: 'OFF Duty',
-            break: '08:00',
-            drive: '11:00',
-            shift: '14:00',
-            cycle: '70:00',
-            recap: '00:00',
-            last_sync: '18 Hours',
-            violations: "Non Violated",
-            logs: true,
-            contact: '9647657654',
-            device: true,
+            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
+            duration: '5h:4m:59s',
+            location: '6046.5mi WSW of Bethel, AK',
+            vehicle: 'TESTG',
+            odometer: '62,165',
+            engine_hours: '12.2',
+            origin: "Driver",
+            trailers: true,
+            shiping_docs: true,
+            notes: true,
+            vehicle_status_id: '2',
+            action: true
         },
         {
             id: '02',
-            driver_name: 'Test Driver',
-            vehicle: 'ANDROID02',
-            status: 'Driving',
-            break: '08:00',
-            drive: '11:00',
-            shift: '14:00',
-            cycle: '70:00',
-            recap: '00:00',
-            last_sync: '18 Hours',
-            violations: "Violated",
-            logs: true,
-            contact: '9647657654',
-            device: true,
+            status: 'Login',
+            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
+            duration: '5h:4m:59s',
+            location: '6046.5mi WSW of Bethel, AK',
+            vehicle: 'TESTG',
+            odometer: '62,165',
+            engine_hours: '12.2',
+            origin: "Driver",
+            trailers: true,
+            shiping_docs: true,
+            notes: 'Break',
+            vehicle_status_id: '2',
+            action: true
         },
         {
             id: '03',
-            driver_name: 'Android Review',
-            vehicle: 'ANDROID01',
-            status: 'OFF Duty',
-            break: '08:00',
-            drive: '11:00',
-            shift: '14:00',
-            cycle: '70:00',
-            recap: '00:00',
-            last_sync: '18 Hours',
-            violations: "Non Violated",
-            logs: true,
-            contact: '9647657654',
-            device: true,
+            status: 'Diagnostic Cleared',
+            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
+            duration: '5h:4m:59s',
+            location: '6046.5mi WSW of Bethel, AK',
+            vehicle: 'TESTG',
+            odometer: '62,165',
+            engine_hours: '12.2',
+            origin: "Driver",
+            trailers: true,
+            shiping_docs: true,
+            notes: 'Break',
+            vehicle_status_id: '2',
+            action: true
         },
         {
             id: '04',
-            driver_name: 'Test Driver',
-            vehicle: 'ANDROID02',
-            status: 'OFF Duty',
-            break: '08:00',
-            drive: '11:00',
-            shift: '14:00',
-            cycle: '70:00',
-            recap: '00:00',
-            last_sync: '18 Hours',
-            violations: "Non Violated",
-            logs: true,
-            contact: '9647657654',
-            device: true,
+            status: 'Malfunction',
+            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
+            duration: '5h:4m:59s',
+            location: '6046.5mi WSW of Bethel, AK',
+            vehicle: 'TESTG',
+            odometer: '62,165',
+            engine_hours: '12.2',
+            origin: "Driver",
+            trailers: true,
+            shiping_docs: true,
+            notes: 'Break',
+            vehicle_status_id: '2',
+            action: true
         },
         {
             id: '05',
-            driver_name: 'Android Review',
-            vehicle: 'ANDROID01',
             status: 'OFF Duty',
-            break: '08:00',
-            drive: '11:00',
-            shift: '14:00',
-            cycle: '70:00',
-            recap: '00:00',
-            last_sync: '18 Hours',
-            violations: "Non Violated",
-            logs: true,
-            contact: '9647657654',
-            device: true,
+            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
+            duration: '5h:4m:59s',
+            location: '6046.5mi WSW of Bethel, AK',
+            vehicle: 'TESTG',
+            odometer: '62,165',
+            engine_hours: '12.2',
+            origin: "Driver",
+            trailers: true,
+            shiping_docs: true,
+            notes: 'Break',
+            vehicle_status_id: '2',
+            action: true
         },
         {
             id: '06',
-            driver_name: 'Test Driver',
-            vehicle: 'ANDROID02',
-            status: 'Driving',
-            break: '08:00',
-            drive: '11:00',
-            shift: '14:00',
-            cycle: '70:00',
-            recap: '00:00',
-            last_sync: '18 Hours',
-            violations: "Violated",
-            logs: true,
-            contact: '9647657654',
-            device: true,
+            status: 'Login',
+            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
+            duration: '5h:4m:59s',
+            location: '6046.5mi WSW of Bethel, AK',
+            vehicle: 'TESTG',
+            odometer: '62,165',
+            engine_hours: '12.2',
+            origin: "Driver",
+            trailers: true,
+            shiping_docs: true,
+            notes: 'Break',
+            vehicle_status_id: '2',
+            action: true
         },
         {
             id: '07',
-            driver_name: 'Android Review',
-            vehicle: 'ANDROID02',
-            status: 'OFF Duty',
-            break: '08:00',
-            drive: '11:00',
-            shift: '14:00',
-            cycle: '70:00',
-            recap: '00:00',
-            last_sync: '18 Hours',
-            violations: "Non Violated",
-            logs: true,
-            contact: '9647657654',
-            device: true,
+            status: 'Diagnostic Cleared',
+            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
+            duration: '5h:4m:59s',
+            location: '6046.5mi WSW of Bethel, AK',
+            vehicle: 'TESTG',
+            odometer: '62,165',
+            engine_hours: '12.2',
+            origin: "Driver",
+            trailers: true,
+            shiping_docs: true,
+            notes: 'Break',
+            vehicle_status_id: '2',
+            action: true
         },
         {
             id: '08',
-            driver_name: 'Test Driver',
-            vehicle: 'ANDROID02',
-            status: 'OFF Duty',
-            break: '08:00',
-            drive: '11:00',
-            shift: '14:00',
-            cycle: '70:00',
-            recap: '00:00',
-            last_sync: '18 Hours',
-            violations: "Non Violated",
-            logs: true,
-            contact: '9647657654',
-            device: true,
+            status: 'Malfunction',
+            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
+            duration: '5h:4m:59s',
+            location: '6046.5mi WSW of Bethel, AK',
+            vehicle: 'TESTG',
+            odometer: '62,165',
+            engine_hours: '12.2',
+            origin: "Driver",
+            trailers: true,
+            shiping_docs: true,
+            notes: 'Break',
+            vehicle_status_id: '2',
+            action: true
         },
     ];
 
@@ -318,10 +329,10 @@ export const GraphDetails = () => {
                                         <span className="text-black fs-12 fw-bold">70:00</span>
                                         <span className="fs-10 fw-bold text-muted text-uppercase">Cycle</span>
                                     </div>
-                                    <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-dark rounded-circle" style={{ width: '65px', height: '65px' }}>
+                                    {/* <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-dark rounded-circle" style={{ width: '65px', height: '65px' }}>
                                         <span className="text-black fs-12 fw-bold">00:00</span>
                                         <span className="fs-10 fw-bold text-muted text-uppercase">Recap</span>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         </div>
@@ -329,10 +340,10 @@ export const GraphDetails = () => {
                             <div className="content-wrapper d-flex flex-wrap gap-2">
                                 <div className="d-flex flex-wrap gap-1 ms-xl-auto">
                                     {/* Logs toggle */}
-                                    <div className="d-flex align-items-center">
+                                    {/* <div className="d-flex align-items-center">
                                         <span className="fw-semibold me-2">Logs</span>
                                         <Form.Check type="switch" id="logs-switch" className="fs-3" checked={logsEnabled} onChange={() => setLogsEnabled(!logsEnabled)} />
-                                    </div>
+                                    </div> */}
 
                                     {/* Custom Date Picker */}
                                     <div className="date-picker-element d-flex gap-1">
@@ -357,12 +368,12 @@ export const GraphDetails = () => {
                                     </div>
                                 </div>
                                 <div className="action-btn-wrapper d-flex flex-wrap justify-content-xl-end gap-1 ms-xl-auto">
-                                    <Button variant='outline-danger'><i className="bi bi-arrow-left-right"></i></Button>
-                                    <Button variant='outline-primary'><i className="bi bi-sliders"></i></Button>
+                                    {/* <Button variant='outline-danger'><i className="bi bi-arrow-left-right"></i></Button> */}
+                                    {/* <Button variant='outline-primary'><i className="bi bi-sliders"></i></Button> */}
                                     <Button variant='outline-danger'><i className="bi bi-sun fs-16"></i></Button>
                                     <Button variant='outline-danger'><i className="bi bi-pencil"></i></Button>
                                     <Button variant='outline-danger'><i className="bi bi-plus-lg fs-16"></i></Button>
-                                    <Button variant='outline-danger'><i className="bi bi-person-badge fs-16"></i></Button>
+                                    {/* <Button variant='outline-danger'><i className="bi bi-person-badge fs-16"></i></Button> */}
                                     <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Download" >
                                         <a href="/report.pdf" download className="text-secondary text-decoration-none">
                                             <i className="bi bi-file-earmark-arrow-down fs-16"></i> Download
