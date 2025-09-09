@@ -51,15 +51,33 @@ export const DriversHOSList = () => {
     };
 
     const columns = [
+        // {
+        //     name: 'Driver',
+        //     selector: (row) => (
+        //         <span
+        //             className="text-primary pointer client-name fw-medium text-capitalize text-primary text-decoration-underline"
+        //             onClick={() =>
+        //                 navigate(`/driver-hos/graph-details/${row.driverId}`, {
+        //                     state: { driver: row, companyId: row.companyId || id },
+        //                 })
+        //             }
+        //         >
+        //             {row.driver}
+        //         </span>
+        //     ),
+        //     sortable: true,
+        //     minWidth: '150px',
+        // },
         {
             name: 'Driver',
             selector: (row) => (
                 <span
                     className="text-primary pointer client-name fw-medium text-capitalize text-primary text-decoration-underline"
                     onClick={() =>
-                        navigate(`/driver-hos/graph-details/${row._id}`, {
-                            state: { driver: row, companyId: row.companyId || id },
-                        })
+                        window.open(
+                            `/driver-hos/graph-details/${row.driverId}?companyId=${row.companyId || id}`,
+                            '_blank' // opens in new tab
+                        )
                     }
                 >
                     {row.driver}
@@ -99,22 +117,46 @@ export const DriversHOSList = () => {
         },
         {
             name: "Break",
-            selector: (row) => row.break ?.accumulatedRestartTime ? formatSecondsToHHMM(row.break?.accumulatedRestartTime, true) : "—",
+            selector: (row) =>
+                row.break
+                    ? formatSecondsToHHMM(
+                        (row.break.limitTime || 0) - (row.break.accumulatedTime || 0),
+                        true
+                    )
+                    : "—",
             sortable: true,
         },
         {
             name: "Drive",
-            selector: (row) => row.drive?.accumulatedRestartTime ? formatSecondsToHHMM(row.drive?.accumulatedRestartTime, true) : "—",
+            selector: (row) =>
+                row.drive
+                    ? formatSecondsToHHMM(
+                        (row.drive.limitTime || 0) - (row.drive.accumulatedTime || 0),
+                        true
+                    )
+                    : "—",
             sortable: true,
         },
         {
             name: "Shift",
-            selector: (row) => row.shift?.accumulatedRestartTime ? formatSecondsToHHMM(row.shift?.accumulatedRestartTime, true) : "—",
+            selector: (row) =>
+                row.shift
+                    ? formatSecondsToHHMM(
+                        (row.shift.limitTime || 0) - (row.shift.accumulatedTime || 0),
+                        true
+                    )
+                    : "—",
             sortable: true,
         },
         {
             name: "Cycle",
-            selector: (row) => row.cycle?.accumulatedRestartTime ? formatSecondsToHHMM(row.cycle?.limitTime, false) : "—", // show full hours like 70:00
+            selector: (row) =>
+                row.cycle
+                    ? formatSecondsToHHMM(
+                        (row.cycle.limitTime || 0) - (row.cycle.accumulatedTime || 0),
+                        false // keep full hours like 70:00
+                    )
+                    : "—",
             sortable: true,
         },
         {
@@ -139,8 +181,8 @@ export const DriversHOSList = () => {
                 <div
                     className="d-flex align-items-center gap-2 ms-2 pointer"
                     onClick={() =>
-                        navigate(`/driver-hos/graph-details/${row._id}`, {
-                            state: { driver: row, companyId: row.companyId },
+                        navigate(`/driver-hos/graph-details/${row.driverId}`, {
+                            state: { driver: row, companyId: row.companyId || id },
                         })
                     }
                 >
@@ -205,11 +247,11 @@ export const DriversHOSList = () => {
         // const matchesViolationStatus = filterViolationStatus === 'All' || filterViolationStatus === '' || item.violations === filterViolationStatus;
         let matchesViolationStatus = true;
         if (filterViolationStatus === 'Violated') {
-          matchesViolationStatus = item.violations === true;
+            matchesViolationStatus = item.violations === true;
         } else if (filterViolationStatus === 'Non Violated') {
-          matchesViolationStatus = item.violations === false;
+            matchesViolationStatus = item.violations === false;
         }
-        
+
         return matchesSearch && matchesELDStatus && matchesDutyStatus && matchesViolationStatus;
     });
 

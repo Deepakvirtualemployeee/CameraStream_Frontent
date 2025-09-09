@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../../components/NoDataComponent';
-import TableFilter from '../../../components/TableFilter';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button, Form } from "react-bootstrap";
@@ -11,8 +11,67 @@ import ReloadIcon from '../../../assets/images/icons/reload.svg';
 import EditIcon from '../../../assets/images/icons/edit.svg'
 import ExternalIcon from '../../../assets/images/icons/external.svg'
 import LogChart from "./LogChart";
+import { getDriverData, getDriverLogs } from '../../../store/actions/driverHOS';
 
 export const GraphDetails = () => {
+    // get params
+    //  const { driverId } = useParams();
+
+    // For testing
+    const driverId = '688b50c55dc4bbb932ffad56';
+
+    const [searchParams] = useSearchParams();
+    const companyId = searchParams.get("companyId");
+
+    console.log("Driver ID:", driverId);
+    console.log("Company ID:", companyId);
+
+    const dispatch = useDispatch();
+
+    // Redux state
+    const { driverData, driverLogs, loading, error } = useSelector((state) => state.driversHOS);
+
+    console.log("driverData", driverData);
+    console.log("driverLogs", driverLogs);
+
+
+    useEffect(() => {
+        if (driverId) {
+            dispatch(getDriverData(driverId));
+            dispatch(getDriverLogs(driverId));
+        }
+    }, [dispatch, driverId, companyId]);
+
+    // Convert seconds → HH:mm format
+    // keep24h = true  → wrap hours within 24h (08:00, 11:00, 14:00)
+    // keep24h = false → keep full hours (70:00 etc.)
+    const formatSecondsToHHMM = (seconds, keep24h = false) => {
+        if (!seconds || isNaN(seconds)) return "00:00";
+
+        const totalMinutes = Math.floor(seconds / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        const displayHours = keep24h ? hours % 24 : hours;
+
+        return `${displayHours.toString().padStart(2, "0")}:${minutes
+            .toString()
+            .padStart(2, "0")}`;
+    };
+
+    const breakTimeLeft = formatSecondsToHHMM(
+        (driverData.breakTime?.limitTime || 0) - (driverData.breakTime?.accumulatedTime || 0)
+    );
+    const driveTimeLeft = formatSecondsToHHMM(
+        (driverData.driveTime?.limitTime || 0) - (driverData.driveTime?.accumulatedTime || 0)
+    );
+    const shiftTimeLeft = formatSecondsToHHMM(
+        (driverData.shiftTime?.limitTime || 0) - (driverData.shiftTime?.accumulatedTime || 0)
+    );
+    const cycleTimeLeft = formatSecondsToHHMM(
+        (driverData.cycleTime?.limitTime || 0) - (driverData.cycleTime?.accumulatedTime || 0)
+    );
+
     const [selectedDate, setSelectedDate] = useState(new Date());
     // const [logsEnabled, setLogsEnabled] = useState(false);
 
@@ -51,13 +110,20 @@ export const GraphDetails = () => {
         {
             name: 'Status',
             minWidth: '180px',
-            cell: (row) => (
-                <div className={`${row.status === "OFF Duty" ? "bg-success" : "bg-secondary"} bg-secondary text-white text-center rounded-3 px-3 py-2`} style={{ width: '120px' }}>
-                    <div className="fs-14 fw-medium">{row.status}</div>
-                    {/* <div className="fs-10 mt-1">15 days ago</div> */}
-                </div>
-            ),
+            cell: (row) => {
+                const isGreen = row.status === "Driving" || row.status === "ON Duty";
+                return (
+                    <div
+                        className={`${isGreen ? "bg-success" : "bg-secondary"} text-white text-center rounded-3 px-3 py-2`}
+                        style={{ width: '120px' }}
+                    >
+                        <div className="fs-14 fw-medium">{row.status}</div>
+                        {/* <div className="fs-10 mt-1">15 days ago</div> */}
+                    </div>
+                );
+            },
         },
+
         {
             name: 'Start (PDT)',
             selector: (row) => row.start_PDT,
@@ -100,38 +166,46 @@ export const GraphDetails = () => {
             minWidth: '80px',
             selector: (row) => row.origin,
         },
+        // {
+        //     name: 'Trailers',
+        //     minWidth: '120px',
+        //     cell: (row) => (
+        //         <div className="d-flex align-items-center gap-2 ms-2">
+        //             {row.trailers === false &&
+        //                 <i className="bi bi-activity fs-5 text-body"></i>
+        //             }
+        //         </div>
+        //     ),
+        // },
         {
-            name: 'Trailers',
+            name: "Trailers",
             minWidth: '120px',
-            cell: (row) => (
-                <div className="d-flex align-items-center gap-2 ms-2">
-                    {row.trailers === false &&
-                        <i className="bi bi-activity fs-5 text-body"></i>
-                    }
-                </div>
-            ),
+            selector: (row) => row.trailers,
+            sortable: false,
         },
         {
             name: 'Shipping Docs',
-            cell: (row) => (
-                <div className="d-flex align-items-center gap-2 ms-2">
-                    {row.shiping_docs === false &&
-                        <i className="bi bi-activity fs-5 text-body"></i>
-                    }
-                </div>
-            ),
+            // cell: (row) => (
+            //     <div className="d-flex align-items-center gap-2 ms-2">
+            //         {row.shiping_docs === false &&
+            //             <i className="bi bi-activity fs-5 text-body"></i>
+            //         }
+            //     </div>
+            // ),
+            selector: (row) => row.shippingDocs,
             minWidth: '150px',
         },
         {
             name: 'Notes',
-            minWidth: '80px',
-            cell: (row) => (
-                <div className="d-flex align-items-center gap-2 ms-2 ps-1">
-                    {row.notes === true &&
-                        <span className="text-body text-nowrap ms-1">Break</span>
-                    }
-                </div>
-            ),
+            minWidth: '120px',
+            // cell: (row) => (
+            //     <div className="d-flex align-items-center gap-2 ms-2 ps-1">
+            //         {row.notes === true &&
+            //             <span className="text-body text-nowrap ms-1">Break</span>
+            //         }
+            //     </div>
+            // ),
+            selector: (row) => row.notes,
         },
         {
             name: 'Actions',
@@ -145,136 +219,120 @@ export const GraphDetails = () => {
         },
     ];
 
-    const data = [
-        {
-            id: '01',
-            status: 'OFF Duty',
-            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
-            duration: '5h:4m:59s',
-            location: '6046.5mi WSW of Bethel, AK',
-            vehicle: 'TESTG',
-            odometer: '62,165',
-            engine_hours: '12.2',
-            origin: "Driver",
-            trailers: true,
-            shiping_docs: true,
-            notes: true,
-            vehicle_status_id: '2',
-            action: true
-        },
-        {
-            id: '02',
-            status: 'Login',
-            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
-            duration: '5h:4m:59s',
-            location: '6046.5mi WSW of Bethel, AK',
-            vehicle: 'TESTG',
-            odometer: '62,165',
-            engine_hours: '12.2',
-            origin: "Driver",
-            trailers: true,
-            shiping_docs: true,
-            notes: 'Break',
-            vehicle_status_id: '2',
-            action: true
-        },
-        {
-            id: '03',
-            status: 'Diagnostic Cleared',
-            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
-            duration: '5h:4m:59s',
-            location: '6046.5mi WSW of Bethel, AK',
-            vehicle: 'TESTG',
-            odometer: '62,165',
-            engine_hours: '12.2',
-            origin: "Driver",
-            trailers: true,
-            shiping_docs: true,
-            notes: 'Break',
-            vehicle_status_id: '2',
-            action: true
-        },
-        {
-            id: '04',
-            status: 'Malfunction',
-            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
-            duration: '5h:4m:59s',
-            location: '6046.5mi WSW of Bethel, AK',
-            vehicle: 'TESTG',
-            odometer: '62,165',
-            engine_hours: '12.2',
-            origin: "Driver",
-            trailers: true,
-            shiping_docs: true,
-            notes: 'Break',
-            vehicle_status_id: '2',
-            action: true
-        },
-        {
-            id: '05',
-            status: 'OFF Duty',
-            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
-            duration: '5h:4m:59s',
-            location: '6046.5mi WSW of Bethel, AK',
-            vehicle: 'TESTG',
-            odometer: '62,165',
-            engine_hours: '12.2',
-            origin: "Driver",
-            trailers: true,
-            shiping_docs: true,
-            notes: 'Break',
-            vehicle_status_id: '2',
-            action: true
-        },
-        {
-            id: '06',
-            status: 'Login',
-            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
-            duration: '5h:4m:59s',
-            location: '6046.5mi WSW of Bethel, AK',
-            vehicle: 'TESTG',
-            odometer: '62,165',
-            engine_hours: '12.2',
-            origin: "Driver",
-            trailers: true,
-            shiping_docs: true,
-            notes: 'Break',
-            vehicle_status_id: '2',
-            action: true
-        },
-        {
-            id: '07',
-            status: 'Diagnostic Cleared',
-            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
-            duration: '5h:4m:59s',
-            location: '6046.5mi WSW of Bethel, AK',
-            vehicle: 'TESTG',
-            odometer: '62,165',
-            engine_hours: '12.2',
-            origin: "Driver",
-            trailers: true,
-            shiping_docs: true,
-            notes: 'Break',
-            vehicle_status_id: '2',
-            action: true
-        },
-        {
-            id: '08',
-            status: 'Malfunction',
-            start_PDT: 'Aug 26, 2025 - 04:59:20 AM',
-            duration: '5h:4m:59s',
-            location: '6046.5mi WSW of Bethel, AK',
-            vehicle: 'TESTG',
-            odometer: '62,165',
-            engine_hours: '12.2',
-            origin: "Driver",
-            trailers: true,
-            shiping_docs: true,
-            notes: 'Break',
-            vehicle_status_id: '2',
-            action: true
-        },
+    // Create a function for event codes
+    function mapEventCodeToStatus(eventCode) {
+        // console.log(eventCode);
+        switch (eventCode) {
+
+            case "DS_OFF": return "OFF Duty";
+            case "DS_SB": return "Sleeper Berth";
+            case "DS_D": return "Driving";
+            case "DS_ON": return "ON Duty";
+            case "DS_WT": return "Waiting Time";
+
+            case "DR_SH": return "Short Haul";
+            case "DR_MD": return "Manual Drive";
+            case "DR_RD": return "Restrict Driver";
+
+            case "DR_IND_YM": return "Yard Move";
+            case "DR_IND_PC": return "Personal Conveyance";
+            case "DR_IND_CLEARED": return "Special Driving Cleared";
+
+            case "DR_LOGIN": return "Driver Login";
+            case "DR_LOGOUT": return "Driver Logout";
+
+            case "ELD_DIAG_CLEARED": return "ELD Diagnostic Cleared";
+            case "ELD_DIAG": return "ELD Diagnostic Event";
+            case "ELD_MALF_CLEARED": return "ELD Malfunction Cleared";
+            case "ELD_MALF": return "ELD Malfunction Event";
+
+
+            case "ENG_DOWN_REDUCED": return "Engine Power Down (Reduced)";
+            case "ENG_DOWN_NORMAL": return "Engine Power Down (Normal)";
+            case "ENG_UP_REDUCED": return "Engine Power Up (Reduced)";
+            case "ENG_UP_NORMAL": return "Engine Power Up (Normal)";
+
+            // --- Driver Certification ---
+            case "DR_CERT_1": return "Driver Certified Record (Day 1)";
+            case "DR_CERT_2": return "Driver Certified Record (Day 2)";
+            case "DR_CERT_3": return "Driver Certified Record (Day 3)";
+            case "DR_CERT_4": return "Driver Certified Record (Day 4)";
+            case "DR_CERT_5": return "Driver Certified Record (Day 5)";
+            case "DR_CERT_6": return "Driver Certified Record (Day 6)";
+            case "DR_CERT_7": return "Driver Certified Record (Day 7)";
+            case "DR_CERT_8": return "Driver Certified Record (Day 8)";
+            case "DR_CERT_9": return "Driver Certified Record (Day 9)";
+
+            // --- Intermediate Events ---
+            case "INTER_REDUCED_PERCISION": return "Intermediate Event (Reduced Precision)";
+            case "INTER_NORMAL_PRECISION": return "Intermediate Event (Normal Precision)";
+
+            default: return eventCode || "Unknown";
+        }
+    }
+
+    // Allowed event codes for duration calculation
+    const allowedEventCodes = [
+        "DR_IND_YM", // Yard Move
+        "DR_IND_PC", // Personal Conveyance
+        "DS_SB",     // Sleeper Berth
+        "DR_SH",     // Short Haul
+        "DR_MD",     // Manual Drive
+        "DR_RD",     // Restrict Driver
     ];
+
+    // Convert milliseconds → HH:mm:ss
+    const formatDuration = (ms) => {
+        if (!ms || ms < 0) return "--";
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+        const seconds = String(totalSeconds % 60).padStart(2, "0");
+        return `${hours}h:${minutes}m:${seconds}s`;
+    };
+
+    // Transform driverLogs into table data
+    const tableData = driverLogs
+        ?.flatMap((log) =>
+            log.hosEvents.map((event, index) => {
+                const nextEvent = log.hosEvents[index + 1];
+                let duration = "--";
+
+                // Only calculate if BOTH current and next event codes are allowed
+                if (
+                    nextEvent &&
+                    allowedEventCodes.includes(event.eventCode) &&
+                    allowedEventCodes.includes(nextEvent.eventCode)
+                ) {
+                    const startTime = new Date(event.eventDateTime).getTime();
+                    const endTime = new Date(nextEvent.eventDateTime).getTime();
+                    duration = formatDuration(endTime - startTime);
+                }
+
+                return {
+                    id: String(index + 1).padStart(2, "0"), // 01, 02, ...
+                    status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
+                    start_PDT: new Date(event.eventDateTime).toLocaleString("en-US", {
+                        month: "short",
+                        day: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                    }),
+                    duration, // calculated only if current & next are in allowed list
+                    location: event.manualLocation || event.calculatedLocation || "Unknown",
+                    vehicle: event.vehicleNumber || "N/A",
+                    odometer: event.odometer || "N/A",
+                    engine_hours: event.engineHours || "N/A",
+                    origin: event.origin || "N/A",
+                    trailers: event.trailers?.length ? event.trailers.join(", ") : "",
+                    shiping_docs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
+                    notes: event.notes?.length ? event.notes.join(", ") : "",
+                };
+            })
+        )
+        .filter(Boolean);
 
     return (
         <div className="GraphDetails-page py-2">
@@ -314,19 +372,19 @@ export const GraphDetails = () => {
                                 <div className="fs-14 text-muted mb-1">Worked Hours: <span className="text-body fs-12 fw-bold">00:00</span></div>
                                 <div className="d-flex flex-wrap justify-content-lg-center gap-1">
                                     <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-primary rounded-circle" style={{ width: '65px', height: '65px' }}>
-                                        <span className="text-black fs-12 fw-bold">08:00</span>
+                                        <span className="text-black fs-12 fw-bold">{breakTimeLeft}</span>
                                         <span className="fs-10 fw-bold text-muted text-uppercase">Break</span>
                                     </div>
                                     <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-success rounded-circle" style={{ width: '65px', height: '65px' }}>
-                                        <span className="text-black fs-12 fw-bold">11:00</span>
+                                        <span className="text-black fs-12 fw-bold">{driveTimeLeft}</span>
                                         <span className="fs-10 fw-bold text-muted text-uppercase">Drive</span>
                                     </div>
                                     <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-theme6 rounded-circle" style={{ width: '65px', height: '65px' }}>
-                                        <span className="text-black fs-12 fw-bold">14:00</span>
+                                        <span className="text-black fs-12 fw-bold">{shiftTimeLeft}</span>
                                         <span className="fs-10 fw-bold text-muted text-uppercase">Shift</span>
                                     </div>
                                     <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-secondary rounded-circle" style={{ width: '65px', height: '65px' }}>
-                                        <span className="text-black fs-12 fw-bold">70:00</span>
+                                        <span className="text-black fs-12 fw-bold">{cycleTimeLeft}</span>
                                         <span className="fs-10 fw-bold text-muted text-uppercase">Cycle</span>
                                     </div>
                                     {/* <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-dark rounded-circle" style={{ width: '65px', height: '65px' }}>
@@ -374,11 +432,11 @@ export const GraphDetails = () => {
                                     <Button variant='outline-danger'><i className="bi bi-pencil"></i></Button>
                                     <Button variant='outline-danger'><i className="bi bi-plus-lg fs-16"></i></Button>
                                     {/* <Button variant='outline-danger'><i className="bi bi-person-badge fs-16"></i></Button> */}
-                                    <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Download" >
+                                    {/* <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Download" >
                                         <a href="/report.pdf" download className="text-secondary text-decoration-none">
                                             <i className="bi bi-file-earmark-arrow-down fs-16"></i> Download
                                         </a>
-                                    </Button>
+                                    </Button> */}
                                     <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
                                         <img src={ReloadIcon} alt="Reload Icon" className="lh-1" /> <span className="ms-1 d-sm-none">Refresh</span>
                                     </Button>
@@ -396,7 +454,7 @@ export const GraphDetails = () => {
                     <div className='table-responsive table-custom-wrapper'>
                         <DataTable
                             columns={columns}
-                            data={data}
+                            data={tableData || []}
                             pagination
                             highlightOnHover
                             responsive
@@ -404,6 +462,7 @@ export const GraphDetails = () => {
                             noDataComponent={<NoDataComponent />}
                             striped
                         />
+
                     </div>
                 </div>
             </div>

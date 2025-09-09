@@ -2,6 +2,8 @@ import * as actionTypes from "../actions/actionTypes";
 
 const initialState = {
     driversHOS: [],
+    driverLogs: [],
+    driverData: [],
     loading: false,
     error: null,
 };
@@ -14,6 +16,21 @@ const driversHOSReducer = (state = initialState, action) => {
             return { ...state, loading: false, driversHOS: action.payload };
         case actionTypes.GET_DRIVERS_HOS_FAIL:
             return { ...state, loading: false, error: action.payload };
+
+        case actionTypes.GET_DRIVERS_LOGS_REQUEST:
+            return { ...state, loading: true, error: null };
+        case actionTypes.GET_DRIVERS_LOGS_SUCCESS:
+            return { ...state, loading: false, driverLogs: action.payload };
+        case actionTypes.GET_DRIVERS_LOGS_FAIL:
+            return { ...state, loading: false, error: action.payload };
+
+        case actionTypes.GET_DRIVERS_DATA_REQUEST:
+            return { ...state, loading: true, error: null };
+        case actionTypes.GET_DRIVERS_DATA_SUCCESS:
+            return { ...state, loading: false, driverData: action.payload };
+        case actionTypes.GET_DRIVERS_DATA_FAIL:
+            return { ...state, loading: false, error: action.payload };
+
         default:
             return state;
     }
