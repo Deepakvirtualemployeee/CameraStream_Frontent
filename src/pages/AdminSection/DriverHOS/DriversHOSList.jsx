@@ -75,7 +75,8 @@ export const DriversHOSList = () => {
                     className="text-primary pointer client-name fw-medium text-capitalize text-primary text-decoration-underline"
                     onClick={() =>
                         window.open(
-                            `/driver-hos/graph-details/${row.driverId}?companyId=${row.companyId || id}`,
+                            // `/driver-hos/graph-details/${row.driverId}?companyId=${row.companyId || id}`,
+                            `/driver-hos/graph-details/${row.companyId || id}/${row.driverId}`,
                             '_blank' // opens in new tab
                         )
                     }
@@ -181,7 +182,7 @@ export const DriversHOSList = () => {
                 <div
                     className="d-flex align-items-center gap-2 ms-2 pointer"
                     onClick={() =>
-                        navigate(`/driver-hos/graph-details/${row.driverId}`, {
+                        navigate(`/driver-hos/graph-details/${row.companyId || id}/${row.driverId}`, {
                             state: { driver: row, companyId: row.companyId || id },
                         })
                     }

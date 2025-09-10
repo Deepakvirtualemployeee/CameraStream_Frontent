@@ -68,3 +68,25 @@ export const getDriverData = (driverId) => async (dispatch) => {
     });
   }
 };
+
+export const getMobileSettings = (driverId) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.GET_DRIVERS_SETTINGS_REQUEST });
+
+    const token = localStorage.getItem("token");
+    const { data } = await axios.get(`/mobileSetting?driverId=${driverId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // console.log("Company:", companyId);
+    console.log("Mobile settings:", data);
+    dispatch({ type: actionTypes.GET_DRIVERS_SETTINGS_SUCCESS, payload: data.data });
+  } catch (error) {
+    dispatch({
+      type: actionTypes.GET_DRIVERS_SETTINGS_FAIL,
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};

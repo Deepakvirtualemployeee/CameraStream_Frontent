@@ -11,36 +11,78 @@ import ReloadIcon from '../../../assets/images/icons/reload.svg';
 import EditIcon from '../../../assets/images/icons/edit.svg'
 import ExternalIcon from '../../../assets/images/icons/external.svg'
 import LogChart from "./LogChart";
-import { getDriverData, getDriverLogs } from '../../../store/actions/driverHOS';
+import { getDriverData, getDriverLogs, getMobileSettings } from '../../../store/actions/driverHOS';
 
 export const GraphDetails = () => {
-    // get params
-    //  const { driverId } = useParams();
+    // State for showing phone
+    const [showPhone, setShowPhone] = useState(false);
+
+    // Get params
+     let { id, driverId } = useParams();
 
     // For testing
-    const driverId = '688b50c55dc4bbb932ffad56';
+     driverId = '688b50c55dc4bbb932ffad56';
 
-    const [searchParams] = useSearchParams();
-    const companyId = searchParams.get("companyId");
+    // const [searchParams] = useSearchParams();
+    // const companyId = searchParams.get("companyId");
 
     console.log("Driver ID:", driverId);
-    console.log("Company ID:", companyId);
+    console.log("Company ID:", id);
 
     const dispatch = useDispatch();
 
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    // const [logsEnabled, setLogsEnabled] = useState(false);
+
+    const navigate = useNavigate();
+
     // Redux state
-    const { driverData, driverLogs, loading, error } = useSelector((state) => state.driversHOS);
+    const { driverData, driverLogs, driverSettings, loading, error } = useSelector((state) => state.driversHOS);
 
     console.log("driverData", driverData);
     console.log("driverLogs", driverLogs);
-
+    console.log("driverSettings", driverSettings);
 
     useEffect(() => {
         if (driverId) {
             dispatch(getDriverData(driverId));
             dispatch(getDriverLogs(driverId));
+            dispatch(getMobileSettings(driverId));
         }
-    }, [dispatch, driverId, companyId]);
+    }, [dispatch, driverId, id]);
+
+    const handlePrevDay = () => {
+        setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
+    };
+
+    // const handleNextDay = () => {
+    //     setSelectedDate((prev) => {
+    //         const next = new Date(prev);
+    //         next.setDate(next.getDate() + 1);
+
+    //         // prevent going beyond today
+    //         const today = new Date();
+    //         today.setHours(0, 0, 0, 0);
+
+    //         if (next > today) {
+    //             return prev; // keep current date
+    //         }
+
+    //         return next;
+    //     });
+    // };
+
+    /** Filter logs by selected date */
+    // Utility: format date (YYYY-MM-DD)
+    const formatDate = (date) => {
+        return new Date(date).toISOString().split("T")[0];
+    };
+
+    // Filter logs based on selected date
+    const filteredLogs = driverLogs?.filter(
+        (log) => formatDate(log.logDate) === formatDate(selectedDate)
+    ) || [];
+
 
     // Convert seconds → HH:mm format
     // keep24h = true  → wrap hours within 24h (08:00, 11:00, 14:00)
@@ -71,19 +113,6 @@ export const GraphDetails = () => {
     const cycleTimeLeft = formatSecondsToHHMM(
         (driverData.cycleTime?.limitTime || 0) - (driverData.cycleTime?.accumulatedTime || 0)
     );
-
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    // const [logsEnabled, setLogsEnabled] = useState(false);
-
-    const navigate = useNavigate();
-    const handlePrevDay = () => {
-        setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
-    };
-
-    const handleNextDay = () => {
-        setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() + 1)));
-    };
-
     const columns = [
         {
             name: '#',
@@ -125,7 +154,8 @@ export const GraphDetails = () => {
         },
 
         {
-            name: 'Start (PDT)',
+            // name: `Start (PDT)`,
+            name: `Start (${driverSettings?.timeZone || 'PDT'})`,
             selector: (row) => row.start_PDT,
             minWidth: '230px'
         },
@@ -291,26 +321,21 @@ export const GraphDetails = () => {
         return `${hours}h:${minutes}m:${seconds}s`;
     };
 
-    // Transform driverLogs into table data
-    const tableData = driverLogs
+    // Transform filteredLogs into table data
+    const tableData = filteredLogs
         ?.flatMap((log) =>
             log.hosEvents.map((event, index) => {
                 const nextEvent = log.hosEvents[index + 1];
                 let duration = "--";
 
-                // Only calculate if BOTH current and next event codes are allowed
-                if (
-                    nextEvent &&
-                    allowedEventCodes.includes(event.eventCode) &&
-                    allowedEventCodes.includes(nextEvent.eventCode)
-                ) {
+                if (nextEvent) {
                     const startTime = new Date(event.eventDateTime).getTime();
                     const endTime = new Date(nextEvent.eventDateTime).getTime();
                     duration = formatDuration(endTime - startTime);
                 }
 
                 return {
-                    id: String(index + 1).padStart(2, "0"), // 01, 02, ...
+                    id: String(index + 1).padStart(2, "0"),
                     status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
                     start_PDT: new Date(event.eventDateTime).toLocaleString("en-US", {
                         month: "short",
@@ -320,20 +345,40 @@ export const GraphDetails = () => {
                         minute: "2-digit",
                         second: "2-digit",
                     }),
-                    duration, // calculated only if current & next are in allowed list
+                    duration,
                     location: event.manualLocation || event.calculatedLocation || "Unknown",
-                    vehicle: event.vehicleNumber || "N/A",
-                    odometer: event.odometer || "N/A",
-                    engine_hours: event.engineHours || "N/A",
-                    origin: event.origin || "N/A",
+                    vehicle: event.vehicle?.vehicleNumber || "--",
+                    odometer: event.odometer || "--",
+                    engine_hours: event.engineHours || "--",
+                    origin: event.origin || "--",
                     trailers: event.trailers?.length ? event.trailers.join(", ") : "",
-                    shiping_docs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
+                    shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
                     notes: event.notes?.length ? event.notes.join(", ") : "",
                 };
             })
         )
         .filter(Boolean);
 
+    // Getting tailers and shipping docs
+    const trailers = filteredLogs
+        ?.flatMap(log => log.trailers || []) // collect all trailers
+        .filter(Boolean); // remove empty/null
+
+    const shippingDocs = filteredLogs
+        ?.flatMap(log => log.shippingDocuments || []) // collect all docs
+        .filter(Boolean); // remove empty/null
+
+    // Final strings with fallback
+    const trailersText = trailers.length ? trailers.join(", ") : "Missing";
+    const shippingDocsText = shippingDocs.length ? shippingDocs.join(", ") : "Missing";
+
+    // Helper function to check if two dates are the same day
+    const isSameDay = (d1, d2) =>
+        d1.getFullYear() === d2.getFullYear() &&
+        d1.getMonth() === d2.getMonth() &&
+        d1.getDate() === d2.getDate();
+
+    const today = new Date();
     return (
         <div className="GraphDetails-page py-2">
             <div className="container-fluid">
@@ -343,27 +388,88 @@ export const GraphDetails = () => {
                             <div className="info-wrapper">
                                 <div className="info-box d-flex gap-1 mb-1">
                                     <span className="label-name text-muted text-truncate">Carrier:</span>
-                                    <span className="text-body fw-semibold text-truncate">Apps Review</span>
+                                    <span className="text-body fw-semibold text-truncate">{driverSettings?.companyName}</span>
                                 </div>
-                                <div className="info-box d-flex gap-1 mb-1">
+                                {/* <div className="info-box d-flex gap-1 mb-1">
                                     <span className="label-name text-muted text-truncate">Driver:</span>
-                                    <span className="text-body fw-semibold text-truncate">TestG Siso <i className="bi bi-telephone text-theme6 ms-1"></i></span>
+                                    <span className="text-body fw-semibold text-truncate">{driverSettings?.driverName} <i className="bi bi-telephone text-theme6 ms-1"></i></span>
+                                </div> */}
+
+                                {/* <div className="info-box d-flex gap-1 mb-1">
+                                    <span className="label-name text-muted text-truncate">Driver:</span>
+                                    <span className="text-body fw-semibold text-truncate">
+                                        {driverSettings?.driverName}
+                                        <i
+                                            className="bi bi-telephone text-theme6 ms-1 pointer"
+                                            style={{ cursor: "pointer" }}
+                                            onClick={() => setShowPhone(!showPhone)}
+                                        ></i>
+                                        {showPhone && (
+                                            <span className="ms-2 text-muted">
+                                                {driverSettings?.phoneNumber || "No Number"}
+                                            </span>
+                                        )}
+                                    </span>
+                                </div> */}
+                                <div className="info-box d-flex gap-1 mb-1">
+                                    <span className="label-name text-muted">Driver:</span>
+
+                                    <span className="text-body fw-semibold">
+                                        {driverSettings?.driverName}
+                                        <i
+                                            className="bi bi-telephone text-theme6 ms-1 pointer"
+                                            style={{ cursor: "pointer" }}
+                                            onClick={() => setShowPhone(!showPhone)}
+                                        ></i>
+                                    </span>
+
+                                    {showPhone && (
+                                        <span className="ms-2 fw-semibold text-primary">
+                                            {driverSettings?.phoneNumber || "No Number"}
+                                        </span>
+                                    )}
                                 </div>
+
                                 <div className="info-box d-flex gap-1 mb-1">
                                     <span className="label-name text-muted text-truncate">Vehicle:</span>
-                                    <span className="text-body fw-semibold text-truncate">TestG [0ml]</span>
+                                    <span className="text-body fw-semibold text-truncate">{driverSettings?.vehicleNumber}</span>
                                 </div>
+
                                 <div className="info-box d-flex gap-1 mb-1">
                                     <span className="label-name text-muted text-truncate">Trailers:</span>
-                                    <span className="text-danger fw-semibold text-truncate">Missing</span>
+                                    <span
+                                        className={`fw-semibold text-truncate ${trailersText === "Missing" ? "text-danger" : "text-success"
+                                            }`}
+                                    >
+                                        {trailersText}
+                                    </span>
                                 </div>
+
                                 <div className="info-box d-flex gap-1 mb-1">
                                     <span className="label-name text-muted text-truncate">Shipping Docs:</span>
-                                    <span className="text-danger fw-semibold text-truncate">TestG Siso</span>
+                                    <span
+                                        className={`fw-semibold text-truncate ${shippingDocsText === "Missing" ? "text-danger" : "text-success"
+                                            }`}
+                                    >
+                                        {shippingDocsText}
+                                    </span>
                                 </div>
+
                                 <div className="info-box d-flex gap-1 mb-1">
                                     <span className="label-name text-muted text-truncate">Certification:</span>
-                                    <span className="text-danger fw-semibold text-truncate">Uncertified</span>
+                                    {/* <span
+                                        className={`fw-semibold text-truncate ${driverLogs.isCertified ? "text-success" : "text-danger"
+                                            }`}
+                                    >
+                                        {driverLogs.isCertified ? "Certified" : "Uncertified"}
+                                    </span> */}
+                                    <span
+                                        className={`fw-semibold text-truncate ${filteredLogs[0]?.isCertified ? "text-success" : "text-danger"
+                                            }`}
+                                    >
+                                        {filteredLogs[0]?.isCertified ? "Certified" : "Uncertified"}
+                                    </span>
+
                                 </div>
                             </div>
                         </div>
@@ -395,19 +501,17 @@ export const GraphDetails = () => {
                             </div>
                         </div>
                         <div className="col-xl-4">
-                            <div className="content-wrapper d-flex flex-wrap gap-2">
-                                <div className="d-flex flex-wrap gap-1 ms-xl-auto">
-                                    {/* Logs toggle */}
-                                    {/* <div className="d-flex align-items-center">
-                                        <span className="fw-semibold me-2">Logs</span>
-                                        <Form.Check type="switch" id="logs-switch" className="fs-3" checked={logsEnabled} onChange={() => setLogsEnabled(!logsEnabled)} />
-                                    </div> */}
-
-                                    {/* Custom Date Picker */}
+                            <div className="content-wrapper d-flex flex-column gap-2">
+                                {/* Calendar Row */}
+                                <div className="d-flex justify-content-xl-end">
                                     <div className="date-picker-element d-flex gap-1">
-                                        <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handlePrevDay}><i className="bi bi-chevron-left"></i></span>
-                                        <DatePicker selected={selectedDate}
+                                        <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handlePrevDay}>
+                                            <i className="bi bi-chevron-left"></i>
+                                        </span>
+                                        <DatePicker
+                                            selected={selectedDate}
                                             onChange={(date) => setSelectedDate(date)}
+                                            maxDate={new Date()}   // disables all future dates
                                             dateFormat="MMM dd, yyyy"
                                             customInput={
                                                 <div className="input-field d-flex align-items-center gap-2 border border-secondary border-opacity-50 rounded">
@@ -422,23 +526,39 @@ export const GraphDetails = () => {
                                                 </div>
                                             }
                                         />
-                                        <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handleNextDay}><i className="bi bi-chevron-right"></i></span>
+                                        {/* <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handleNextDay}>
+                                            <i className="bi bi-chevron-right"></i>
+                                        </span> */}
+
+                                        <span
+                                            className={`event-btn border border-secondary border-opacity-50 rounded ${isSameDay(selectedDate, today) ? "disabled text-muted" : "cursor-pointer"
+                                                }`}
+                                            onClick={() => {
+                                                if (!isSameDay(selectedDate, today)) {
+                                                    // move one day forward
+                                                    const nextDate = new Date(selectedDate);
+                                                    nextDate.setDate(nextDate.getDate() + 1);
+
+                                                    // only allow up to today
+                                                    if (nextDate <= today) {
+                                                        setSelectedDate(nextDate);
+                                                    }
+                                                }
+                                            }}
+                                        >
+                                            <i className="bi bi-chevron-right"></i>
+                                        </span>
                                     </div>
                                 </div>
-                                <div className="action-btn-wrapper d-flex flex-wrap justify-content-xl-end gap-1 ms-xl-auto">
-                                    {/* <Button variant='outline-danger'><i className="bi bi-arrow-left-right"></i></Button> */}
-                                    {/* <Button variant='outline-primary'><i className="bi bi-sliders"></i></Button> */}
+
+                                {/* Buttons Row */}
+                                <div className="action-btn-wrapper d-flex flex-wrap justify-content-xl-end gap-1">
                                     <Button variant='outline-danger'><i className="bi bi-sun fs-16"></i></Button>
                                     <Button variant='outline-danger'><i className="bi bi-pencil"></i></Button>
                                     <Button variant='outline-danger'><i className="bi bi-plus-lg fs-16"></i></Button>
-                                    {/* <Button variant='outline-danger'><i className="bi bi-person-badge fs-16"></i></Button> */}
-                                    {/* <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Download" >
-                                        <a href="/report.pdf" download className="text-secondary text-decoration-none">
-                                            <i className="bi bi-file-earmark-arrow-down fs-16"></i> Download
-                                        </a>
-                                    </Button> */}
                                     <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
-                                        <img src={ReloadIcon} alt="Reload Icon" className="lh-1" /> <span className="ms-1 d-sm-none">Refresh</span>
+                                        <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
+                                        <span className="ms-1 d-sm-none">Refresh</span>
                                     </Button>
                                 </div>
                             </div>
