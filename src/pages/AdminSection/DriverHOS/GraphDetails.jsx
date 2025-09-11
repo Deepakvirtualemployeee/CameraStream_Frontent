@@ -8,20 +8,22 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button, Form } from "react-bootstrap";
 import ReloadIcon from '../../../assets/images/icons/reload.svg';
-import EditIcon from '../../../assets/images/icons/edit.svg'
-import ExternalIcon from '../../../assets/images/icons/external.svg'
+import EditIcon from '../../../assets/images/icons/edit.svg';
+import ExternalIcon from '../../../assets/images/icons/external.svg';
+import TrashIcon from '../../../assets/images/icons/trash.svg';
 import LogChart from "./LogChart";
 import { getDriverData, getDriverLogs, getMobileSettings } from '../../../store/actions/driverHOS';
+import moment from "moment-timezone";
 
 export const GraphDetails = () => {
     // State for showing phone
     const [showPhone, setShowPhone] = useState(false);
 
     // Get params
-     let { id, driverId } = useParams();
+    let { id, driverId } = useParams();
 
     // For testing
-     driverId = '688b50c55dc4bbb932ffad56';
+    driverId = '688b50c55dc4bbb932ffad56';
 
     // const [searchParams] = useSearchParams();
     // const companyId = searchParams.get("companyId");
@@ -119,6 +121,7 @@ export const GraphDetails = () => {
             selector: (row) => row.id,
             sortable: true,
             minWidth: '50px',
+            center: true,
         },
         // {
         //     name: 'Start (PDT)',
@@ -136,38 +139,62 @@ export const GraphDetails = () => {
         //         </div>
         //     ),
         // },
+        // {
+        //     name: 'Status',
+        //     minWidth: '180px',
+        //     cell: (row) => {
+        //         const isGreen = row.status === "Driving" || row.status === "ON Duty";
+        //         return (
+        //             <div
+        //                 className={`${isGreen ? "bg-success" : "bg-secondary"} text-white text-center rounded-3 px-3 py-2`}
+        //                 style={{ width: '120px' }}
+        //             >
+        //                 <div className="fs-14 fw-medium">{row.status}</div>
+        //                 {/* <div className="fs-10 mt-1">15 days ago</div> */}
+        //             </div>
+        //         );
+        //     },
+        // },
         {
-            name: 'Status',
-            minWidth: '180px',
+            name: "Status",
+            minWidth: "180px",
+            center: true,
             cell: (row) => {
-                const isGreen = row.status === "Driving" || row.status === "ON Duty";
+                // Reverse-map from status to eventCode if needed
+                const eventCode = row.eventCode; // make sure you store this in tableData
+                const color = eventCodeColors[eventCode] || "#000"; // default black
+                const isHighlighted = !!eventCodeColors[eventCode];
+
                 return (
-                    <div
-                        className={`${isGreen ? "bg-success" : "bg-secondary"} text-white text-center rounded-3 px-3 py-2`}
-                        style={{ width: '120px' }}
+                    <span
+                        style={{
+                            color,
+                            fontWeight: isHighlighted ? "bold" : "normal",
+                        }}
                     >
-                        <div className="fs-14 fw-medium">{row.status}</div>
-                        {/* <div className="fs-10 mt-1">15 days ago</div> */}
-                    </div>
+                        {row.status}
+                    </span>
                 );
             },
         },
-
         {
             // name: `Start (PDT)`,
             name: `Start (${driverSettings?.timeZone || 'PDT'})`,
             selector: (row) => row.start_PDT,
-            minWidth: '230px'
+            minWidth: '230px',
+            center: true,
         },
         {
             name: 'Duration',
             selector: (row) => row.duration,
             minWidth: '120px',
+            center: true,
         },
         {
             name: 'Location',
             // selector: (row) => row.location,
             minWidth: '250px',
+            center: true,
             cell: (row) => (
                 <div className="d-flex align-items-center gap-1">
                     <span className="fw-semibold text-body text-nowrap ms-1">{row.location}</span>
@@ -180,21 +207,25 @@ export const GraphDetails = () => {
             name: 'Vehicle',
             selector: (row) => row.vehicle,
             minWidth: '80px',
+            center: true,
         },
         {
             name: 'Odometer',
             selector: (row) => row.odometer,
             minWidth: '120px',
+            center: true,
         },
         {
             name: 'Engine Hours',
             minWidth: '120px',
             selector: (row) => row.engine_hours,
+            center: true,
         },
         {
             name: 'Origin',
             minWidth: '80px',
             selector: (row) => row.origin,
+            center: true,
         },
         // {
         //     name: 'Trailers',
@@ -212,6 +243,7 @@ export const GraphDetails = () => {
             minWidth: '120px',
             selector: (row) => row.trailers,
             sortable: false,
+            center: true,
         },
         {
             name: 'Shipping Docs',
@@ -224,10 +256,12 @@ export const GraphDetails = () => {
             // ),
             selector: (row) => row.shippingDocs,
             minWidth: '150px',
+            center: true,
         },
         {
             name: 'Notes',
             minWidth: '120px',
+            center: true,
             // cell: (row) => (
             //     <div className="d-flex align-items-center gap-2 ms-2 ps-1">
             //         {row.notes === true &&
@@ -240,14 +274,27 @@ export const GraphDetails = () => {
         {
             name: 'Actions',
             minWidth: '120px',
+            center: true,
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
                     <span className='pointer' title='Edit' onClick={() => navigate('/settings/drivers-listing/edit-driver')}><img src={EditIcon} alt="Edit Icon" /></span>
-                    <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span>
+                    {/* <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span> */}
+                    <span className='pointer p-0' title='Delete' onClick={() => {
+                }}><img src={TrashIcon} alt="Trash Icon" /></span>
                 </div>
             ),
         },
     ];
+
+    // Define event code → color mapping
+    const eventCodeColors = {
+        DS_SB: "#E0AD3C",
+        DS_OFF: "#686F83",
+        DS_ON: "#4C8EF3",
+        DR_IND_PC: "#755BEF",
+        DR_IND_YM: "#EB542A",
+        DS_D: "#54B571",
+    };
 
     // Create a function for event codes
     function mapEventCodeToStatus(eventCode) {
@@ -301,50 +348,179 @@ export const GraphDetails = () => {
         }
     }
 
-    // Allowed event codes for duration calculation
-    const allowedEventCodes = [
-        "DR_IND_YM", // Yard Move
-        "DR_IND_PC", // Personal Conveyance
-        "DS_SB",     // Sleeper Berth
-        "DR_SH",     // Short Haul
-        "DR_MD",     // Manual Drive
-        "DR_RD",     // Restrict Driver
-    ];
-
     // Convert milliseconds → HH:mm:ss
+    // const formatDuration = (ms) => {
+    //     if (!ms || ms < 0) return "--";
+    //     const totalSeconds = Math.floor(ms / 1000);
+    //     const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+    //     const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+    //     const seconds = String(totalSeconds % 60).padStart(2, "0");
+    //     return `${hours}h:${minutes}m:${seconds}s`;
+    // };
+
     const formatDuration = (ms) => {
-        if (!ms || ms < 0) return "--";
-        const totalSeconds = Math.floor(ms / 1000);
+        if (ms == null || isNaN(ms)) return "--";
+        const totalSeconds = Math.max(0, Math.floor(ms / 1000)); // never negative
         const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
         const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
         const seconds = String(totalSeconds % 60).padStart(2, "0");
         return `${hours}h:${minutes}m:${seconds}s`;
     };
 
+
+    // Allowed event codes for duration calculation
+    const allowedEventCodes = [
+        "DR_IND_YM", // Yard Move
+        "DR_IND_PC", // Personal Conveyance
+        "DS_SB",     // Sleeper Berth
+        "DS_OFF",     // Driver off duty
+        "DS_ON",     // Driver on duty
+        "DS_D",     // Driving
+    ];
+
     // Transform filteredLogs into table data
+    // const tableData = filteredLogs
+    //     ?.flatMap((log) =>
+    //         log.hosEvents.map((event, index) => {
+    //             const nextEvent = log.hosEvents[index + 1];
+    //             let duration = "--";
+    //             console.log("Next Event", nextEvent);
+    //             console.log("Is event:", allowedEventCodes.includes(event?.eventCode));
+    //             console.log("Is next event:", allowedEventCodes.includes(nextEvent?.eventCode));
+
+    //             // if (nextEvent) {
+    //             //     const startTime = new Date(event.eventDateTime).getTime();
+    //             //     const endTime = new Date(nextEvent.eventDateTime).getTime();
+    //             //     duration = formatDuration(endTime - startTime);
+    //             // }
+
+    //             // if (
+    //             //     nextEvent &&
+    //             //     allowedEventCodes.includes(event?.eventCode) &&
+    //             //     allowedEventCodes.includes(nextEvent?.eventCode)
+    //             //   ) {
+    //             //     const startTime = new Date(event.eventDateTime).getTime();
+    //             //     const endTime = new Date(nextEvent.eventDateTime).getTime();
+    //             //     duration = formatDuration(endTime - startTime);
+    //             //     console.log("Duration:", duration);
+    //             //   }
+    //             // if (
+    //             //     nextEvent &&
+    //             //     allowedEventCodes.includes(event?.eventCode) &&
+    //             //     allowedEventCodes.includes(nextEvent?.eventCode)
+    //             //   ) {
+    //             //     const startTime = event?.eventDateTime ? new Date(event.eventDateTime).getTime() : null;
+    //             //     const endTime = nextEvent?.eventDateTime ? new Date(nextEvent.eventDateTime).getTime() : null;
+
+    //             //     console.log("Start time:", startTime);
+    //             //     console.log("End time:", endTime);
+    //             //     console.log("Event Date:", event?.eventDateTime, "Next Date:", nextEvent?.eventDateTime);
+
+
+    //             //     if (startTime && endTime && !isNaN(startTime) && !isNaN(endTime)) {
+    //             //       duration = formatDuration(endTime - startTime);
+    //             //     } else {
+    //             //       console.warn("Invalid datetime →", {
+    //             //         eventDateTime: event?.eventDateTime,
+    //             //         nextEventDateTime: nextEvent?.eventDateTime,
+    //             //       });
+    //             //     }
+    //             //   }
+
+    //             if (
+    //                 nextEvent &&
+    //                 allowedEventCodes.includes(event?.eventCode) &&
+    //                 allowedEventCodes.includes(nextEvent?.eventCode)
+    //               ) {
+    //                 const startTime = event?.eventDateTime ? new Date(event.eventDateTime).getTime() : null;
+    //                 const endTime = nextEvent?.eventDateTime ? new Date(nextEvent.eventDateTime).getTime() : null;
+
+    //                 if (startTime !== null && endTime !== null && !isNaN(startTime) && !isNaN(endTime)) {
+    //                   const diff = endTime - startTime;
+    //                   duration = formatDuration(diff >= 0 ? diff : 0); // if same or negative, force 0
+    //                 } else {
+    //                   console.warn("Invalid datetime →", {
+    //                     eventDateTime: event?.eventDateTime,
+    //                     nextEventDateTime: nextEvent?.eventDateTime,
+    //                   });
+    //                 }
+    //               }
+
+
+
+    //             return {
+    //                 id: String(index + 1).padStart(2, "0"),
+    //                 eventCode: event.eventCode, // add this line to apply the color codes
+    //                 status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
+    //                 start_PDT: new Date(event.eventDateTime).toLocaleString("en-US", {
+    //                     month: "short",
+    //                     day: "2-digit",
+    //                     year: "numeric",
+    //                     hour: "2-digit",
+    //                     minute: "2-digit",
+    //                     second: "2-digit",
+    //                 }),
+    //                 duration,
+    //                 location: event.manualLocation || event.calculatedLocation || "Unknown",
+    //                 vehicle: event.vehicle?.vehicleNumber || "--",
+    //                 odometer: event.odometer || "--",
+    //                 engine_hours: event.engineHours || "--",
+    //                 origin: event.origin || "--",
+    //                 trailers: event.trailers?.length ? event.trailers.join(", ") : "",
+    //                 shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
+    //                 notes: event.notes?.length ? event.notes.join(", ") : "",
+    //             };
+    //         })
+    //     )
+    //     .filter(Boolean);
+
+
     const tableData = filteredLogs
         ?.flatMap((log) =>
             log.hosEvents.map((event, index) => {
                 const nextEvent = log.hosEvents[index + 1];
+                // const nextEvent = events[index + 1];
                 let duration = "--";
 
-                if (nextEvent) {
-                    const startTime = new Date(event.eventDateTime).getTime();
-                    const endTime = new Date(nextEvent.eventDateTime).getTime();
-                    duration = formatDuration(endTime - startTime);
+                if (
+                    nextEvent &&
+                    allowedEventCodes.includes(event?.eventCode) &&
+                    allowedEventCodes.includes(nextEvent?.eventCode)
+                ) {
+                    const startTime = event?.eventDateTime
+                        ? new Date(event.eventDateTime).getTime()
+                        : null;
+                    const endTime = nextEvent?.eventDateTime
+                        ? new Date(nextEvent.eventDateTime).getTime()
+                        : null;
+
+                    if (startTime !== null && endTime !== null && !isNaN(startTime) && !isNaN(endTime)) {
+                        const diff = endTime - startTime;
+                        duration = formatDuration(diff >= 0 ? diff : 0);
+                    }
                 }
 
                 return {
                     id: String(index + 1).padStart(2, "0"),
+                    eventCode: event.eventCode, // add this line to apply the color codes
                     status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
-                    start_PDT: new Date(event.eventDateTime).toLocaleString("en-US", {
-                        month: "short",
-                        day: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                    }),
+                    //   status: (
+                    //     <span
+                    //       className={`fw-bold ${
+                    //         event?.eventCode === "DS_ON" || event?.eventCode === "DS_D"
+                    //           ? "text-success"
+                    //           : "text-muted"
+                    //       }`}
+                    //     >
+                    //       {event.eventName}
+                    //     </span>
+                    //   ),
+                    //   location: event.location || "--",
+                    start_PDT: event.eventDateTime
+                        ? moment(event.eventDateTime)
+                            .tz(driverSettings?.timeZone || "America/Los_Angeles") // driver’s timezone
+                            .format("MMM DD, YYYY hh:mm:ss A")
+                        : "--",
                     duration,
                     location: event.manualLocation || event.calculatedLocation || "Unknown",
                     vehicle: event.vehicle?.vehicleNumber || "--",
@@ -355,9 +531,7 @@ export const GraphDetails = () => {
                     shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
                     notes: event.notes?.length ? event.notes.join(", ") : "",
                 };
-            })
-        )
-        .filter(Boolean);
+            }));
 
     // Getting tailers and shipping docs
     const trailers = filteredLogs
