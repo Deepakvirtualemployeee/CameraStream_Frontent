@@ -280,7 +280,7 @@ export const GraphDetails = () => {
                     <span className='pointer' title='Edit' onClick={() => navigate('/settings/drivers-listing/edit-driver')}><img src={EditIcon} alt="Edit Icon" /></span>
                     {/* <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span> */}
                     <span className='pointer p-0' title='Delete' onClick={() => {
-                }}><img src={TrashIcon} alt="Trash Icon" /></span>
+                    }}><img src={TrashIcon} alt="Trash Icon" /></span>
                 </div>
             ),
         },
@@ -741,7 +741,14 @@ export const GraphDetails = () => {
                 </div>
 
                 {/* Chart Section */}
-                <LogChart />
+                {/* <LogChart /> */}
+                {/* <LogChart logs={filteredLogs.flatMap(l => l.hosEvents)} driverSettings={driverSettings} /> */}
+                <LogChart
+                    logs={driverLogs}
+                    selectedDate={selectedDate}
+                    timezone={driverSettings?.timeZone || "America/Los_Angeles"}
+                />
+
 
                 {/* Error Table Section */}
                 <div className="table-content-wrapper">

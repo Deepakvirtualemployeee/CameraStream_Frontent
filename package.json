@@ -25,6 +25,7 @@
     "react-select": "^5.10.1",
     "react-simple-snackbar": "^1.1.11",
     "react-toastify": "^11.0.5",
+    "recharts": "^3.2.0",
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0",
     "sass": "^1.77.8",
