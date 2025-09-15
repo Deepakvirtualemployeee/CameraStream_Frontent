@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
 import moment from "moment-timezone";
-import { LineChart, Line, Tooltip, ReferenceLine } from "recharts";
- 
+import { LineChart, Line, Tooltip, ReferenceLine, YAxis, XAxis } from "recharts";
+
 const allowedEventCodes = ["DS_OFF", "DS_SB", "DS_D", "DS_ON", "DR_IND_PC", "DR_IND_YM"];
- 
+
 const graphMapping = {
   DS_OFF: "OFF",
   DR_IND_PC: "OFF",
@@ -12,21 +12,21 @@ const graphMapping = {
   DS_ON: "ON",
   DR_IND_YM: "ON",
 };
- 
+
 const rowY = {
-  OFF: 0,
-  SB: 1,
-  DR: 2,
-  ON: 3,
+  OFF: 3.5,
+  SB: 2.5,
+  DR: 1.5,
+  ON: 0.5,
 };
- 
+
 export default function LogChart({ logs = [], selectedDate, timezone = "America/Los_Angeles" }) {
   const { chartData, referenceLines } = useMemo(() => {
     if (!selectedDate) return { chartData: [], referenceLines: [] };
- 
+
     const selectedDay = moment.tz(selectedDate, timezone).startOf("day");
- 
-    // Extract and sort events
+    const endOfDay = selectedDay.clone().endOf("day");
+
     const events = logs
       .flatMap((log) =>
         (log.hosEvents || [])
@@ -39,89 +39,73 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
       )
       .filter((e) => e.start.isSame(selectedDay, "day"))
       .sort((a, b) => a.start.valueOf() - b.start.valueOf());
- 
-    if (events.length === 0) return { chartData: [], referenceLines: [] };
- 
+
     const points = [];
-const refs = [];
+    const refs = [];
 
-if (events.length > 0) {
-  const firstEvent = events[0];
-  const midnight = selectedDay.clone();
-  const firstStartX = 0;
-  const firstEndX = firstEvent.start.diff(selectedDay, "minutes") / 60;
-  const firstY = rowY[firstEvent.mappedRow];
+    // Determine the initial status based on the first event, if it exists.
+    const initialStatus = events.length > 0 ? events[0].mappedRow : "OFF";
+    let lastTime = selectedDay.clone();
 
-  // Push first horizontal line from midnight to first event
-  points.push({
-    x: firstStartX,
-    y: firstY,
-    status: firstEvent.mappedRow,
-    startTime: midnight.format("HH:mm"),
-    endTime: firstEvent.start.format("HH:mm"),
-    duration: moment
-      .utc(firstEvent.start.diff(midnight, "minutes") * 60 * 1000)
-      .format("HH:mm"),
-  });
-  points.push({
-    x: firstEndX,
-    y: firstY,
-    status: firstEvent.mappedRow,
-    startTime: midnight.format("HH:mm"),
-    endTime: firstEvent.start.format("HH:mm"),
-    duration: moment
-      .utc(firstEvent.start.diff(midnight, "minutes") * 60 * 1000)
-      .format("HH:mm"),
-  });
-
-  refs.push({ key: "start-0", x: firstStartX, label: midnight.format("HH:mm") });
-  refs.push({ key: "end-0", x: firstEndX, label: firstEvent.start.format("HH:mm") });
-
-  // Process remaining events starting from second event
-  events.slice(1).forEach((ev, idx) => {
-    const nextEv = events[idx + 1 + 1]; // +1 for slice offset
-    const end = nextEv
-      ? moment.min(nextEv.start, selectedDay.clone().endOf("day"))
-      : selectedDay.clone().endOf("day");
-
-    const start = ev.start;
-    const durationMinutes = end.diff(start, "minutes");
-    const durationHHMM = moment.utc(durationMinutes * 60 * 1000).format("HH:mm");
-
-    const startX = start.diff(selectedDay, "minutes") / 60;
-    const endX = end.diff(selectedDay, "minutes") / 60;
-    const startY = rowY[ev.mappedRow];
-    const endY = rowY[ev.mappedRow];
-
+    // The first segment starts at midnight.
     points.push({
-      x: startX,
-      y: startY,
-      status: ev.mappedRow,
-      startTime: start.format("HH:mm"),
-      endTime: end.format("HH:mm"),
-      duration: durationHHMM,
-    });
-    points.push({
-      x: endX,
-      y: endY,
-      status: ev.mappedRow,
-      startTime: start.format("HH:mm"),
-      endTime: end.format("HH:mm"),
-      duration: durationHHMM,
+      x: 0,
+      y: rowY[initialStatus],
+      status: initialStatus,
+      startTime: selectedDay.format("HH:mm"),
+      endTime: events.length > 0 ? events[0].start.format("HH:mm") : endOfDay.format("HH:mm"),
+      duration: moment.utc((events.length > 0 ? events[0].start : endOfDay).diff(selectedDay, "minutes") * 60 * 1000).format("HH:mm"),
     });
 
-    refs.push({ key: `start-${idx + 1}`, x: startX, label: start.format("HH:mm") });
-    refs.push({ key: `end-${idx + 1}`, x: endX, label: end.format("HH:mm") });
-  });
-}
+    refs.push({ key: "ref-0", x: 0, label: "00:00" });
 
- 
-    return { chartData: points, referenceLines: refs };
+    // Iterate through events to create segments
+    events.forEach((ev, idx) => {
+      const prevEvent = events[idx - 1];
+      const prevStatus = prevEvent ? prevEvent.mappedRow : initialStatus;
+
+      // Add a transition point for the vertical line
+      points.push({
+        x: ev.start.diff(selectedDay, "minutes") / 60,
+        y: rowY[prevStatus],
+        status: prevStatus, // Status of the segment ending here
+        startTime: prevEvent ? prevEvent.start.format("HH:mm") : selectedDay.format("HH:mm"),
+        endTime: ev.start.format("HH:mm"),
+        duration: moment.utc(ev.start.diff(prevEvent ? prevEvent.start : selectedDay, "minutes") * 60 * 1000).format("HH:mm"),
+      });
+
+      // Add the point for the start of the new status
+      points.push({
+        x: ev.start.diff(selectedDay, "minutes") / 60,
+        y: rowY[ev.mappedRow],
+        status: ev.mappedRow, // Status of the new segment
+        startTime: ev.start.format("HH:mm"),
+        endTime: (events[idx + 1] ? events[idx + 1].start : endOfDay).format("HH:mm"),
+        duration: moment.utc((events[idx + 1] ? events[idx + 1].start : endOfDay).diff(ev.start, "minutes") * 60 * 1000).format("HH:mm"),
+      });
+      refs.push({ key: `ref-${idx + 1}`, x: ev.start.diff(selectedDay, "minutes") / 60, label: ev.start.format("HH:mm") });
+    });
+
+    // Add a final point to extend the line to the end of the day, if needed.
+    if (events.length > 0) {
+      const lastEvent = events[events.length - 1];
+      points.push({
+        x: 24,
+        y: rowY[lastEvent.mappedRow],
+        status: lastEvent.mappedRow,
+        startTime: lastEvent.start.format("HH:mm"),
+        endTime: endOfDay.format("HH:mm"),
+        duration: moment.utc(endOfDay.diff(lastEvent.start, "minutes") * 60 * 1000).format("HH:mm"),
+      });
+    }
+
+    const sortedPoints = points.sort((a, b) => a.x - b.x);
+
+    return { chartData: sortedPoints, referenceLines: refs };
   }, [logs, selectedDate, timezone]);
- 
+
   return (
     <div className="position-relative">
-      {/* Table */}
       <div className="custom-chart-table table-responsive">
         <table className="table table-bordered align-middle fs-12 fw-bold text-body text-center">
           <thead>
@@ -165,10 +149,11 @@ if (events.length > 0) {
           </tbody>
         </table>
       </div>
- 
-      {/* Overlayed line chart */}
-      <div style={{ position: "absolute", top: "45px", left: "60px", width: "92%", height: "calc(100% - 80px)" }}>
-        <LineChart width={1000} height={180} data={chartData}>
+
+      <div style={{ position: "absolute", top: "45px", left: "70px", width: "92%", height: "calc(100% - 80px)" }}>
+        <LineChart width={900} height={140} data={chartData}>
+          <YAxis hide type="number" domain={[0, 4]} />
+          <XAxis hide dataKey="x" type="number" domain={[0, 24]} />
           <Line
             type="stepAfter"
             dataKey="y"
