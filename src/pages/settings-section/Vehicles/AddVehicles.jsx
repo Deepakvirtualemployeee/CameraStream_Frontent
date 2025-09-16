@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createVehicle } from "../../../store/actions/vehicles";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
+import { FUELTYPE, MAKE, VEHICLE_MODEL_OPTIONS } from "../../../constants";
+import { getDriversIssuingState } from "../../../store/actions/drivers";
 
 export const AddVehicles = () => {
   const navigate = useNavigate();
@@ -12,6 +14,7 @@ export const AddVehicles = () => {
 
   const { vehicleDetails, loading } = useSelector((state) => state.vehicles || { vehicleDetails: [] });
   const { unassignedElds, loadings } = useSelector((state) => state.eldDevices);
+  const { issuingState, loading: issuingStateLoading } = useSelector((state) => state.drivers);
 
   // console.log("add eld", eldDevices);
   const [formData, setFormData] = useState({
@@ -33,9 +36,16 @@ export const AddVehicles = () => {
     dispatch(getUnassignedElds(id));
   }, [dispatch]);
 
+  // Fetch issuing state
+  useEffect(() => {
+    if (id) {
+      dispatch(getDriversIssuingState(id));
+    }
+  }, [id, dispatch]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-  
+
     // Special case for ELD select
     if (name === "eldSerialNumber") {
       const selectedEld = unassignedElds.find((eld) => eld.serialNumber === value);
@@ -104,7 +114,7 @@ export const AddVehicles = () => {
                     />
                   </Form.Group>
                 </Col>
-                <Col sm={6}>
+                {/* <Col sm={6}>
                   <Form.Group controlId="vehicleMake">
                     <Form.Label>Make</Form.Label>
                     <Form.Control
@@ -116,8 +126,26 @@ export const AddVehicles = () => {
                       required
                     />
                   </Form.Group>
-                </Col>
+                </Col> */}
                 <Col sm={6}>
+                  <Form.Group controlId="vehicleMake">
+                    <Form.Label>Make</Form.Label>
+                    <Form.Select
+                      name="make"
+                      value={formData.make}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Make Type</option>
+                      {MAKE.map((make) => (
+                        <option key={make.value} value={make.value}>
+                          {make.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                {/* <Col sm={6}>
                   <Form.Group controlId="vehicleModel">
                     <Form.Label>Model</Form.Label>
                     <Form.Control
@@ -128,6 +156,24 @@ export const AddVehicles = () => {
                       placeholder="Enter model"
                       required
                     />
+                  </Form.Group>
+                </Col> */}
+                <Col sm={6}>
+                  <Form.Group controlId="vehicleModel">
+                    <Form.Label>Model</Form.Label>
+                    <Form.Select
+                      name="model"
+                      value={formData.model}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Model Type</option>
+                      {VEHICLE_MODEL_OPTIONS.map((model) => (
+                        <option key={model.value} value={model.value}>
+                          {model.label}
+                        </option>
+                      ))}
+                    </Form.Select>
                   </Form.Group>
                 </Col>
                 <Col xs={12}>
@@ -160,7 +206,7 @@ export const AddVehicles = () => {
                     </div>
                   </Form.Group>
                 </Col>
-                <Col xs={12}>
+                {/* <Col xs={12}>
                   <Form.Group controlId="fuelType">
                     <Form.Label>Fuel Type</Form.Label>
                     <Form.Control
@@ -172,18 +218,50 @@ export const AddVehicles = () => {
                       required
                     />
                   </Form.Group>
+                </Col> */}
+                <Col xs={12}>
+                  <Form.Group controlId="fuelType">
+                    <Form.Label>Fuel Type</Form.Label>
+                    <Form.Select
+                      name="fuelType"
+                      value={formData.fuelType}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Fuel Type</option>
+                      {FUELTYPE.map((fuel) => (
+                        <option key={fuel.value} value={fuel.value}>
+                          {fuel.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
                 </Col>
                 <Col sm={6}>
                   <Form.Group controlId="licensePlateState">
                     <Form.Label>Issuing State</Form.Label>
-                    <Form.Control
+                    {/* <Form.Control
                       type="text"
                       name="licensePlateState"
                       value={formData.licensePlateState}
                       onChange={handleChange}
                       placeholder="Enter Issuing state"
                       required
-                    />
+                    /> */}
+                    <Form.Select
+                      name="licensePlateState"
+                      value={formData.licensePlateState}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Issuing state</option>
+                      {issuingStateLoading && <option>Loading...</option>}
+                      {issuingState?.map((d) => (
+                        <option key={d.state} value={d.state}>
+                          {d.state}
+                        </option>
+                      ))}
+                    </Form.Select>
                   </Form.Group>
                 </Col>
                 <Col sm={6}>

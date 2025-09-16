@@ -353,7 +353,7 @@ export const EditPortalUser = () => {
                                             <option value="company administrator">
                                                 Company Administrator
                                             </option>
-                                            <option value="system super-admin">
+                                            {/* <option value="system super-admin">
                                                 System Super-Admin
                                             </option>
                                             <option value="system administrator">
@@ -376,7 +376,7 @@ export const EditPortalUser = () => {
                                             </option>
                                             <option value="driver">
                                                 Driver
-                                            </option>
+                                            </option> */}
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>

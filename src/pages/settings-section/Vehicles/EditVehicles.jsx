@@ -10,6 +10,8 @@ import {
   unassignEld,
   deleteVehicle,   // import delete action
 } from "../../../store/actions/vehicles";
+import { getDriversIssuingState } from "../../../store/actions/drivers";
+import { FUELTYPE, MAKE, VEHICLE_MODEL_OPTIONS } from "../../../constants";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
 
@@ -25,6 +27,7 @@ export const EditVehicles = () => {
 
   const { vehicle, loading } = useSelector((state) => state.vehicles);
   const { unassignedElds, loadings } = useSelector((state) => state.eldDevices);
+  const { issuingState, loading: issuingStateLoading } = useSelector((state) => state.drivers);
 
   const [showDeactivate, setShowDeactivate] = useState(false);
   const [showActivate, setShowActivate] = useState(false);
@@ -55,6 +58,13 @@ export const EditVehicles = () => {
     }
     dispatch(getUnassignedElds(companyId));
   }, [dispatch, id, companyId]);
+
+  // Fetch issuing state
+  useEffect(() => {
+    if (id) {
+      dispatch(getDriversIssuingState(id));
+    }
+  }, [id, dispatch]);
 
   // Prefill form when vehicle is loaded
   useEffect(() => {
@@ -272,7 +282,7 @@ export const EditVehicles = () => {
                     />
                   </Form.Group>
                 </Col>
-                <Col sm={6}>
+                {/* <Col sm={6}>
                   <Form.Group controlId="vehicleMake">
                     <Form.Label>Make</Form.Label>
                     <Form.Control
@@ -283,8 +293,26 @@ export const EditVehicles = () => {
                       required
                     />
                   </Form.Group>
-                </Col>
+                </Col> */}
                 <Col sm={6}>
+                  <Form.Group controlId="vehicleMake">
+                    <Form.Label>Make</Form.Label>
+                    <Form.Select
+                      name="make"
+                      value={formData.make}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Make Type</option>
+                      {MAKE.map((make) => (
+                        <option key={make.value} value={make.value}>
+                          {make.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                {/* <Col sm={6}>
                   <Form.Group controlId="vehicleModel">
                     <Form.Label>Model</Form.Label>
                     <Form.Control
@@ -294,6 +322,24 @@ export const EditVehicles = () => {
                       onChange={handleChange}
                       required
                     />
+                  </Form.Group>
+                </Col> */}
+                <Col sm={6}>
+                  <Form.Group controlId="vehicleModel">
+                    <Form.Label>Model</Form.Label>
+                    <Form.Select
+                      name="model"
+                      value={formData.model}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Model Type</option>
+                      {VEHICLE_MODEL_OPTIONS.map((model) => (
+                        <option key={model.value} value={model.value}>
+                          {model.label}
+                        </option>
+                      ))}
+                    </Form.Select>
                   </Form.Group>
                 </Col>
                 <Col xs={12}>
@@ -324,7 +370,7 @@ export const EditVehicles = () => {
                     </div>
                   </Form.Group>
                 </Col>
-                <Col xs={12}>
+                {/* <Col xs={12}>
                   <Form.Group controlId="fuelType">
                     <Form.Label>Fuel Type</Form.Label>
                     <Form.Control
@@ -335,17 +381,49 @@ export const EditVehicles = () => {
                       required
                     />
                   </Form.Group>
+                </Col> */}
+                <Col xs={12}>
+                  <Form.Group controlId="fuelType">
+                    <Form.Label>Fuel Type</Form.Label>
+                    <Form.Select
+                      name="fuelType"
+                      value={formData.fuelType}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Fuel Type</option>
+                      {FUELTYPE.map((fuel) => (
+                        <option key={fuel.value} value={fuel.value}>
+                          {fuel.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
                 </Col>
                 <Col sm={6}>
                   <Form.Group controlId="licensePlateState">
                     <Form.Label>Issuing State</Form.Label>
-                    <Form.Control
+                    {/* <Form.Control
                       type="text"
                       name="licensePlateState"
                       value={formData.licensePlateState}
                       onChange={handleChange}
                       required
-                    />
+                    /> */}
+                    <Form.Select
+                      name="licensePlateState"
+                      value={formData.licensePlateState}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select Issuing state</option>
+                      {issuingStateLoading && <option>Loading...</option>}
+                      {issuingState?.map((d) => (
+                        <option key={d.state} value={d.state}>
+                          {d.state}
+                        </option>
+                      ))}
+                    </Form.Select>
                   </Form.Group>
                 </Col>
                 <Col sm={6}>

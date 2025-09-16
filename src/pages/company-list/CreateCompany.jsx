@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { createCompany } from '../../store/actions'; 
+import { createCompany } from '../../store/actions';
 
 const CreateCompany = ({ createCompany }) => {
     const navigate = useNavigate();
@@ -97,10 +97,14 @@ const CreateCompany = ({ createCompany }) => {
                                         required
                                     >
                                         <option value="">Select the Time zone</option>
-                                        <option value="America/Chicago">America/Chicago (CST/CDT)</option>
+                                        {/* <option value="America/Chicago">America/Chicago (CST/CDT)</option>
                                         <option value="UTC">UTC</option>
                                         <option value="GMT">GMT</option>
-                                        <option value="IST">IST</option>
+                                        <option value="IST">IST</option> */}
+                                        <option value="America/New_York">Eastern Standard Time</option>
+                                        <option value="America/Chicago">Central Standard Time</option>
+                                        <option value="America/Denver">Mountain Standard Time</option>
+                                        <option value="America/Los_Angeles">Pacific Standard Time</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>

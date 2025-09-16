@@ -26,9 +26,8 @@ const Stepper = ({ register, currentStep }) => {
         {steps.map((label, index) => (
           <div
             key={index}
-            className={`step text-center ${
-              index === currentStep ? "active" : "bg-white"
-            } ${index < currentStep ? "completed" : ""}`}
+            className={`step text-center ${index === currentStep ? "active" : "bg-white"
+              } ${index < currentStep ? "completed" : ""}`}
           >
             <div className="step-number d-flex align-items-center justify-content-center shadow">
               {index + 1}
@@ -55,7 +54,7 @@ const SignUp = (props) => {
   const togglePassVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
-  
+
   const toggleConfirmPassVisibility = () => {
     setconfirmPassVisible(!confirmPassVisible);
   };
@@ -64,8 +63,7 @@ const SignUp = (props) => {
 
   const handleNext = () => {
     if (step < 2) setStep(step + 1);
-    else 
-    {
+    else {
       form.phoneNumber = form.phoneNumber.replace(/\D/g, "").slice(-10);
       props.register(form, navigate); // Call Redux action
 
@@ -224,15 +222,15 @@ const SignUp = (props) => {
                   <Form.Label>
                     Time Zone <span className="text-danger">*</span>
                   </Form.Label>
-                  <Form.Select 
+                  <Form.Select
                     onChange={handleChange}
                     required
                     value={form.timeZone}
                     name="timeZone"
 
-                   >
+                  >
                     <option value="">Select the Time zone</option>
-                    <option value="UTC (Coordinated Universal Time)">
+                    {/* <option value="UTC (Coordinated Universal Time)">
                       UTC (Coordinated Universal Time)
                     </option>
                     <option value="GMT (Greenwich Mean Time)">
@@ -252,7 +250,11 @@ const SignUp = (props) => {
                     </option>
                     <option value="CDT – Central Daylight Time (USA)">
                       CDT – Central Daylight Time (USA)
-                    </option>
+                    </option> */}
+                    <option value="America/New_York">Eastern Standard Time</option>
+                    <option value="America/Chicago">Central Standard Time</option>
+                    <option value="America/Denver">Mountain Standard Time</option>
+                    <option value="America/Los_Angeles">Pacific Standard Time</option>
                   </Form.Select>
                 </Form.Group>
               </>
@@ -292,7 +294,7 @@ const SignUp = (props) => {
                       type={passwordVisible ? "text" : "password"}
                       value={form.password}
                       name="password"
-                    //   onChange={(e) => setNewPassword(e.target.value)}
+                      //   onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Please enter the 8 digit password"
                       minlength={8}
                       maxLength={8}
@@ -325,7 +327,7 @@ const SignUp = (props) => {
                       type={confirmPassVisible ? "text" : "password"}
                       value={form.confirmPassword}
                       name="confirmPassword"
-                    //   onChange={(e) => setconfirmPassword(e.target.value)}
+                      //   onChange={(e) => setconfirmPassword(e.target.value)}
                       placeholder="Please enter the 8 digit password"
                       minlength={8}
                       maxLength={8}
@@ -432,7 +434,7 @@ const SignUp = (props) => {
 
 // Connect Redux
 const mapDispatchToProps = (dispatch) => ({
-    register: (data, navigate) => dispatch(actions.register(data, navigate)),
+  register: (data, navigate) => dispatch(actions.register(data, navigate)),
 });
 
 export default connect(null, mapDispatchToProps)(withSnackbar(SignUp));

@@ -384,68 +384,81 @@ export const AddDriver = () => {
                             <div className="main-heading mb-3">Log Settings</div>
                             <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
                                 <Form.Group className="mb-3" controlId="HOSRules">
-                                    <Form.Label>HOS Rules<span className="text-danger">*</span></Form.Label>
+                                    <Form.Label>HOS Rules
+                                        {/* <span className="text-danger">*</span> */}
+                                        </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="hosRules"
-                                        value={formData.hosRules}
+                                        value={formData.hosRules || "USA 70 Hour / 8 Day"}
                                         onChange={handleChange}
                                         placeholder="Enter HOS rules"
                                         autoComplete='off'
-                                        required
+                                        // required
+                                        disabled
                                     />
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="CargoType">
-                                    <Form.Label>Cargo Type<span className="text-danger">*</span></Form.Label>
-                                    {/* <Form.Control
+                                    <Form.Label>Cargo Type
+                                        {/* <span className="text-danger">*</span> */}
+                                        </Form.Label>
+                                    <Form.Control
                                         type="text"
                                         name="cargoType"
-                                        value={formData.cargoType}
+                                        value={formData.cargoType || "Property"}
                                         onChange={handleChange}
                                         placeholder="Enter cargo type"
                                         autoComplete='off'
-                                        required
-                                    /> */}
-                                    <Form.Select
+                                        // required
+                                        disabled
+                                    />
+                                    {/* <Form.Select
                                         name="cargoType"
-                                        value={formData.cargoType}
+                                        value={formData.cargoType || "Property"}
                                         onChange={handleChange}
-                                        required
+                                        // required
+                                        disabled
                                     >
                                         <option value="" hidden>
                                             Select Cargo Type
                                         </option>
                                         <option value="PROPERTY">PROPERTY</option>
                                         <option value="PASSENGER">PASSENGER</option>
-                                    </Form.Select>
+                                    </Form.Select> */}
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="Restart">
-                                    <Form.Label>Restart<span className="text-danger">*</span></Form.Label>
+                                    <Form.Label>Restart
+                                        {/* <span className="text-danger">*</span> */}
+                                        </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="restart"
-                                        value={formData.restart}
+                                        value={formData.restart || "34 Hour Restart"}
                                         onChange={handleChange}
                                         placeholder="Enter restart"
                                         autoComplete='off'
-                                        required
+                                        // required
+                                        disabled
                                     />
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="RestBreak">
-                                    <Form.Label>Rest Break<span className="text-danger">*</span></Form.Label>
+                                    <Form.Label>Rest Break
+                                        {/* <span className="text-danger">*</span> */}
+                                        </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="restBreak"
-                                        value={formData.restBreak}
+                                        value={formData.restBreak || "30 min Break"}
                                         onChange={handleChange}
                                         placeholder="Enter rest break"
                                         autoComplete='off'
-                                        required
+                                        // required
+                                        disabled
                                     />
                                 </Form.Group>
                                 <Form.Group>
                                     <div className="checks-wrapper">
-                                        <Form.Check type="checkbox" name="allowShortHaulException" checked={allowShortHaulException} onChange={handleChange}
+                                        {/* <Form.Check type="checkbox" name="allowShortHaulException" checked={allowShortHaulException} onChange={handleChange}
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Allow Short-Haul Exception</div>}
                                             required
@@ -453,7 +466,7 @@ export const AddDriver = () => {
                                         <Form.Check type="checkbox" name="allowSplitSleeperBerth" checked={allowSplitSleeperBerth} onChange={handleChange}
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Allow Split-Sleeper Berth</div>}
-                                        />
+                                        /> */}
                                         <Form.Check type="checkbox" name="allowPersonalConveyance" checked={allowPersonalConveyance} onChange={handleChange}
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Allow Personal Conveyance</div>}
@@ -466,10 +479,10 @@ export const AddDriver = () => {
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Allow Manual Driver</div>}
                                         />
-                                        <Form.Check type="checkbox" name="restrictDriverFromCreationDateAndTime" checked={restrictDriverFromCreationDateAndTime} onChange={handleChange}
+                                        {/* <Form.Check type="checkbox" name="restrictDriverFromCreationDateAndTime" checked={restrictDriverFromCreationDateAndTime} onChange={handleChange}
                                             className="fs-16 mb-1"
                                             label={<div className="fs-6 text-dark text-opacity-75">Restrict Driver from Creation Date & Time</div>}
-                                        />
+                                        /> */}
                                     </div>
                                 </Form.Group>
                             </div>

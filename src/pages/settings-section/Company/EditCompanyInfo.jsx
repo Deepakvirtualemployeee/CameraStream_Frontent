@@ -148,10 +148,10 @@ export const EditCompanyInfo = () => {
                                             <option value="" hidden>
                                                 Select Time zone
                                             </option>
-                                            <option value="America/Chicago">America/Chicago (CST/CDT)</option>
-                                            <option value="UTC">UTC</option>
-                                            <option value="GMT">GMT</option>
-                                            <option value="IST">IST</option>
+                                            <option value="America/New_York">Eastern Standard Time</option>
+                                            <option value="America/Chicago">Central Standard Time</option>
+                                            <option value="America/Denver">Mountain Standard Time</option>
+                                            <option value="America/Los_Angeles">Pacific Standard Time</option>
                                             {/* <option value="America/Chicago">America/Chicago (CST/CDT)</option>
                                             <option value="America/Los_Angeles">America/Los_Angeles</option>
                                             <option value="Coordinated Universal Time">UTC</option>
@@ -199,14 +199,18 @@ export const EditCompanyInfo = () => {
                                                 required
                                             >
                                                 <option value="" disabled>Select Time zone</option>
-                                                <option value="Coordinated Universal Time">UTC</option>
+                                                <option value="America/New_York">Eastern Standard Time</option>
+                                                <option value="America/Chicago">Central Standard Time</option>
+                                                <option value="America/Denver">Mountain Standard Time</option>
+                                                <option value="America/Los_Angeles">Pacific Standard Time</option>
+                                                {/* <option value="Coordinated Universal Time">UTC</option>
                                                 <option value="Greenwich Mean Time">GMT</option>
                                                 <option value="India Standard Time">IST</option>
                                                 <option value="Eastern Standard Time">EST</option>
                                                 <option value="Eastern Daylight Time">EDT (USA)</option>
                                                 <option value="Central Standard Time">CST</option>
                                                 <option value="Central Daylight Time">CDT (USA)</option>
-                                                <option value="America/Los_Angeles">America/Los_Angeles</option>
+                                                <option value="America/Los_Angeles">America/Los_Angeles</option> */}
                                             </Form.Select>
                                         </Form.Group>
 
@@ -240,7 +244,7 @@ export const EditCompanyInfo = () => {
                                     <Form.Control
                                         type="text"
                                         name="complianceMode"
-                                        value={formData.complianceMode}
+                                        value={formData.complianceMode || "ELD"}
                                         onChange={handleChange}
                                         placeholder="Enter compliance mode"
                                         //   required
@@ -256,32 +260,36 @@ export const EditCompanyInfo = () => {
                             <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
                                 <Form.Group className="mb-3" controlId="HOSRules">
                                     <Form.Label>
-                                        HOS Rules<span className="text-danger">*</span>
+                                        HOS Rules
+                                        {/* <span className="text-danger">*</span> */}
                                     </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="hosRules"
-                                        value={formData.hosRules}
+                                        value={formData.hosRules || "USA 70 Hour / 8 Day"} // will remove the default values later for all
                                         onChange={handleChange}
                                         placeholder="Enter HOS rules"
                                         autoComplete="off"
-                                        required
+                                        // required
+                                        disabled
                                     />
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="CargoType">
                                     <Form.Label>
-                                        Cargo Type<span className="text-danger">*</span>
+                                        Cargo Type
+                                        {/* <span className="text-danger">*</span> */}
                                     </Form.Label>
-                                    {/* <Form.Control
+                                    <Form.Control
                                         type="text"
                                         name="cargoType"
-                                        value={formData.cargoType}
+                                        value={formData.cargoType || "Property"}
                                         onChange={handleChange}
                                         placeholder="Enter cargo type"
                                         autoComplete="off"
-                                        required
-                                    /> */}
-                                    <Form.Select
+                                        // required
+                                        disabled
+                                    />
+                                    {/* <Form.Select
                                         name="cargoType"
                                         value={formData.cargoType}
                                         onChange={handleChange}
@@ -292,41 +300,45 @@ export const EditCompanyInfo = () => {
                                         </option>
                                         <option value="PROPERTY">PROPERTY</option>
                                         <option value="PASSENGER">PASSENGER</option>
-                                    </Form.Select>
+                                    </Form.Select> */}
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="restartHours">
                                     <Form.Label>
-                                        Restart<span className="text-danger">*</span>
+                                        Restart
+                                        {/* <span className="text-danger">*</span> */}
                                     </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="restartHours"
-                                        value={formData.restartHours}
+                                        value={formData.restartHours || "34 Hour Restart"}
                                         onChange={handleChange}
                                         placeholder="Enter restart"
                                         autoComplete="off"
-                                        required
+                                        // required
+                                        disabled
                                     />
                                 </Form.Group>
                                 <Form.Group className="mb-3" controlId="RestBreak">
                                     <Form.Label>
-                                        Rest Break<span className="text-danger">*</span>
+                                        Rest Break
+                                        {/* <span className="text-danger">*</span> */}
                                     </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="restBreak"
-                                        value={formData.restBreak}
+                                        value={formData.restBreak || "30 min Break"}
                                         onChange={handleChange}
                                         placeholder="Enter rest break"
                                         autoComplete="off"
-                                        required
+                                        // required
+                                        disabled
                                     />
                                 </Form.Group>
 
                                 {/* Checkboxes */}
                                 <Form.Group>
                                     <div className="checks-wrapper">
-                                        <Form.Check
+                                        {/* <Form.Check
                                             type="checkbox"
                                             name="allowShortHaul"
                                             checked={formData.allowShortHaul}
@@ -349,7 +361,7 @@ export const EditCompanyInfo = () => {
                                                     Allow Split-Sleeper Berth
                                                 </div>
                                             }
-                                        />
+                                        /> */}
                                         <Form.Check
                                             type="checkbox"
                                             name="allowPersonalConveyance"
@@ -386,7 +398,7 @@ export const EditCompanyInfo = () => {
                                                 </div>
                                             }
                                         />
-                                        <Form.Check
+                                        {/* <Form.Check
                                             type="checkbox"
                                             name="restrictDriverFromCreationDate"
                                             checked={formData.restrictDriverFromCreationDate}
@@ -397,7 +409,7 @@ export const EditCompanyInfo = () => {
                                                     Restrict Driver from Creation Date & Time
                                                 </div>
                                             }
-                                        />
+                                        /> */}
                                     </div>
                                 </Form.Group>
                             </div>
