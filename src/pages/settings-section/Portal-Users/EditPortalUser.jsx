@@ -10,9 +10,9 @@ import { ConfirmModal } from "../../../components/common/ConfirmModal";
 export const EditPortalUser = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { id } = useParams(); // userId from URL
-    const location = useLocation();
-    const { companyId } = location.state || {}; // reading state
+    const { companyId, id } = useParams(); // userId from URL
+    // const location = useLocation();
+    // const { companyId } = location.state || {}; // reading state
 
     const { portalUser, loading } = useSelector((state) => state.portalUsers);
 

@@ -8,12 +8,12 @@ import EditIcon from "../../../assets/images/icons/edit.svg";
 export const CompanyInfo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { id } = useParams(); // company id from URL
+  const { companyId } = useParams(); // company id from URL
 
   const { company, loading, error } = useSelector((state) => state.companies);
 
   useEffect(() => {
-    dispatch(getCompanyInfo(id));
+    dispatch(getCompanyInfo(companyId));
   }, [dispatch]);
 
   if (loading) {
@@ -33,14 +33,14 @@ export const CompanyInfo = () => {
   }
 
   const carrierSettings = [
-    { label: "Compliance Mode", value: company.complianceMode || "-" },
-    { label: "Vehicle Motion Threshold", value: company.vehicleMotionThreshold || 0 },
-    { label: "Cycle Rule", value: company.hosRules || "-" },
-    { label: "Cargo Type", value: company.cargoType || "-" },
-    { label: "Restart", value: company.restartHours || "-" },
-    { label: "Rest Break", value: company.restBreak || "-" },
-    { label: "Short-Haul Exception", value: company.allowShortHaul === true ? "Allowed" : "Forbidden" },
-    { label: "Split-Sleeper Birth", value: company.allowSplitSleeper === true ? "Allowed" : "Forbidden" },
+    { label: "Compliance Mode", value: company.complianceMode || "ELD" },
+    { label: "Vehicle Motion Threshold", value: company.vehicleMotionThreshold || "5 mi/h" },
+    { label: "Cycle Rule", value: company.hosRules || "USA 70 Hour / 8 Day" },
+    { label: "Cargo Type", value: company.cargoType || "Property" },
+    { label: "Restart", value: company.restartHours || "34 Hour Restart" },
+    { label: "Rest Break", value: company.restBreak || "30 min Break" },
+    // { label: "Short-Haul Exception", value: company.allowShortHaul === true ? "Allowed" : "Forbidden" },
+    // { label: "Split-Sleeper Birth", value: company.allowSplitSleeper === true ? "Allowed" : "Forbidden" },
     { label: "Personal Conveyance", value: company.allowPersonalConveyance === true ? "Allowed" : "Forbidden" },
     { label: "Yard Move", value: company.allowYardMove === true ? "Allowed" : "Forbidden" },
     { label: "Manual Drive", value: company.allowManualDriver === true ? "Allowed" : "Forbidden" },
@@ -56,7 +56,7 @@ export const CompanyInfo = () => {
             variant="primary"
             className="d-flex align-items-center gap-2"
             onClick={() => navigate(`/settings/company-info/edit-company-info/${company._id}`, {
-                state: { companyId: id },
+                state: { companyId: companyId },
             })}
           >
             <img

@@ -12,8 +12,8 @@ import { fetchDrivers } from '../../../store/actions/drivers';
 
 export const DriversListing = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Company id from url
-  console.log(id);
+  const { companyId } = useParams(); // Company id from url
+  console.log(companyId);
   const dispatch = useDispatch();
 
   // Get data from redux
@@ -21,10 +21,10 @@ export const DriversListing = () => {
 
   // Fetch drivers when page loads or id changes
   useEffect(() => {
-    if (id) {
-      dispatch(fetchDrivers(id));
+    if (companyId) {
+      dispatch(fetchDrivers(companyId));
     }
-  }, [dispatch, id]);
+  }, [dispatch, companyId]);
 
   // Table columns
   const columns = [
@@ -128,8 +128,8 @@ export const DriversListing = () => {
             className="pointer"
             title="Edit"
             onClick={() =>
-              navigate(`/settings/drivers-listing/edit-driver/${row._id}`, {
-                state: { companyId: id },
+              navigate(`/settings/drivers-listing/edit-driver/${companyId}/${row._id}`, {
+                state: { companyId: companyId },
               })
             }
           >
@@ -206,7 +206,7 @@ export const DriversListing = () => {
               <Button
                 variant="primary"
                 className="d-flex align-items-center justify-center gap-1"
-                onClick={() => navigate(`/settings/drivers-listing/add-driver/${id}`)}
+                onClick={() => navigate(`/settings/drivers-listing/add-driver/${companyId}`)}
               >
                 <i className="bi bi-plus-lg fs-16"></i> Add Driver
               </Button>

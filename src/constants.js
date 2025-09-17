@@ -8,6 +8,10 @@ export const ALPHABATES_NUMERIC_SPECIAL = /^[ A-Za-z0-9_@./#&+-]*$/;
 export const ALPHABATES_NUMERIC = /^[A-Za-z0-9 _]*[A-Za-z0-9][A-Za-z0-9 _]*$/;
 export const ALPHABATES_NUMERIC_SPECIAL_CHARACTERS = /^[ A-Za-z0-9_@./#&+-]*$/;
 
+export const VIN_REGEX = /^[A-HJ-NPR-Z0-9]{0,17}$/; 
+export const USERNAME_REGEX = /^[A-Za-z0-9]{4,}$/; 
+export const SERIAL_NUMBER_REGEX = /^[A-Za-z0-9]{1,12}$/;
+
 export const VALIDATE_PASSWORD = /^(?=.*?[A-Z])(?=(.*[a-z]){1,})(?=(.*[\d]){1,})(?=(.*[\W]){1,})(?!.*\s).{8,64}$/;
 export const NUMERIC_CHARACTERS = /^[0-9]+$/;
 export const VALIDATE_PRICE = /^(?!(?:.*?\.){2})\d{0,3}[.]?\d{0,3}[.]?\d{0,3}[.]?\d{0,3}[.]?\d{0,3}[.]?\d{1,3}[,]?\d{0,2}$/;

@@ -12,13 +12,13 @@ import { getPortalUsers } from "../../../store/actions/portalUsers";
 export const PortalUsers = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { id } = useParams(); // companyId from URL
+    const { companyId } = useParams(); // companyId from URL
 
     const { portalUsers, loading } = useSelector((state) => state.portalUsers);
     console.log("Users:", portalUsers);
     useEffect(() => {
-        dispatch(getPortalUsers(id));
-    }, [dispatch, id]);
+        dispatch(getPortalUsers(companyId));
+    }, [dispatch, companyId]);
 
     const columns = [
         {
@@ -74,8 +74,8 @@ export const PortalUsers = () => {
                         className="pointer ms-3"
                         title="Edit"
                         onClick={() =>
-                            navigate(`/settings/portal-users/edit-portal-user/${row._id}`, {
-                                state: { companyId: id },
+                            navigate(`/settings/portal-users/edit-portal-user/${companyId}/${row._id}`, {
+                                state: { companyId: companyId },
                             })
                         }
                     >
@@ -136,7 +136,7 @@ export const PortalUsers = () => {
                             <Button
                                 variant="primary"
                                 onClick={() =>
-                                    navigate(`/settings/portal-users/add-portal-user/${id}`)
+                                    navigate(`/settings/portal-users/add-portal-user/${companyId}`)
                                 }
                             >
                                 <i className="bi bi-plus-lg fs-16"></i> Add User

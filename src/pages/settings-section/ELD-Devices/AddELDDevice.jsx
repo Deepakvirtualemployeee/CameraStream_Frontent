@@ -4,11 +4,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addEldDevice } from "../../../store/actions/eldDevices";
 import { getAssignableVehiclesForEld } from "../../../store/actions/vehicles";
+import { VALIDATE_MAC_ADDRESS, SERIAL_NUMBER_REGEX } from "../../../constants"; // Import regex
+import { toast } from "react-toastify";
 
 export const AddELDDevice = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { id } = useParams(); // companyId from route params
+  const { companyId } = useParams(); // companyId from route params
 
   const { loading, error, success } = useSelector((state) => state.eldDevices || {});
   const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
@@ -18,7 +20,7 @@ export const AddELDDevice = () => {
     mac: ["", "", "", "", "", ""],
     eldModel: "",
     assignedVehicleId: "",
-    companyId: id,
+    companyId: companyId,
   });
 
   // Handle input change
@@ -60,10 +62,23 @@ export const AddELDDevice = () => {
     }
   };
 
-  // Submit
+  // Submit with MAC validation and Serial number
   const handleSubmit = (e) => {
     e.preventDefault();
     const macAddress = formData.mac.join(":");
+
+    // Validate MAC format
+    if (!VALIDATE_MAC_ADDRESS.test(macAddress)) {
+      toast.error("Invalid MAC Address. Please enter a valid format (e.g., AA:BB:CC:DD:EE:FF)");
+      return;
+    }
+
+    // Validate Serial Number
+    if (!SERIAL_NUMBER_REGEX.test(formData.serialNumber)) {
+      toast.error("Invalid Serial Number. Must be alphanumeric and less than 12 characters.");
+      return;
+    }
+
     const finalData = {
       serialNumber: formData.serialNumber,
       macAddress,
@@ -72,15 +87,30 @@ export const AddELDDevice = () => {
       companyId: formData.companyId,
     };
     console.log("Submitting ELD Device:", finalData);
-    dispatch(addEldDevice(id, finalData, navigate));
+    dispatch(addEldDevice(companyId, finalData, navigate));
   };
+
+  // Submit
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   const macAddress = formData.mac.join(":");
+  //   const finalData = {
+  //     serialNumber: formData.serialNumber,
+  //     macAddress,
+  //     eldModel: formData.eldModel,
+  //     assignedVehicleId: formData.assignedVehicleId,
+  //     companyId: formData.companyId,
+  //   };
+  //   console.log("Submitting ELD Device:", finalData);
+  //   dispatch(addEldDevice(id, finalData, navigate));
+  // };
 
   // Fetch vehicles
   useEffect(() => {
-    if (id) {
-      dispatch(getAssignableVehiclesForEld(id));
+    if (companyId) {
+      dispatch(getAssignableVehiclesForEld(companyId));
     }
-  }, [id, dispatch]);
+  }, [companyId, dispatch]);
 
   return (
     <div className="AddELDDevice-page py-3">
@@ -111,7 +141,7 @@ export const AddELDDevice = () => {
               <Col xs={12}>
                 <Form.Group controlId="serialNumber">
                   <Form.Label>ELD SN (Serial Number)<span className="text-danger">*</span></Form.Label>
-                  <Form.Control
+                  {/* <Form.Control
                     type="text"
                     name="serialNumber"
                     value={formData.serialNumber}
@@ -119,7 +149,32 @@ export const AddELDDevice = () => {
                     placeholder="Enter Serial Number"
                     autoComplete="off"
                     required
+                  /> */}
+                  <Form.Control
+                    type="text"
+                    name="serialNumber"
+                    value={formData.serialNumber}
+                    onChange={(e) => {
+                      let value = e.target.value;
+
+                      // Allow only alphanumeric characters
+                      value = value.replace(/[^A-Za-z0-9]/g, "");
+
+                      // Limit to 12 characters
+                      if (value.length <= 12) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          serialNumber: value,
+                        }));
+                      }
+                    }}
+                    placeholder="Enter Serial Number"
+                    autoComplete="off"
+                    required
                   />
+                  <div className="text-muted mt-1">
+                    Serial Number must be alphanumeric and less than 12 characters.
+                  </div>
                   <div className="text-muted mt-1">
                     Please make sure ELD SN was entered correctly. Once created it cannot be changed.
                   </div>

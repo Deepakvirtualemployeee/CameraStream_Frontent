@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getCompanyInfo, updateCompanyById } from "../../../store/actions/companies";
 
@@ -8,7 +8,8 @@ export const EditCompanyInfo = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
-    const { companyId } = location.state || {};
+    // const { companyId } = location.state || {};
+    const { companyId } = useParams(); // company id from URL
 
     // Redux state
     const { company, loading } = useSelector((state) => state.companies);

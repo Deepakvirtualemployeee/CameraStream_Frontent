@@ -13,13 +13,13 @@ import { getVehicles } from "../../../store/actions/vehicles";
 export const VehiclesList = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { id } = useParams(); // company id from URL
+    const { companyId } = useParams(); // company id from URL
 
     // Correct selector
     const { vehicles, loading } = useSelector((state) => state.vehicles);
 
     useEffect(() => {
-        dispatch(getVehicles(id));
+        dispatch(getVehicles(companyId));
     }, [dispatch]);
 
     const columns = [
@@ -88,7 +88,7 @@ export const VehiclesList = () => {
                         className="pointer ms-3"
                         title="Edit"
                         onClick={() =>
-                            navigate(`/settings/vehicles-list/edit-vehicle/${row._id}`, { state: { companyId: id } })
+                            navigate(`/settings/vehicles-list/edit-vehicle/${companyId}/${row._id}`, { state: { companyId: companyId } })
                         }
                     >
                         <img src={EditIcon} alt="Edit Icon" />
@@ -162,7 +162,7 @@ export const VehiclesList = () => {
                             </Button>
                             <Button
                                 variant="primary"
-                                onClick={() => navigate(`/settings/vehicles-list/add-vehicle/${id}`)}
+                                onClick={() => navigate(`/settings/vehicles-list/add-vehicle/${companyId}`)}
                             >
                                 <i className="bi bi-plus-lg fs-16"></i> Add Vehicle
                             </Button>

@@ -20,7 +20,7 @@ export const GraphDetails = () => {
     const [showPhone, setShowPhone] = useState(false);
 
     // Get params
-    let { id, driverId } = useParams();
+    let { companyId, driverId } = useParams();
 
     // For testing
     driverId = '688b50c55dc4bbb932ffad56';
@@ -29,7 +29,7 @@ export const GraphDetails = () => {
     // const companyId = searchParams.get("companyId");
 
     console.log("Driver ID:", driverId);
-    console.log("Company ID:", id);
+    console.log("Company ID:", companyId);
 
     const dispatch = useDispatch();
 
@@ -51,7 +51,7 @@ export const GraphDetails = () => {
             dispatch(getDriverLogs(driverId));
             dispatch(getMobileSettings(driverId));
         }
-    }, [dispatch, driverId, id]);
+    }, [dispatch, driverId, companyId]);
 
     const handlePrevDay = () => {
         setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));

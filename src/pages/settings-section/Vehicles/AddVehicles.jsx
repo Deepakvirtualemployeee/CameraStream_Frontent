@@ -4,13 +4,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createVehicle } from "../../../store/actions/vehicles";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
-import { FUELTYPE, MAKE, VEHICLE_MODEL_OPTIONS } from "../../../constants";
+import { FUELTYPE, MAKE, VEHICLE_MODEL_OPTIONS, ALPHABATES_NUMERIC, VIN_REGEX } from "../../../constants";
 import { getDriversIssuingState } from "../../../store/actions/drivers";
 
 export const AddVehicles = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { id } = useParams(); // company id from url
+  const { companyId } = useParams(); // company id from url
 
   const { vehicleDetails, loading } = useSelector((state) => state.vehicles || { vehicleDetails: [] });
   const { unassignedElds, loadings } = useSelector((state) => state.eldDevices);
@@ -19,7 +19,7 @@ export const AddVehicles = () => {
   // console.log("add eld", eldDevices);
   const [formData, setFormData] = useState({
     vehicleNumber: "",
-    companyId: id,
+    companyId: companyId,
     make: "",
     model: "",
     year: "",
@@ -33,28 +33,65 @@ export const AddVehicles = () => {
   });
 
   useEffect(() => {
-    dispatch(getUnassignedElds(id));
+    dispatch(getUnassignedElds(companyId));
   }, [dispatch]);
 
   // Fetch issuing state
   useEffect(() => {
-    if (id) {
-      dispatch(getDriversIssuingState(id));
+    if (companyId) {
+      dispatch(getDriversIssuingState(companyId));
     }
-  }, [id, dispatch]);
+  }, [companyId, dispatch]);
+
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+
+  //   // Special case for ELD select
+  //   if (name === "eldSerialNumber") {
+  //     const selectedEld = unassignedElds.find((eld) => eld.serialNumber === value);
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       eldSerialNumber: value,
+  //       eldId: selectedEld?._id || "",   // store _id alongside
+  //     }));
+  //   } else {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       [name]: value,
+  //     }));
+  //   }
+  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Special case for ELD select
+  
     if (name === "eldSerialNumber") {
       const selectedEld = unassignedElds.find((eld) => eld.serialNumber === value);
       setFormData((prev) => ({
         ...prev,
         eldSerialNumber: value,
-        eldId: selectedEld?._id || "",   // store _id alongside
+        eldId: selectedEld?._id || "",
       }));
-    } else {
+    } 
+    // License Plate Validation
+    else if (name === "licensePlateNumber") {
+      if (value === "" || ALPHABATES_NUMERIC.test(value)) {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    } 
+    // VIN Number Validation
+    else if (name === "vin") {
+      if (value === "" || VIN_REGEX.test(value)) {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value.toUpperCase(), // always uppercase
+        }));
+      }
+    } 
+    else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
@@ -65,7 +102,7 @@ export const AddVehicles = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Adding new vehicle
-    dispatch(createVehicle(id, formData, navigate));
+    dispatch(createVehicle(companyId, formData, navigate));
   };
 
   return (
@@ -201,6 +238,9 @@ export const AddVehicles = () => {
                       required
                     />
                     <div className="text-muted mt-1">
+                      Must be 17 characters (letters A–Z, digits 0–9, excluding I, O, Q).
+                    </div>
+                    <div className="text-muted mt-1">
                       Please make sure your VIN was entered correctly. Once the
                       vehicle record is created its VIN cannot be changed.
                     </div>
@@ -275,6 +315,9 @@ export const AddVehicles = () => {
                       placeholder="Enter license number"
                       required
                     />
+                    <div className="text-muted mt-1">
+                      Only letters, numbers, spaces, and underscores are allowed.
+                    </div>
                   </Form.Group>
                 </Col>
               </Row>

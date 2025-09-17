@@ -96,30 +96,30 @@ function App() {
 
         {/* Routes using Sidebar + Topbar */}
         <Route element={<Layout2 />}>
-          <Route path="driver-hos/:id" element={<DriversHOSList />} />
+          <Route path="driver-hos/:companyId" element={<DriversHOSList />} />
           {/* <Route path="driver-hos/graph-details/:driverId" element={<GraphDetails />} /> */}
-          <Route path="driver-hos/graph-details/:id/:driverId" element={<GraphDetails />} />
-          <Route path="logs/:id" element={<LogsList />} />
-          <Route path="fmcsa-records/:id" element={<FMCSARecords />} />
-          <Route path="location/:id" element={<Location />} />
-          <Route path="settings/drivers-listing/:id" element={<DriversListing />} />
-          <Route path="settings/drivers-listing/add-driver/:id" element={<AddDriver />} />
-          <Route path="settings/drivers-listing/edit-driver/:id" element={<EditDriver />} />
-          <Route path="settings/eld-devices/:id" element={<ELDDevice />} />
-          <Route path="settings/eld-devices/add-device/:id" element={<AddELDDevice />} />
-          <Route path="settings/eld-devices/edit-device/:id" element={<EditELDDevice />} />
-          <Route path="settings/vehicles-list/:id" element={<VehiclesList />} />
-          <Route path="settings/vehicles-list/add-vehicle/:id" element={<AddVehicles />} />
+          <Route path="driver-hos/graph-details/:companyId/:driverId" element={<GraphDetails />} />
+          <Route path="logs/:companyId" element={<LogsList />} />
+          <Route path="fmcsa-records/:companyId" element={<FMCSARecords />} />
+          <Route path="location/:companyId" element={<Location />} />
+          <Route path="settings/drivers-listing/:companyId" element={<DriversListing />} />
+          <Route path="settings/drivers-listing/add-driver/:companyId" element={<AddDriver />} />
+          <Route path="settings/drivers-listing/edit-driver/:companyId/:id" element={<EditDriver />} />
+          <Route path="settings/eld-devices/:companyId" element={<ELDDevice />} />
+          <Route path="settings/eld-devices/add-device/:companyId" element={<AddELDDevice />} />
+          <Route path="settings/eld-devices/edit-device/:companyId/:id" element={<EditELDDevice />} />
+          <Route path="settings/vehicles-list/:companyId" element={<VehiclesList />} />
+          <Route path="settings/vehicles-list/add-vehicle/:companyId" element={<AddVehicles />} />
           {/* <Route path="settings/vehicles-list/edit-vehicle" element={<EditVehicles />} /> */}
-          <Route path="settings/vehicles-list/edit-vehicle/:id" element={<EditVehicles />} />
+          <Route path="settings/vehicles-list/edit-vehicle/:companyId/:id" element={<EditVehicles />} />
 
-          <Route path="settings/company-info/:id" element={<CompanyInfo />} />
+          <Route path="settings/company-info/:companyId" element={<CompanyInfo />} />
           {/* <Route path="settings/company-info" element={<CompanyInfo />} /> */}
 
-          <Route path="settings/company-info/edit-company-info/:id" element={<EditCompanyInfo />} />
-          <Route path="settings/portal-users/:id" element={<PortalUsers />} />
-          <Route path="settings/portal-users/add-portal-user/:id" element={<AddPortalUser />} />
-          <Route path="settings/portal-users/edit-portal-user/:id" element={<EditPortalUser />} />
+          <Route path="settings/company-info/edit-company-info/:companyId" element={<EditCompanyInfo />} />
+          <Route path="settings/portal-users/:companyId" element={<PortalUsers />} />
+          <Route path="settings/portal-users/add-portal-user/:companyId" element={<AddPortalUser />} />
+          <Route path="settings/portal-users/edit-portal-user/:companyId/:id" element={<EditPortalUser />} />
           {/* <Route path="settings/resources" element={<ResourcesList />} /> */}
         </Route>
       </Routes>

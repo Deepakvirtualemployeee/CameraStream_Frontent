@@ -9,7 +9,7 @@ import { createPortalUser } from "../../../store/actions/portalUsers"; // import
 export const AddPortalUser = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { id } = useParams(); // companyId from route
+  const { companyId } = useParams(); // companyId from route
 
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
@@ -58,11 +58,11 @@ export const AddPortalUser = () => {
     // Prepare payload (include companyId from params)
     const payload = {
       ...formData,
-      companyId: id,
+      companyId: companyId,
     };
     console.log("Payload:", payload);
     // Dispatch action
-    dispatch(createPortalUser(id, payload, navigate));
+    dispatch(createPortalUser(companyId, payload, navigate));
   };
 
   return (

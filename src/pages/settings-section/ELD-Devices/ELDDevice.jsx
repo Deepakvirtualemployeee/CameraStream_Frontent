@@ -14,13 +14,13 @@ export const ELDDevice = () => {
   const dispatch = useDispatch();
   const { eldDevices, loading } = useSelector((state) => state.eldDevices);
 
-  const { id } = useParams(); // Company id from url
+  const { companyId } = useParams(); // Company id from url
 
   useEffect(() => {
-    if (id) {
-      dispatch(fetchEldDevices(id));
+    if (companyId) {
+      dispatch(fetchEldDevices(companyId));
     }
-  }, [dispatch, id]);
+  }, [dispatch, companyId]);
 
   const columns = [
     { name: "ELD SN (MAC)", selector: (row) => `${row.serialNumber} (${row.macAddress || ""})`, sortable: true, minWidth: "300px" },
@@ -49,8 +49,8 @@ export const ELDDevice = () => {
           <span
             className="pointer ms-3"
             title="Edit"
-            onClick={() => navigate(`/settings/eld-devices/edit-device/${row._id}`, {
-              state: { companyId: id },
+            onClick={() => navigate(`/settings/eld-devices/edit-device/${companyId}/${row._id}`, {
+              state: { companyId: companyId },
             })}
           >
             <img src={EditIcon} alt="Edit Icon" />
@@ -95,7 +95,7 @@ export const ELDDevice = () => {
               filters={filters}
               onReset={resetFilters}
             />
-            <Button variant="primary" onClick={() => navigate(`/settings/eld-devices/add-device/${id}`)}>
+            <Button variant="primary" onClick={() => navigate(`/settings/eld-devices/add-device/${companyId}`)}>
               <i className="bi bi-plus-lg fs-16"></i> Add ELD Device
             </Button>
           </div>

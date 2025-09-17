@@ -6,11 +6,13 @@ import "react-phone-input-2/lib/style.css";
 import { useDispatch, useSelector } from "react-redux";
 import { addDriver, getDriversIssuingState } from "../../../store/actions/drivers";
 import { getAssignableVehicles } from "../../../store/actions/vehicles";
+import { ALPHABATES_NUMERIC } from "../../../constants"; // Import regex
+import { getCompanyInfo } from "../../../store/actions/companies";
 
 export const AddDriver = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { id } = useParams(); // Company id
+    const { companyId } = useParams(); // Company id
 
     // const location = useLocation();
     // const { companyId } = location.state || {};  // reading state
@@ -22,6 +24,7 @@ export const AddDriver = () => {
     const { loading, error, success } = useSelector((state) => state.driverAdd || {});
     const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
     const { issuingState, loading: issuingStateLoading } = useSelector((state) => state.drivers);
+    const { company } = useSelector((state) => state.companies);
 
     const togglePassVisibility = () => setPasswordVisible(!passwordVisible);
     const toggleConfirmPassVisibility = () => setconfirmPassVisible(!confirmPassVisible);
@@ -30,7 +33,7 @@ export const AddDriver = () => {
         userName: '',
         firstName: '',
         lastName: '',
-        companyId: id,
+        companyId: companyId,
         email: '',
         phoneNumber: '',
         password: '',
@@ -76,12 +79,30 @@ export const AddDriver = () => {
         restrictDriverFromCreationDateAndTime,
     } = formData;
 
+    // const handleChange = (e) => {
+    //     const { name, value, type, checked } = e.target;
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         [name]: type === 'checkbox' ? checked : value,
+    //     }));
+    // };
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
+
+        if (name === "licenseNumber") {
+            if (value === "" || ALPHABATES_NUMERIC.test(value)) {
+                setFormData((prev) => ({
+                    ...prev,
+                    [name]: value,
+                }));
+            }
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: type === "checkbox" ? checked : value,
+            }));
+        }
     };
 
     const handlePhoneChange = (value) => {
@@ -98,22 +119,27 @@ export const AddDriver = () => {
             return;
         }
         console.log("Add driver data:", formData);
-        dispatch(addDriver(id, formData, navigate));
+        dispatch(addDriver(companyId, formData, navigate));
     };
+
+    // Get company address for home terminal
+    useEffect(() => {
+        dispatch(getCompanyInfo(companyId));
+    }, [dispatch]);
 
     // Fetch issuing state
     useEffect(() => {
-        if (id) {
-            dispatch(getDriversIssuingState(id));
+        if (companyId) {
+            dispatch(getDriversIssuingState(companyId));
         }
-    }, [id, dispatch]);
+    }, [companyId, dispatch]);
 
     // Fetch Assignable Vehicles
     useEffect(() => {
-        if (id) {
-            dispatch(getAssignableVehicles(id));
+        if (companyId) {
+            dispatch(getAssignableVehicles(companyId));
         }
-    }, [id, dispatch]);
+    }, [companyId, dispatch]);
 
     useEffect(() => {
         if (success) {
@@ -152,7 +178,12 @@ export const AddDriver = () => {
                                             placeholder="Enter username"
                                             autoComplete='off'
                                             required
+                                            pattern="^[A-Za-z0-9]{4,}$"
+                                            title="Username must be at least 4 characters long and contain only letters and numbers."
                                         />
+                                        <div className="text-muted mt-1">
+                                            Username must be at least 4 characters long and contain only letters and numbers.
+                                        </div>
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6}>
@@ -315,6 +346,9 @@ export const AddDriver = () => {
                                             autoComplete='off'
                                             required
                                         />
+                                        <div className="text-muted mt-1">
+                                            Only letters, numbers, spaces, and underscores are allowed.
+                                        </div>
                                     </Form.Group>
                                 </Col>
                             </Row>
@@ -323,15 +357,18 @@ export const AddDriver = () => {
                             <div className="main-heading mb-3">Carrier Settings</div>
                             <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
                                 <Form.Group className="mb-3" controlId="HomeTerminal">
-                                    <Form.Label>Home Terminal<span className="text-danger">*</span></Form.Label>
+                                    <Form.Label>Home Terminal
+                                        {/* <span className="text-danger">*</span> */}
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="homeTerminal"
-                                        value={formData.homeTerminal}
+                                        value={company?.address || formData.homeTerminal || "New York US"}
                                         onChange={handleChange}
                                         placeholder="Enter home terminal"
                                         autoComplete='off'
-                                        required
+                                        // required
+                                        disabled
                                     />
                                 </Form.Group>
                                 {/* <Form.Group className="mb-3" controlId="AssignVehicles">
@@ -386,7 +423,7 @@ export const AddDriver = () => {
                                 <Form.Group className="mb-3" controlId="HOSRules">
                                     <Form.Label>HOS Rules
                                         {/* <span className="text-danger">*</span> */}
-                                        </Form.Label>
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="hosRules"
@@ -401,7 +438,7 @@ export const AddDriver = () => {
                                 <Form.Group className="mb-3" controlId="CargoType">
                                     <Form.Label>Cargo Type
                                         {/* <span className="text-danger">*</span> */}
-                                        </Form.Label>
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="cargoType"
@@ -429,7 +466,7 @@ export const AddDriver = () => {
                                 <Form.Group className="mb-3" controlId="Restart">
                                     <Form.Label>Restart
                                         {/* <span className="text-danger">*</span> */}
-                                        </Form.Label>
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="restart"
@@ -444,7 +481,7 @@ export const AddDriver = () => {
                                 <Form.Group className="mb-3" controlId="RestBreak">
                                     <Form.Label>Rest Break
                                         {/* <span className="text-danger">*</span> */}
-                                        </Form.Label>
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="restBreak"

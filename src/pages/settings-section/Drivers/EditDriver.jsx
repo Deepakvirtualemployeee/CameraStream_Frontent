@@ -7,12 +7,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDriverById, updateDriver, getCoDrivers, getDriversIssuingState, deleteDriver, deactivateDriver, activateDriver } from "../../../store/actions/drivers";
 import { getAssignableVehicles } from "../../../store/actions/vehicles";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
+import { ALPHABATES_NUMERIC } from "../../../constants";
+import { getCompanyInfo } from "../../../store/actions/companies";
 
 export const EditDriver = () => {
     const navigate = useNavigate();
-    const { id } = useParams(); // driver id
-    const location = useLocation();
-    const { companyId } = location.state || {};
+    const { companyId, id } = useParams(); // driver id
+    // const location = useLocation();
+    // const { companyId } = location.state || {};
     const dispatch = useDispatch();
 
     //   const { driver, loading } = useSelector((state) => state.drivers);
@@ -22,7 +24,9 @@ export const EditDriver = () => {
     const { coDrivers, loading: coDriversLoading } = useSelector((state) => state.drivers);
     const { issuingState, loading: issuingStateLoading } = useSelector((state) => state.drivers);
     const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
+    const { company, loading, error } = useSelector((state) => state.companies);
 
+    // console.log("Address:", company);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPassVisible, setConfirmPassVisible] = useState(false);
     const [showDelete, setShowDelete] = useState(false); // new
@@ -78,6 +82,11 @@ export const EditDriver = () => {
 
         setCoDriverOptions(merged);
     }, [driver, coDrivers]);
+
+    // Get company address for home terminal
+    useEffect(() => {
+        dispatch(getCompanyInfo(companyId));
+    }, [dispatch]);
 
     const togglePassVisibility = () => setPasswordVisible(!passwordVisible);
     const toggleConfirmPassVisibility = () =>
@@ -187,8 +196,29 @@ export const EditDriver = () => {
 
     }, [driver]);
 
+    // const handleChange = (e) => {
+    //     const { name, value, type, checked } = e.target;
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         [name]: type === "checkbox" ? checked : value,
+    //     }));
+    // };
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
+
+        // Validate license number: only letters, numbers, space and underscore
+        if (name === "licenseNumber") {
+            if (value === "" || ALPHABATES_NUMERIC.test(value)) {
+                setFormData((prev) => ({
+                    ...prev,
+                    [name]: value,
+                }));
+            }
+            return;
+        }
+
+        // Normal handling for other fields (including checkboxes)
         setFormData((prev) => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value,
@@ -370,7 +400,12 @@ export const EditDriver = () => {
                                             placeholder="Enter username"
                                             autoComplete='off'
                                             required
+                                            pattern="^[A-Za-z0-9]{4,}$"
+                                            title="Username must be at least 4 characters long and contain only letters and numbers."
                                         />
+                                        <div className="text-muted mt-1">
+                                            Username must be at least 4 characters long and contain only letters and numbers.
+                                        </div>
                                     </Form.Group>
                                 </Col>
                                 <Col sm={6}>
@@ -531,6 +566,9 @@ export const EditDriver = () => {
                                             autoComplete='off'
                                             required
                                         />
+                                        <div className="text-muted mt-1">
+                                            Only letters, numbers, spaces, and underscores are allowed.
+                                        </div>
                                     </Form.Group>
                                 </Col>
                             </Row>
@@ -540,15 +578,18 @@ export const EditDriver = () => {
                             <div className="main-heading mb-3">Carrier Settings</div>
                             <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
                                 <Form.Group className="mb-3" controlId="HomeTerminal">
-                                    <Form.Label>Home Terminal<span className="text-danger">*</span></Form.Label>
+                                    <Form.Label>Home Terminal
+                                        {/* <span className="text-danger">*</span> */}
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="homeTerminal"
-                                        value={formData.homeTerminal}
+                                        value={company?.address || formData.homeTerminal || "New York US"}
                                         onChange={handleChange}
                                         placeholder="Enter home terminal"
                                         autoComplete='off'
-                                        required
+                                        // required
+                                        disabled
                                     />
                                 </Form.Group>
                                 {/* <Form.Group className="mb-3" controlId="AssignVehicles">
@@ -713,7 +754,7 @@ export const EditDriver = () => {
                                 <Form.Group className="mb-3" controlId="HOSRules">
                                     <Form.Label>HOS Rules
                                         {/* <span className="text-danger">*</span> */}
-                                        </Form.Label>
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="hosRules"
@@ -728,7 +769,7 @@ export const EditDriver = () => {
                                 <Form.Group className="mb-3" controlId="CargoType">
                                     <Form.Label>Cargo Type
                                         {/* <span className="text-danger">*</span> */}
-                                        </Form.Label>
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="cargoType"
@@ -755,7 +796,7 @@ export const EditDriver = () => {
                                 <Form.Group className="mb-3" controlId="Restart">
                                     <Form.Label>Restart
                                         {/* <span className="text-danger">*</span> */}
-                                        </Form.Label>
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="restart"
@@ -770,7 +811,7 @@ export const EditDriver = () => {
                                 <Form.Group className="mb-3" controlId="RestBreak">
                                     <Form.Label>Rest Break
                                         {/* <span className="text-danger">*</span> */}
-                                        </Form.Label>
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="restBreak"

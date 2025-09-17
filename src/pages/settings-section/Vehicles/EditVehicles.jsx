@@ -11,17 +11,17 @@ import {
   deleteVehicle,   // import delete action
 } from "../../../store/actions/vehicles";
 import { getDriversIssuingState } from "../../../store/actions/drivers";
-import { FUELTYPE, MAKE, VEHICLE_MODEL_OPTIONS } from "../../../constants";
+import { FUELTYPE, MAKE, VEHICLE_MODEL_OPTIONS, ALPHABATES_NUMERIC, VIN_REGEX } from "../../../constants";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
 
 export const EditVehicles = () => {
-  const { id } = useParams(); // vehicle id from URL
+  const { companyId, id } = useParams(); // vehicle id from URL
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const location = useLocation();
-  const { companyId } = location.state || {}; // reading state
+  // const location = useLocation();
+  // const { companyId } = location.state || {}; // reading state
   console.log("Company Id:", companyId);
   console.log("Vehicle Id:", id);
 
@@ -111,8 +111,28 @@ export const EditVehicles = () => {
   }, [vehicle, unassignedElds]);
 
 
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   if (name === "eldSerialNumber") {
+  //     const selectedEld = unassignedElds.find(
+  //       (eld) => eld.serialNumber === value
+  //     );
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       eldSerialNumber: value,
+  //       eldId: selectedEld?._id || "", // assign eldId
+  //     }));
+  //   } else {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       [name]: value,
+  //     }));
+  //   }
+  // };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "eldSerialNumber") {
       const selectedEld = unassignedElds.find(
         (eld) => eld.serialNumber === value
@@ -122,7 +142,26 @@ export const EditVehicles = () => {
         eldSerialNumber: value,
         eldId: selectedEld?._id || "", // assign eldId
       }));
-    } else {
+    }
+    // License Plate Validation
+    else if (name === "licensePlateNumber") {
+      if (value === "" || ALPHABATES_NUMERIC.test(value)) {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    }
+    // VIN Validation
+    else if (name === "vin") {
+      if (value === "" || VIN_REGEX.test(value)) {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value.toUpperCase(), // always uppercase
+        }));
+      }
+    }
+    else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
@@ -365,6 +404,9 @@ export const EditVehicles = () => {
                       required
                     />
                     <div className="text-muted mt-1">
+                      Must be 17 characters (A–Z, 0–9, excluding I, O, Q).
+                    </div>
+                    <div className="text-muted mt-1">
                       Please make sure your VIN was entered correctly. Once the
                       vehicle record is created its VIN cannot be changed.
                     </div>
@@ -436,6 +478,9 @@ export const EditVehicles = () => {
                       onChange={handleChange}
                       required
                     />
+                    <div className="text-muted mt-1">
+                      Only letters, numbers, spaces, and underscores are allowed.
+                    </div>
                   </Form.Group>
                 </Col>
               </Row>

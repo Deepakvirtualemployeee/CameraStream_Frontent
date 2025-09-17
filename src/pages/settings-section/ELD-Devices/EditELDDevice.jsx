@@ -12,12 +12,14 @@ import {
 } from "../../../store/actions/eldDevices";
 import { getAssignableVehiclesForEld } from "../../../store/actions/vehicles";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
+import { VALIDATE_MAC_ADDRESS, SERIAL_NUMBER_REGEX } from "../../../constants";
+import { toast } from "react-toastify";
 
 export const EditELDDevice = () => {
-    const { id } = useParams(); // eld id from URL
+    const { companyId, id } = useParams(); // eld id from URL
     const navigate = useNavigate();
     const location = useLocation();
-    const { companyId } = location.state || {};
+    // const { companyId } = location.state || {};
     const dispatch = useDispatch();
 
     const { eldDevice, loading } = useSelector((state) => state.eldDevices);
@@ -128,9 +130,37 @@ export const EditELDDevice = () => {
         }
     };
 
+    // const handleSubmit = (e) => {
+    //     e.preventDefault();
+    //     const macAddress = formData.mac.join(":");
+    //     const finalData = {
+    //         serialNumber: formData.serialNumber,
+    //         macAddress,
+    //         eldModel: formData.eldModel,
+    //         vehicle: formData.vehicle,
+    //         assignedVehicleId: formData.vehicle || null,  // vehicle _id
+    //         firmwareVersion: formData.firmwareVersion,
+    //         companyId: companyId,
+    //     };
+    //     dispatch(updateEldDevice(companyId, id, finalData, navigate));
+    // };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const macAddress = formData.mac.join(":");
+
+        // Validate MAC format
+        if (!VALIDATE_MAC_ADDRESS.test(macAddress)) {
+            toast.error("Invalid MAC Address. Please enter a valid format (e.g., AA:BB:CC:DD:EE:FF)");
+            return;
+        }
+
+        // Validate Serial Number
+        if (!SERIAL_NUMBER_REGEX.test(formData.serialNumber)) {
+            toast.error("Invalid Serial Number. Must be alphanumeric and less than 12 characters.");
+            return;
+        }
+
         const finalData = {
             serialNumber: formData.serialNumber,
             macAddress,
@@ -140,6 +170,7 @@ export const EditELDDevice = () => {
             firmwareVersion: formData.firmwareVersion,
             companyId: companyId,
         };
+
         dispatch(updateEldDevice(companyId, id, finalData, navigate));
     };
 
@@ -256,7 +287,7 @@ export const EditELDDevice = () => {
                                         <Form.Label>
                                             ELD SN (Serial Number)<span className="text-danger">*</span>
                                         </Form.Label>
-                                        <Form.Control
+                                        {/* <Form.Control
                                             type="text"
                                             name="serialNumber"
                                             value={formData.serialNumber}
@@ -264,7 +295,32 @@ export const EditELDDevice = () => {
                                             placeholder="Enter Serial Number"
                                             autoComplete="off"
                                             required
+                                        /> */}
+                                        <Form.Control
+                                            type="text"
+                                            name="serialNumber"
+                                            value={formData.serialNumber}
+                                            onChange={(e) => {
+                                                let value = e.target.value;
+
+                                                // Allow only alphanumeric characters
+                                                value = value.replace(/[^A-Za-z0-9]/g, "");
+
+                                                // Limit to 12 characters
+                                                if (value.length <= 12) {
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        serialNumber: value,
+                                                    }));
+                                                }
+                                            }}
+                                            placeholder="Enter Serial Number"
+                                            autoComplete="off"
+                                            required
                                         />
+                                        <div className="text-muted mt-1">
+                                            Serial Number must be alphanumeric and less than 12 characters.
+                                        </div>
                                         <div className="text-muted mt-1">
                                             Please make sure ELD SN was entered correctly. Once created it cannot be changed.
                                         </div>
@@ -310,7 +366,7 @@ export const EditELDDevice = () => {
                                                 Select ELD Model
                                             </option>
                                             <option value="PT30">PT30</option>
-                                            <option value="PT30U">PT30U</option>
+                                            {/* <option value="PT30U">PT30U</option> */}
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
@@ -352,15 +408,17 @@ export const EditELDDevice = () => {
                             <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
                                 <Form.Group controlId="firmwareVersion">
                                     <Form.Label>
-                                        Select Firmware Version<span className="text-danger">*</span>
+                                        Select Firmware Version
+                                        {/* <span className="text-danger">*</span> */}
                                     </Form.Label>
                                     <Form.Select
                                         name="firmwareVersion"
                                         // value={formData.firmwareVersion}
-                                        value={formData.firmwareVersion || ""} // fallback to "" if null/undefined
+                                        value={formData.firmwareVersion || "v1.0.0"} // fallback to "" if null/undefined
 
                                         onChange={handleChange}
-                                    // required
+                                        // required
+                                        disabled
                                     >
                                         <option value="">
                                             Select Firmware

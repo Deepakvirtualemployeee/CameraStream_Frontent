@@ -14,7 +14,7 @@ export const DriversHOSList = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const { id } = useParams(); // company id from URL
+    const { companyId } = useParams(); // company id from URL
 
     // Redux state
     const { driversHOS, loading, error } = useSelector((state) => state.driversHOS);
@@ -22,7 +22,7 @@ export const DriversHOSList = () => {
     console.log(driversHOS);
 
     useEffect(() => {
-        dispatch(getDriversHOS(id));
+        dispatch(getDriversHOS(companyId));
     }, [dispatch]);
 
     // Convert seconds → HH:mm format
@@ -76,7 +76,7 @@ export const DriversHOSList = () => {
                     onClick={() =>
                         window.open(
                             // `/driver-hos/graph-details/${row.driverId}?companyId=${row.companyId || id}`,
-                            `/driver-hos/graph-details/${row.companyId || id}/${row.driverId}`,
+                            `/driver-hos/graph-details/${row.companyId || companyId}/${row.driverId}`,
                             '_blank' // opens in new tab
                         )
                     }
@@ -182,8 +182,8 @@ export const DriversHOSList = () => {
                 <div
                     className="d-flex align-items-center gap-2 ms-2 pointer"
                     onClick={() =>
-                        navigate(`/driver-hos/graph-details/${row.companyId || id}/${row.driverId}`, {
-                            state: { driver: row, companyId: row.companyId || id },
+                        navigate(`/driver-hos/graph-details/${row.companyId || companyId}/${row.driverId}`, {
+                            state: { driver: row, companyId: row.companyId || companyId },
                         })
                     }
                 >
