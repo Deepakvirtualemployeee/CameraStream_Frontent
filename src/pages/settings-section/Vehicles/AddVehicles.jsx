@@ -6,6 +6,7 @@ import { createVehicle } from "../../../store/actions/vehicles";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
 import { FUELTYPE, MAKE, VEHICLE_MODEL_OPTIONS, ALPHABATES_NUMERIC, VIN_REGEX } from "../../../constants";
 import { getDriversIssuingState } from "../../../store/actions/drivers";
+import { toast } from "react-toastify";
 
 export const AddVehicles = () => {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export const AddVehicles = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-  
+
     if (name === "eldSerialNumber") {
       const selectedEld = unassignedElds.find((eld) => eld.serialNumber === value);
       setFormData((prev) => ({
@@ -72,7 +73,7 @@ export const AddVehicles = () => {
         eldSerialNumber: value,
         eldId: selectedEld?._id || "",
       }));
-    } 
+    }
     // License Plate Validation
     else if (name === "licensePlateNumber") {
       if (value === "" || ALPHABATES_NUMERIC.test(value)) {
@@ -81,16 +82,27 @@ export const AddVehicles = () => {
           [name]: value,
         }));
       }
-    } 
+    }
     // VIN Number Validation
+    // else if (name === "vin") {
+    //   if (value === "" || VIN_REGEX.test(value)) {
+    //     setFormData((prev) => ({
+    //       ...prev,
+    //       [name]: value.toUpperCase(), // always uppercase
+    //     }));
+    //   }
+    // }
     else if (name === "vin") {
-      if (value === "" || VIN_REGEX.test(value)) {
+      // Allow only valid VIN chars while typing
+      const cleaned = value.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, "");
+      if (cleaned.length <= 17) {
         setFormData((prev) => ({
           ...prev,
-          [name]: value.toUpperCase(), // always uppercase
+          [name]: cleaned,
         }));
       }
-    } 
+    }
+
     else {
       setFormData((prev) => ({
         ...prev,
@@ -99,11 +111,23 @@ export const AddVehicles = () => {
     }
   };
 
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   // Adding new vehicle
+  //   dispatch(createVehicle(companyId, formData, navigate));
+  // };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!VIN_REGEX.test(formData.vin)) {
+      toast.error("VIN must be exactly 17 characters (A–Z, 0–9, excluding I, O, Q).");
+      return;
+    }
     // Adding new vehicle
     dispatch(createVehicle(companyId, formData, navigate));
   };
+
 
   return (
     <div className="AddVehicles-page py-3">
@@ -331,7 +355,7 @@ export const AddVehicles = () => {
                     name="eldSerialNumber"
                     value={formData.eldSerialNumber}
                     onChange={handleChange}
-                    required
+                  // required
                   >
                     <option value="">Select ELD</option>
                     {loadings ? (

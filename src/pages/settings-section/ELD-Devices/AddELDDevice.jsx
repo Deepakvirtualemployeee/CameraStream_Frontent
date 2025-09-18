@@ -245,7 +245,7 @@ export const AddELDDevice = () => {
                         // Optionally include vehicleNumber: selectedVehicle?.vehicleNumber
                       }));
                     }}
-                    required
+                    // required
                   >
                     <option value="">Select Vehicle</option>
                     {vehiclesLoading && <option>Loading...</option>}

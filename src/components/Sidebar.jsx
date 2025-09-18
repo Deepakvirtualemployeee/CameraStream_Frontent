@@ -26,7 +26,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
     return (
         <aside className={`sidebar d-flex flex-column ${collapsed ? 'collapsed' : ''} py-2`}>
             <div className="logo-wrapper d-flex align-items-center gap-1 p-2">
-                <Link to={'/'} className='sidebar-logo text-decoration-none ms-1'>
+                <Link to={`/location/${companyId}`} className='sidebar-logo text-decoration-none ms-1'>
                     <img className="img-fluid" src={require('../assets/images/sidebar-logo.png')} alt="Logo" style={{ width: '55px' }} />
                 </Link>
             </div>

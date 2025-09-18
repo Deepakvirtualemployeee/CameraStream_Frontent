@@ -8,7 +8,7 @@ export const ALPHABATES_NUMERIC_SPECIAL = /^[ A-Za-z0-9_@./#&+-]*$/;
 export const ALPHABATES_NUMERIC = /^[A-Za-z0-9 _]*[A-Za-z0-9][A-Za-z0-9 _]*$/;
 export const ALPHABATES_NUMERIC_SPECIAL_CHARACTERS = /^[ A-Za-z0-9_@./#&+-]*$/;
 
-export const VIN_REGEX = /^[A-HJ-NPR-Z0-9]{0,17}$/; 
+export const VIN_REGEX = /^[A-HJ-NPR-Z0-9]{17}$/; 
 export const USERNAME_REGEX = /^[A-Za-z0-9]{4,}$/; 
 export const SERIAL_NUMBER_REGEX = /^[A-Za-z0-9]{1,12}$/;
 

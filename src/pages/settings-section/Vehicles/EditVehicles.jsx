@@ -401,7 +401,8 @@ export const EditVehicles = () => {
                       name="vin"
                       value={formData.vin}
                       onChange={handleChange}
-                      required
+                      // required
+                      disabled
                     />
                     <div className="text-muted mt-1">
                       Must be 17 characters (A–Z, 0–9, excluding I, O, Q).

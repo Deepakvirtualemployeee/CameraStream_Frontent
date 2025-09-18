@@ -13,8 +13,11 @@ const LogIn = ({ login, openSnackbar }) => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
+        const companyId = '68abf63b4339ffbf3ec7c695'; // Using as default company id for all users
+
         if (token) {
-            navigate('/companies-list');
+            // navigate('/companies-list');
+            navigate(`/location/${companyId}`);
         }
     }, []);
 

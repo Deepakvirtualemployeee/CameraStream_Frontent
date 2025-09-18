@@ -54,7 +54,7 @@ export const DriversListing = () => {
     },
     {
       name: 'HOS Rules',
-      selector: (row) => row.hosRules,
+      selector: (row) => row.hosRules || "USA 70 Hour / 8 Day",
       sortable: true,
       minWidth: '160px',
     },

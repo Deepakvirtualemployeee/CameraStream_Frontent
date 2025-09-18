@@ -42,7 +42,7 @@ export const AddDriver = () => {
         licenseNumber: '',
         homeTerminal: '',
         // assignVehicles: '',
-        assignedVehicleId: '',
+        assignedVehicleId: null,
         hosRules: '',
         cargoType: '',
         restart: '',
@@ -403,7 +403,7 @@ export const AddDriver = () => {
                                                 // vehicleNumber: selectedVehicle ? selectedVehicle.vehicleNumber : ""
                                             }));
                                         }}
-                                        required
+                                        // required
                                     >
                                         <option value="">Select a vehicle</option>
                                         {vehiclesLoading && <option>Loading...</option>}

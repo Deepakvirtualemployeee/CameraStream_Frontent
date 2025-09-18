@@ -34,8 +34,11 @@ export const login = (data, navigate) => {
     axios.post("/auth/login", data)
       .then(async response => {
         if (response.status === 200) {
+          const user = response.data.data.user;   // user details
+
           await dispatch(AuthSuccess(response.data.message));
           await localStorage.setItem("token", response.data.accessToken);
+          localStorage.setItem("admin_user", JSON.stringify(user)); // store user in localStorage
           window.location = await '/';
         } else {
           dispatch(AuthFail(response.data.message));
