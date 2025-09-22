@@ -12,12 +12,13 @@ import EditIcon from '../../../assets/images/icons/edit.svg';
 import ExternalIcon from '../../../assets/images/icons/external.svg';
 import TrashIcon from '../../../assets/images/icons/trash.svg';
 import LogChart from "./LogChart";
-import { getDriverData, getDriverLogs, getMobileSettings } from '../../../store/actions/driverHOS';
+import { getDriverData, getDriverLogs, getMobileSettings, getProcessedDriverData } from '../../../store/actions/driverHOS';
 import moment from "moment-timezone";
 
 export const GraphDetails = () => {
     // State for showing phone
     const [showPhone, setShowPhone] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     // Get params
     let { companyId, driverId } = useParams();
@@ -34,24 +35,42 @@ export const GraphDetails = () => {
     const dispatch = useDispatch();
 
     const [selectedDate, setSelectedDate] = useState(new Date());
+    console.log("selectedDate", selectedDate);
     // const [logsEnabled, setLogsEnabled] = useState(false);
 
     const navigate = useNavigate();
 
     // Redux state
-    const { driverData, driverLogs, driverSettings, loading, error } = useSelector((state) => state.driversHOS);
+    const { driverData, driverLogs, driverSettings, driverProcessedData, loading, error } = useSelector((state) => state.driversHOS);
 
     console.log("driverData", driverData);
-    console.log("driverLogs", driverLogs);
+    // console.log("driverLogs", driverLogs);
     console.log("driverSettings", driverSettings);
+    console.log("processedDriverData", driverProcessedData);
 
-    useEffect(() => {
-        if (driverId) {
-            dispatch(getDriverData(driverId));
-            dispatch(getDriverLogs(driverId));
-            dispatch(getMobileSettings(driverId));
-        }
-    }, [dispatch, driverId, companyId]);
+    // useEffect(() => {
+    //     if (driverId) {
+    //         dispatch(getDriverData(driverId));
+    //         dispatch(getDriverLogs(driverId, formattedDate));
+    //         dispatch(getMobileSettings(driverId));
+    //         dispatch(getProcessedDriverData(driverId));
+    //     }
+    // }, [dispatch, driverId, companyId]);
+
+    // Utility: format date as YYYY-MM-DD in driver’s timezone
+const formatDate = (date, tz = driverSettings?.timeZone || "America/Los_Angeles") => {
+    return moment(date).tz(tz).format("YYYY-MM-DD");
+  };
+    // --- useEffect to fetch logs whenever selectedDate changes ---
+useEffect(() => {
+    if (driverId && selectedDate) {
+      const formattedDate = formatDate(selectedDate);
+      dispatch(getDriverData(driverId));
+      dispatch(getDriverLogs(driverId, formattedDate));
+      dispatch(getMobileSettings(driverId));
+      dispatch(getProcessedDriverData(driverId));
+    }
+  }, [dispatch, driverId, companyId, selectedDate]);
 
     const handlePrevDay = () => {
         setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
@@ -74,11 +93,22 @@ export const GraphDetails = () => {
     //     });
     // };
 
+    // Format date for driver logs
+    // const formattedDate = moment(selectedDate).format("YYYY-MM-DD");
+    // console.log("formattedDate", formattedDate); // 2025-09-18
+    
     /** Filter logs by selected date */
     // Utility: format date (YYYY-MM-DD)
-    const formatDate = (date) => {
-        return new Date(date).toISOString().split("T")[0];
-    };
+    // const formatDate = (date) => {
+    //     return new Date(date).toISOString().split("T")[0];
+    // };
+    // Utility: format date (YYYY-MM-DD)
+// const formatDate = (date) => {
+//     return moment(date).format("YYYY-MM-DD");  // <-- using moment
+//   };
+  
+  console.log("driverLogs", driverLogs);
+
 
     // Filter logs based on selected date
     const filteredLogs = driverLogs?.filter(
@@ -103,18 +133,49 @@ export const GraphDetails = () => {
             .padStart(2, "0")}`;
     };
 
+    // const breakTimeLeft = formatSecondsToHHMM(
+    //     (driverData.breakTime?.limitTime || 0) - (driverData.breakTime?.accumulatedTime || 0)
+    // );
+    // const driveTimeLeft = formatSecondsToHHMM(
+    //     (driverData.driveTime?.limitTime || 0) - (driverData.driveTime?.accumulatedTime || 0)
+    // );
+    // const shiftTimeLeft = formatSecondsToHHMM(
+    //     (driverData.shiftTime?.limitTime || 0) - (driverData.shiftTime?.accumulatedTime || 0)
+    // );
+    // const cycleTimeLeft = formatSecondsToHHMM(
+    //     (driverData.cycleTime?.limitTime || 0) - (driverData.cycleTime?.accumulatedTime || 0)
+    // );
+
+    // Circle values now use driverProcessedData
     const breakTimeLeft = formatSecondsToHHMM(
-        (driverData.breakTime?.limitTime || 0) - (driverData.breakTime?.accumulatedTime || 0)
+        (driverProcessedData?.breakTime?.limitTime || 0) -
+        (driverProcessedData?.breakTime?.accumulatedTime || 0)
     );
+
     const driveTimeLeft = formatSecondsToHHMM(
-        (driverData.driveTime?.limitTime || 0) - (driverData.driveTime?.accumulatedTime || 0)
+        (driverProcessedData?.driveTime?.limitTime || 0) -
+        (driverProcessedData?.driveTime?.accumulatedTime || 0)
     );
+
     const shiftTimeLeft = formatSecondsToHHMM(
-        (driverData.shiftTime?.limitTime || 0) - (driverData.shiftTime?.accumulatedTime || 0)
+        (driverProcessedData?.shiftTime?.limitTime || 0) -
+        (driverProcessedData?.shiftTime?.accumulatedTime || 0)
     );
+
     const cycleTimeLeft = formatSecondsToHHMM(
-        (driverData.cycleTime?.limitTime || 0) - (driverData.cycleTime?.accumulatedTime || 0)
+        (driverProcessedData?.cycleTime?.limitTime || 0) -
+        (driverProcessedData?.cycleTime?.accumulatedTime || 0)
     );
+
+    // Handle refresh button click
+    const handleRefreshProcessedData = async () => {
+        if (driverId) {
+            setRefreshing(true);
+            await dispatch(getProcessedDriverData(driverId));
+            setRefreshing(false);
+        }
+    };
+
     const columns = [
         {
             name: '#',
@@ -475,70 +536,196 @@ export const GraphDetails = () => {
     //     .filter(Boolean);
 
 
-    const tableData = filteredLogs
-        ?.flatMap((log) =>
-            log.hosEvents.map((event, index) => {
-                const nextEvent = log.hosEvents[index + 1];
-                // const nextEvent = events[index + 1];
-                let duration = "--";
+    // const tableData = driverLogs
+    //     ?.flatMap((log) =>
+    //         log.hosEvents.map((event, index) => {
+    //             const nextEvent = log.hosEvents[index + 1];
+    //             // const nextEvent = events[index + 1];
+    //             let duration = "--";
 
-                if (
-                    nextEvent &&
-                    allowedEventCodes.includes(event?.eventCode) &&
-                    allowedEventCodes.includes(nextEvent?.eventCode)
-                ) {
-                    const startTime = event?.eventDateTime
-                        ? new Date(event.eventDateTime).getTime()
-                        : null;
-                    const endTime = nextEvent?.eventDateTime
-                        ? new Date(nextEvent.eventDateTime).getTime()
-                        : null;
+    //             if (
+    //                 nextEvent &&
+    //                 allowedEventCodes.includes(event?.eventCode) &&
+    //                 allowedEventCodes.includes(nextEvent?.eventCode)
+    //             ) {
+    //                 const startTime = event?.eventDateTime
+    //                     ? new Date(event.eventDateTime).getTime()
+    //                     : null;
+    //                 const endTime = nextEvent?.eventDateTime
+    //                     ? new Date(nextEvent.eventDateTime).getTime()
+    //                     : null;
 
-                    if (startTime !== null && endTime !== null && !isNaN(startTime) && !isNaN(endTime)) {
-                        const diff = endTime - startTime;
-                        duration = formatDuration(diff >= 0 ? diff : 0);
-                    }
-                }
+    //                 if (startTime !== null && endTime !== null && !isNaN(startTime) && !isNaN(endTime)) {
+    //                     const diff = endTime - startTime;
+    //                     duration = formatDuration(diff >= 0 ? diff : 0);
+    //                 }
+    //             }
 
-                return {
-                    id: String(index + 1).padStart(2, "0"),
-                    eventCode: event.eventCode, // add this line to apply the color codes
-                    status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
-                    //   status: (
-                    //     <span
-                    //       className={`fw-bold ${
-                    //         event?.eventCode === "DS_ON" || event?.eventCode === "DS_D"
-                    //           ? "text-success"
-                    //           : "text-muted"
-                    //       }`}
-                    //     >
-                    //       {event.eventName}
-                    //     </span>
-                    //   ),
-                    //   location: event.location || "--",
-                    start_PDT: event.eventDateTime
-                        ? moment(event.eventDateTime)
-                            .tz(driverSettings?.timeZone || "America/Los_Angeles") // driver’s timezone
-                            .format("MMM DD, YYYY hh:mm:ss A")
-                        : "--",
-                    duration,
-                    location: event.manualLocation || event.calculatedLocation || "Unknown",
-                    vehicle: event.vehicle?.vehicleNumber || "--",
-                    odometer: event.odometer || "--",
-                    engine_hours: event.engineHours || "--",
-                    origin: event.origin || "--",
-                    trailers: event.trailers?.length ? event.trailers.join(", ") : "",
-                    shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
-                    notes: event.notes?.length ? event.notes.join(", ") : "",
-                };
-            }));
+    //             return {
+    //                 id: String(index + 1).padStart(2, "0"),
+    //                 eventCode: event.eventCode, // add this line to apply the color codes
+    //                 status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
+    //                 //   status: (
+    //                 //     <span
+    //                 //       className={`fw-bold ${
+    //                 //         event?.eventCode === "DS_ON" || event?.eventCode === "DS_D"
+    //                 //           ? "text-success"
+    //                 //           : "text-muted"
+    //                 //       }`}
+    //                 //     >
+    //                 //       {event.eventName}
+    //                 //     </span>
+    //                 //   ),
+    //                 //   location: event.location || "--",
+    //                 start_PDT: event.eventDateTime
+    //                     ? moment(event.eventDateTime)
+    //                         .tz(driverSettings?.timeZone || "America/Los_Angeles") // driver’s timezone
+    //                         .format("MMM DD, YYYY hh:mm:ss A")
+    //                     : "--",
+    //                 duration,
+    //                 location: event.manualLocation || event.calculatedLocation || "Unknown",
+    //                 vehicle: event.vehicle?.vehicleNumber || "--",
+    //                 odometer: event.odometer || "--",
+    //                 engine_hours: event.engineHours || "--",
+    //                 origin: event.origin || "--",
+    //                 trailers: event.trailers?.length ? event.trailers.join(", ") : "",
+    //                 shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
+    //                 notes: event.notes?.length ? event.notes.join(", ") : "",
+    //             };
+    //         }));
+
+//     const tableData = driverLogs
+//   ?.flatMap((log) =>
+//     log.hosEvents.map((event, index) => {
+//       const nextEvent = log.hosEvents[index + 1];
+//       let duration = "--";
+
+//       // driver timezone
+//       const tz = driverSettings?.timeZone || "America/Los_Angeles";
+
+//       if (allowedEventCodes.includes(event?.eventCode)) {
+//         const eventTime = event?.eventDateTime
+//           ? moment.tz(event.eventDateTime, tz)
+//           : null;
+
+//         if (eventTime) {
+//         //   if (index === 0 && nextEvent) {
+//         //     // First event: duration = nextEvent.startTime - midnight
+//         //     const midnight = eventTime.clone().startOf("day");
+//         //     const nextTime = moment.tz(nextEvent.eventDateTime, tz);
+//         //     const diff = nextTime.diff(midnight);
+//         //     duration = formatDuration(diff >= 0 ? diff : 0);
+//         //     console.log("midnight:", midnight, "duration:", duration, "nexttime:", nextTime)
+//         //   } 
+
+//         if (index === 0 && nextEvent) {
+//             // Take the date of the first event, but reset to midnight in driver TZ
+//             const midnight = moment.tz(log.date || eventTime, tz).startOf("day");
+          
+//             const nextTime = moment.tz(nextEvent.eventDateTime, tz);
+          
+//             const diff = nextTime.diff(midnight);
+//             duration = formatDuration(diff >= 0 ? diff : 0);
+          
+//             console.log(
+//               "eventTime:", eventTime.format(),
+//               "midnight:", midnight.format("YYYY-MM-DD HH:mm:ss"),
+//               "nexttime:", nextTime.format(),
+//               "duration:", duration
+//             );
+//           } else if (
+//             nextEvent &&
+//             allowedEventCodes.includes(nextEvent?.eventCode)
+//           ) {
+//             // Normal case: duration = nextEvent - currentEvent
+//             const nextTime = moment.tz(nextEvent.eventDateTime, tz);
+//             const diff = nextTime.diff(eventTime);
+//             duration = formatDuration(diff >= 0 ? diff : 0);
+//           }
+//         }
+//       }
+
+//       return {
+//         id: String(index + 1).padStart(2, "0"),
+//         eventCode: event.eventCode,
+//         status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
+//         start_PDT: event.eventDateTime
+//           ? moment(event.eventDateTime).tz(tz).format("MMM DD, YYYY hh:mm:ss A")
+//           : "--",
+//         duration,
+//         location: event.manualLocation || event.calculatedLocation || "Unknown",
+//         vehicle: event.vehicle?.vehicleNumber || "--",
+//         odometer: event.odometer || "--",
+//         engine_hours: event.engineHours || "--",
+//         origin: event.origin || "--",
+//         trailers: event.trailers?.length ? event.trailers.join(", ") : "",
+//         shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
+//         notes: event.notes?.length ? event.notes.join(", ") : "",
+//       };
+//     })
+//   );
+
+
+const tableData = driverLogs
+  ?.flatMap((log) =>
+    log.hosEvents.map((event, index) => {
+      let duration = "--";
+
+      const tz = driverSettings?.timeZone || "America/Los_Angeles";
+
+      if (allowedEventCodes.includes(event?.eventCode)) {
+        const eventTime = event?.eventDateTime
+          ? moment.tz(event.eventDateTime, tz)
+          : null;
+
+        if (eventTime) {
+          // Find the *next allowed* event (not just index+1)
+          const nextAllowed = log.hosEvents
+            .slice(index + 1)
+            .find((e) => allowedEventCodes.includes(e?.eventCode));
+
+          if (index === 0 && nextAllowed) {
+            // First event → duration = nextAllowed.startTime - midnight
+            const midnight = moment.tz(log.date || eventTime, tz).startOf("day");
+            const nextTime = moment.tz(nextAllowed.eventDateTime, tz);
+            const diff = nextTime.diff(midnight);
+            duration = formatDuration(diff >= 0 ? diff : 0);
+          } else if (nextAllowed) {
+            // Normal case → duration = nextAllowed - currentEvent
+            const nextTime = moment.tz(nextAllowed.eventDateTime, tz);
+            const diff = nextTime.diff(eventTime);
+            duration = formatDuration(diff >= 0 ? diff : 0);
+          }
+        }
+      }
+
+      return {
+        id: String(index + 1).padStart(2, "0"),
+        eventCode: event.eventCode,
+        status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
+        start_PDT: event.eventDateTime
+          ? moment(event.eventDateTime).tz(tz).format("MMM DD, YYYY hh:mm:ss A")
+          : "--",
+        duration,
+        location: event.manualLocation || event.calculatedLocation || "Unknown",
+        vehicle: event.vehicle?.vehicleNumber || "--",
+        odometer: event.odometer || "--",
+        engine_hours: event.engineHours || "--",
+        origin: event.origin || "--",
+        trailers: event.trailers?.length ? event.trailers.join(", ") : "",
+        shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
+        notes: event.notes?.length ? event.notes.join(", ") : "",
+      };
+    })
+  );
+
 
     // Getting tailers and shipping docs
-    const trailers = filteredLogs
+    const trailers = driverLogs
         ?.flatMap(log => log.trailers || []) // collect all trailers
         .filter(Boolean); // remove empty/null
 
-    const shippingDocs = filteredLogs
+    const shippingDocs = driverLogs
         ?.flatMap(log => log.shippingDocuments || []) // collect all docs
         .filter(Boolean); // remove empty/null
 
@@ -638,10 +825,10 @@ export const GraphDetails = () => {
                                         {driverLogs.isCertified ? "Certified" : "Uncertified"}
                                     </span> */}
                                     <span
-                                        className={`fw-semibold text-truncate ${filteredLogs[0]?.isCertified ? "text-success" : "text-danger"
+                                        className={`fw-semibold text-truncate ${driverLogs[0]?.isCertified ? "text-success" : "text-danger"
                                             }`}
                                     >
-                                        {filteredLogs[0]?.isCertified ? "Certified" : "Uncertified"}
+                                        {driverLogs[0]?.isCertified ? "Certified" : "Uncertified"}
                                     </span>
 
                                 </div>
@@ -727,7 +914,20 @@ export const GraphDetails = () => {
 
                                 {/* Buttons Row */}
                                 <div className="action-btn-wrapper d-flex flex-wrap justify-content-xl-end gap-1">
-                                    <Button variant='outline-danger'><i className="bi bi-sun fs-16"></i></Button>
+                                    {/* <Button variant='outline-danger'><i className="bi bi-sun fs-16"></i></Button> */}
+                                    <Button
+                                        variant="outline-danger"
+                                        title="Recalculate Processed Data"
+                                        onClick={handleRefreshProcessedData}
+                                        disabled={refreshing}
+                                    >
+                                        {refreshing ? (
+                                            <span className="spinner-border spinner-border-sm text-danger" role="status" />
+                                        ) : (
+                                            <i className="bi bi-sun fs-16"></i>
+                                        )}
+                                    </Button>
+
                                     <Button variant='outline-danger'><i className="bi bi-pencil"></i></Button>
                                     <Button variant='outline-danger'><i className="bi bi-plus-lg fs-16"></i></Button>
                                     <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
@@ -751,7 +951,7 @@ export const GraphDetails = () => {
 
 
                 {/* Error Table Section */}
-                <div className="table-content-wrapper">
+                <div className="table-content-wrapper" style={{ zIndex: 1 }}>
                     <div className='table-responsive table-custom-wrapper'>
                         <DataTable
                             columns={columns}

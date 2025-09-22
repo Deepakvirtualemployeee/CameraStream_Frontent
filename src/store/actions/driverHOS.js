@@ -25,12 +25,12 @@ export const getDriversHOS = (companyId) => async (dispatch) => {
   }
 };
 
-export const getDriverLogs = (driverId) => async (dispatch) => {
+export const getDriverLogs = (driverId, logDate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_LOGS_REQUEST });
 
     const token = localStorage.getItem("token");
-    const { data } = await axios.get(`/driverLogs?driverId=${driverId}`, {
+    const { data } = await axios.get(`/driverLogs?driverId=${driverId}&logDate=${logDate}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -86,6 +86,28 @@ export const getMobileSettings = (driverId) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: actionTypes.GET_DRIVERS_SETTINGS_FAIL,
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};
+
+export const getProcessedDriverData = (driverId) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.GET_DRIVERS_PROCESSED_DATA_REQUEST });
+
+    const token = localStorage.getItem("token");
+    const { data } = await axios.get(`/processDriverData?driverId=${driverId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // console.log("Company:", companyId);
+    console.log("ProcessedDriverData:", data);
+    dispatch({ type: actionTypes.GET_DRIVERS_PROCESSED_DATA_SUCCESS, payload: data.data });
+  } catch (error) {
+    dispatch({
+      type: actionTypes.GET_DRIVERS_PROCESSED_DATA_FAIL,
       payload: error.response?.data?.message || error.message,
     });
   }

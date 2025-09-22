@@ -5,6 +5,7 @@ const initialState = {
     driverLogs: [],
     driverData: [],
     driverSettings: [],
+    driverProcessedData: [],
     loading: false,
     error: null,
 };
@@ -37,6 +38,13 @@ const driversHOSReducer = (state = initialState, action) => {
         case actionTypes.GET_DRIVERS_SETTINGS_SUCCESS:
             return { ...state, loading: false, driverSettings: action.payload };
         case actionTypes.GET_DRIVERS_SETTINGS_FAIL:
+            return { ...state, loading: false, error: action.payload };
+
+        case actionTypes.GET_DRIVERS_PROCESSED_DATA_REQUEST:
+            return { ...state, loading: true, error: null };
+        case actionTypes.GET_DRIVERS_PROCESSED_DATA_SUCCESS:
+            return { ...state, loading: false, driverProcessedData: action.payload };
+        case actionTypes.GET_DRIVERS_PROCESSED_DATA_FAIL:
             return { ...state, loading: false, error: action.payload };
 
         default:
