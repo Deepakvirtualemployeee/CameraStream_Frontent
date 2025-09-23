@@ -186,7 +186,7 @@ export const AddDriver = () => {
                                         </div>
                                     </Form.Group>
                                 </Col>
-                                <Col sm={6}>
+                                {/* <Col sm={6}>
                                     <Form.Group controlId="FirstName">
                                         <Form.Label>First Name<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
@@ -213,7 +213,41 @@ export const AddDriver = () => {
                                             required
                                         />
                                     </Form.Group>
+                                </Col> */}
+                                <Col sm={6}>
+                                    <Form.Group controlId="FirstName">
+                                        <Form.Label>First Name<span className="text-danger">*</span></Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="firstName"
+                                            value={firstName}
+                                            onChange={handleChange}
+                                            placeholder="Enter first name"
+                                            autoComplete='off'
+                                            required
+                                            pattern="^[A-Za-z]{2,30}$"
+                                            title="First name must be between 2 and 30 letters only."
+                                        />
+                                    </Form.Group>
                                 </Col>
+
+                                <Col sm={6}>
+                                    <Form.Group controlId="LastName">
+                                        <Form.Label>Last Name<span className="text-danger">*</span></Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="lastName"
+                                            value={lastName}
+                                            onChange={handleChange}
+                                            placeholder="Enter last name"
+                                            autoComplete='off'
+                                            required
+                                            pattern="^[A-Za-z]{2,30}$"
+                                            title="Last name must be between 2 and 30 letters only."
+                                        />
+                                    </Form.Group>
+                                </Col>
+
                                 <Col sm={6}>
                                     <Form.Group controlId="UserEmail">
                                         <Form.Label>Email</Form.Label>
@@ -403,7 +437,7 @@ export const AddDriver = () => {
                                                 // vehicleNumber: selectedVehicle ? selectedVehicle.vehicleNumber : ""
                                             }));
                                         }}
-                                        // required
+                                    // required
                                     >
                                         <option value="">Select a vehicle</option>
                                         {vehiclesLoading && <option>Loading...</option>}

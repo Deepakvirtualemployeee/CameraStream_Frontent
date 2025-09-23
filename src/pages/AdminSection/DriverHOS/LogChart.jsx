@@ -31,16 +31,19 @@ const rowY = {
 const PIXELS_PER_HOUR = 37.5;
 const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;
 
-const formatMinutes = (ms) => {
-  // const h = Math.floor(mins / 60);
-  // const m = Math.floor(mins % 60);
-  // return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+const formatMinutes = (mins) => {
+  const h = Math.floor(mins / 60);
+  const m = Math.floor(mins % 60);
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+};
+
+const formatDuration = (ms) => {
   if (ms == null || isNaN(ms)) return "--";
-        const totalSeconds = Math.max(0, Math.floor(ms / 1000)); // never negative
-        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-        const seconds = String(totalSeconds % 60).padStart(2, "0");
-        return `${hours}h:${minutes}m:${seconds}s`;
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+  const seconds = String(totalSeconds % 60).padStart(2, "0");
+  return `${hours}h:${minutes}m:${seconds}s`;
 };
 
 export default function LogChart({ logs = [], selectedDate, timezone = "America/Los_Angeles" }) {
@@ -63,7 +66,11 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
       )
       .sort((a, b) => a.start.valueOf() - b.start.valueOf());
 
+    console.log("allEventsbefore:", allEvents);
     const eventsForDay = allEvents.filter((e) => e.start.isSame(selectedDay, "day"));
+    console.log("allEventsafter:", eventsForDay);
+    console.log("selectedday:", selectedDay);
+
 
     const points = [];
     const refs = [];
@@ -73,128 +80,92 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
     // --------------------
     // Midnight → First Event
     // --------------------
-    const midnight = selectedDay.clone();
-    
-    const firstEvent = eventsForDay[0];
-    if (firstEvent) {
-      const firstX = toPixels(firstEvent.start);
-      const firstDurationMin = firstEvent.start.diff(midnight, "minutes");
 
-      // carry-over status from previous day, or OFF if none
+    // find the very first event in the entire timeline
+    const firstEvent = allEvents[0]; // assuming allEvents is sorted
+
+    if (firstEvent) {
+      // midnight should be the actual midnight of the first event's date
+      const midnight = firstEvent.start.clone().startOf("day");
+
+      // find next allowed event after this one
+      const nextAllowed = allEvents.find((e) => e.start.isAfter(firstEvent.start));
+      const nextTime = nextAllowed ? nextAllowed.start : endOfDay;
+
+      const firstDurationMs = nextTime.diff(midnight);
+
+      // carry-over status from before firstEvent (or OFF if none)
+      // const lastPrevEvent = allEvents.filter((e) => e.start.isBefore(firstEvent.start)).pop();
       const lastPrevEvent = allEvents.filter((e) => e.start.isBefore(selectedDay)).pop();
+
       const initialStatus = lastPrevEvent ? lastPrevEvent.mappedRow : "OFF";
+
+      const firstX = toPixels(nextTime);
 
       points.push({
         x: 0,
         y: rowY[initialStatus],
         status: initialStatus,
-        startTime: "00:00",
-        endTime: firstEvent.start.format("HH:mm"),
-        duration: formatMinutes(firstDurationMin),
+        startTime: midnight.format("HH:mm"),
+        endTime: nextTime.format("HH:mm"),
+        duration: formatDuration(firstDurationMs >= 0 ? firstDurationMs : 0),
       });
 
       points.push({
         x: firstX,
         y: rowY[initialStatus],
         status: initialStatus,
-        startTime: "00:00",
-        endTime: firstEvent.start.format("HH:mm"),
-        duration: formatMinutes(firstDurationMin),
+        startTime: midnight.format("HH:mm"),
+        endTime: nextTime.format("HH:mm"),
+        duration: formatDuration(firstDurationMs >= 0 ? firstDurationMs : 0),
       });
 
-      refs.push({ key: "ref-0", x: 0, label: "00:00" });
+      refs.push({ key: "ref-0", x: 0, label: midnight.format("HH:mm") });
+
+      console.log("First event duration:", formatDuration(firstDurationMs));
     }
 
     // --------------------
     // Loop through in-day events
     // --------------------
-    // eventsForDay.forEach((ev, idx) => {
-    //   const xVal = toPixels(ev.start);
-
-    //   // Find next allowed event, otherwise end of day
-    //   const nextAllowed = eventsForDay.slice(idx + 1).find((e) => allowedEventCodes.includes(e.eventCode));
-    //   const nextTime = nextAllowed ? nextAllowed.start : endOfDay;
-    //   const nextX = toPixels(nextTime);
-
-    //   // Duration logic (same as tableData)
-    //   let durationMin;
-    //   if (idx === 0 && nextAllowed) {
-    //     durationMin = nextAllowed.start.diff(selectedDay, "minutes");
-    //   } else {
-    //     durationMin = nextTime.diff(ev.start, "minutes");
-    //   }
-
-    //   points.push({
-    //     x: xVal,
-    //     y: rowY[ev.mappedRow],
-    //     status: ev.mappedRow,
-    //     startTime: ev.start.format("HH:mm"),
-    //     endTime: nextTime.format("HH:mm"),
-    //     duration: formatMinutes(durationMin >= 0 ? durationMin : 0),
-    //   });
-
-    //   points.push({
-    //     x: nextX,
-    //     y: rowY[ev.mappedRow],
-    //     status: ev.mappedRow,
-    //     startTime: ev.start.format("HH:mm"),
-    //     endTime: nextTime.format("HH:mm"),
-    //     duration: formatMinutes(durationMin >= 0 ? durationMin : 0),
-    //   });
-
-    //   refs.push({
-    //     key: `ref-${idx + 1}`,
-    //     x: xVal,
-    //     label: ev.start.format("HH:mm"),
-    //   });
-    // });
-    // inside your LogChart useMemo / loop where you build points
     eventsForDay.forEach((ev, idx) => {
-      const eventTime = ev.start.clone();
-      const nextAllowed = eventsForDay
-        .slice(idx + 1)
-        .find((e) => allowedEventCodes.includes(e.eventCode));
-      const nextTime = nextAllowed ? nextAllowed.start.clone() : endOfDay;
-    
-      let durationMs = 0;
-      let startLabel = eventTime.format("HH:mm"); // default
-      let endLabel = nextTime.format("HH:mm");
-    
-      if (idx === 0 && nextAllowed) {
-        // First event → duration from midnight, startLabel must be midnight
-        const midnight = selectedDay.clone().startOf("day");
-        durationMs = nextTime.diff(midnight);
-        startLabel = midnight.format("HH:mm");   // 🔹 fix: show 00:00
-        endLabel = nextTime.format("HH:mm");
-      } else {
-        durationMs = nextTime.diff(eventTime);
-      }
-    
-      const xVal = toPixels(eventTime);
+      const xVal = toPixels(ev.start);
+
+      // Find next allowed event, otherwise end of day
+      const nextAllowed = eventsForDay.slice(idx + 1).find((e) => allowedEventCodes.includes(e.eventCode));
+      const nextTime = nextAllowed ? nextAllowed.start : endOfDay;
       const nextX = toPixels(nextTime);
-    
+
+      // Duration logic (same as tableData)
+      let durationMin;
+      if (idx === 0 && nextAllowed) {
+        durationMin = nextAllowed.start.diff(selectedDay, "minutes");
+      } else {
+        durationMin = nextTime.diff(ev.start, "minutes");
+      }
+
       points.push({
         x: xVal,
         y: rowY[ev.mappedRow],
         status: ev.mappedRow,
-        startTime: startLabel,
-        endTime: endLabel,
-        duration: formatMinutes(durationMs),
+        startTime: ev.start.format("HH:mm"),
+        endTime: nextTime.format("HH:mm"),
+        duration: formatMinutes(durationMin >= 0 ? durationMin : 0),
       });
-    
+
       points.push({
         x: nextX,
         y: rowY[ev.mappedRow],
         status: ev.mappedRow,
-        startTime: startLabel,
-        endTime: endLabel,
-        duration: formatMinutes(durationMs),
+        startTime: ev.start.format("HH:mm"),
+        endTime: nextTime.format("HH:mm"),
+        duration: formatMinutes(durationMin >= 0 ? durationMin : 0),
       });
-    
+
       refs.push({
-        key: `ref-${idx}`,
+        key: `ref-${idx + 1}`,
         x: xVal,
-        label: eventTime.format("HH:mm"),
+        label: ev.start.format("HH:mm"),
       });
     });
 
@@ -208,7 +179,7 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
     <div className="position-relative">
       <div className="custom-chart-table table-responsive">
         <table className="table table-bordered align-middle fs-12 fw-bold text-body text-center">
-          <thead>
+          {/* <thead>
             <tr>
               <td style={{ width: "37.5px" }}></td>
               {[...Array(24)].map((_, i) => (
@@ -216,12 +187,45 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
                   key={i}
                   style={{ width: "37.5px", padding: "2px", fontSize: "10px" }}
                 >
-                  {`${String(i).padStart(2, "0")}:00`}
+                  {`${String(i).padStart(2, "0")}:30`}
                 </td>
               ))}
             </tr>
-          </thead>
+          </thead> */}
+          <thead>
+            <tr>
+              <td style={{ width: "37.5px" }}></td>
+              {[...Array(24)].map((_, i) => {
+                const label = i === 0 ? "0" : i === 23 ? "23" : `${String(i).padStart(2, "0")}`;
 
+                return (
+                  <td
+                    key={i}
+                    style={{
+                      width: "37.5px",
+                      padding: "2px",
+                      fontSize: "10px",
+                      textAlign: "left", // align all labels left
+                      position: "relative",
+                    }}
+                  >
+                    {/* Tickline */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0, // tickline at left for all
+                        width: "1px",
+                        height: "6px",
+                        background: "#000",
+                      }}
+                    />
+                    {label}
+                  </td>
+                );
+              })}
+            </tr>
+          </thead>
           <tbody>
             {["OFF", "SB", "DR", "ON"].map((status) => (
               <tr key={status}>
@@ -230,15 +234,14 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
                   <td
                     key={idx}
                     style={{ width: "37.5px" }}
-                    className={`bg-opacity-25 striped-cell bg-${
-                      status === "OFF"
-                        ? "success"
-                        : status === "SB"
+                    className={`bg-opacity-25 striped-cell bg-${status === "OFF"
+                      ? "success"
+                      : status === "SB"
                         ? "theme6"
                         : status === "DR"
-                        ? "theme3"
-                        : "warning"
-                    }`}
+                          ? "theme3"
+                          : "warning"
+                      }`}
                   ></td>
                 ))}
               </tr>
@@ -259,7 +262,7 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
         <LineChart width={1200} height={140} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" vertical={true} />
           <YAxis hide type="number" domain={[0, 4]} />
-          <XAxis
+          {/* <XAxis
             type="number"
             dataKey="x"
             domain={[0, 900]}
@@ -267,7 +270,18 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
             interval={0}
             tickFormatter={(val) => `${String(val / 37.5).padStart(2, "0")}:00`}
             tick={{ fontSize: 12 }}
+          /> */}
+          <XAxis
+            type="number"
+            dataKey="x"
+            domain={[0, 900]}
+            ticks={[...Array(24)].map((_, i) => i * 37.5)}
+            interval={0}
+            tick={false}  // 👈 hides labels, keeps axis scale
+            axisLine={false} // 👈 hides bottom axis line
+            tickLine={false} // 👈 hides small tick marks
           />
+
           <Line
             type="stepAfter"
             dataKey="y"
