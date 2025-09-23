@@ -38,6 +38,8 @@ import { GraphDetails } from './pages/AdminSection/DriverHOS/GraphDetails';
 import { FMCSARecords } from './pages/AdminSection/FMCSA-Records/FMCSA-Records';
 import { LogsList } from './pages/AdminSection/LogsSection/LogsList';
 import { Location } from './pages/AdminSection/Locations/Location';
+import { AddEvent } from './pages/AdminSection/DriverHOS/AddEvent';
+import { EditEvent } from './pages/AdminSection/DriverHOS/EditEvent';
 import { DriversListing } from './pages/settings-section/Drivers/DriversListing';
 import { AddDriver } from './pages/settings-section/Drivers/AddDriver';
 import { EditDriver } from './pages/settings-section/Drivers/EditDriver';
@@ -99,6 +101,8 @@ function App() {
           <Route path="driver-hos/:companyId" element={<DriversHOSList />} />
           {/* <Route path="driver-hos/graph-details/:driverId" element={<GraphDetails />} /> */}
           <Route path="driver-hos/graph-details/:companyId/:driverId" element={<GraphDetails />} />
+          <Route path="driver-hos/graph-details/add-event" element={<AddEvent />} />
+          <Route path="driver-hos/graph-details/edit-event" element={<EditEvent />} />
           <Route path="logs/:companyId" element={<LogsList />} />
           <Route path="fmcsa-records/:companyId" element={<FMCSARecords />} />
           <Route path="location/:companyId" element={<Location />} />
