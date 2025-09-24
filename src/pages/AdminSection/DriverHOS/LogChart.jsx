@@ -34,7 +34,7 @@ const PIXELS_PER_MINUTE = PIXELS_PER_HOUR / 60;
 const formatMinutes = (mins) => {
   const h = Math.floor(mins / 60);
   const m = Math.floor(mins % 60);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  return `${String(h).padStart(2, "0")}h:${String(m).padStart(2, "0")}m`;
 };
 
 const formatDuration = (ms) => {
@@ -43,7 +43,8 @@ const formatDuration = (ms) => {
   const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
   const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
   const seconds = String(totalSeconds % 60).padStart(2, "0");
-  return `${hours}h:${minutes}m:${seconds}s`;
+  // return `${hours}h:${minutes}m:${seconds}s`;
+  return `${hours}h:${minutes}m`;
 };
 
 export default function LogChart({ logs = [], selectedDate, timezone = "America/Los_Angeles" }) {
@@ -195,8 +196,21 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
           <thead>
             <tr>
               <td style={{ width: "37.5px" }}></td>
+
               {[...Array(24)].map((_, i) => {
-                const label = i === 0 ? "0" : i === 23 ? "23" : `${String(i).padStart(2, "0")}`;
+                let labelLeft = null;
+                let labelRight = null;
+
+                if (i === 0) {
+                  labelLeft = "M"; // start
+                } else if (i === 12) {
+                  labelLeft = "N"; // middle
+                } else if (i === 23) {
+                  labelLeft = "11"; // last 11
+                  labelRight = "M"; // extra M
+                } else {
+                  labelLeft = i < 12 ? i : i - 12;
+                }
 
                 return (
                   <td
@@ -205,27 +219,44 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
                       width: "37.5px",
                       padding: "2px",
                       fontSize: "10px",
-                      textAlign: "left", // align all labels left
                       position: "relative",
                     }}
                   >
-                    {/* Tickline */}
+                    {/* Tickline (skip for first M) */}
+                    {i !== 0 && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          width: "1px",
+                          height: "6px",
+                          background: "#000",
+                        }}
+                      />
+                    )}
+
+                    {/* Labels just below tickline */}
                     <div
                       style={{
                         position: "absolute",
-                        top: 0,
-                        left: 0, // tickline at left for all
-                        width: "1px",
-                        height: "6px",
-                        background: "#000",
+                        top: "6px",
+                        left: 0,
+                        right: 0,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: "10px",
                       }}
-                    />
-                    {label}
+                    >
+                      <span>{labelLeft}</span>
+                      {labelRight && <span>{labelRight}</span>}
+                    </div>
                   </td>
                 );
               })}
             </tr>
           </thead>
+
           <tbody>
             {["OFF", "SB", "DR", "ON"].map((status) => (
               <tr key={status}>

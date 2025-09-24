@@ -24,7 +24,7 @@ export const GraphDetails = () => {
     let { companyId, driverId } = useParams();
 
     // For testing
-    driverId = '688b50c55dc4bbb932ffad56';
+    // driverId = '688b50c55dc4bbb932ffad56';
 
     // const [searchParams] = useSearchParams();
     // const companyId = searchParams.get("companyId");
@@ -333,12 +333,18 @@ useEffect(() => {
             selector: (row) => row.notes,
         },
         {
+            name: 'ID',
+            selector: (row) => row.seqId,
+            minWidth: '120px',
+            center: true,
+        },
+        {
             name: 'Actions',
             minWidth: '120px',
             center: true,
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    <span className='pointer' title='Edit' onClick={() => navigate('/settings/drivers-listing/edit-driver')}><img src={EditIcon} alt="Edit Icon" /></span>
+                    <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event`)}><img src={EditIcon} alt="Edit Icon" /></span>
                     {/* <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span> */}
                     <span className='pointer p-0' title='Delete' onClick={() => {
                     }}><img src={TrashIcon} alt="Trash Icon" /></span>
@@ -715,6 +721,7 @@ const tableData = driverLogs
         trailers: event.trailers?.length ? event.trailers.join(", ") : "",
         shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
         notes: event.notes?.length ? event.notes.join(", ") : "",
+        seqId: event.seqId || "--",
       };
     })
   );
