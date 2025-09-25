@@ -16,7 +16,7 @@ export const Location = () => {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [sort, setSort] = useState("ascending");
-    const [selectedVehicle, setSelectedVehicle] = useState(null); // 🚀 new state
+    const [selectedVehicle, setSelectedVehicle] = useState(null); // new state
 
     useEffect(() => {
         if (companyId) {
@@ -106,7 +106,7 @@ export const Location = () => {
                                     <div
                                         key={vehicle._id}
                                         className={`info-card fs-12 ${index !== filteredVehicles.length - 1 ? "border-bottom" : ""} p-3 cursor-pointer`}
-                                        onClick={() => setSelectedVehicle(vehicle)} // ✅ click sets location
+                                        onClick={() => setSelectedVehicle(vehicle)} // click sets location
                                     >
                                         {/* Header */}
                                         <div className="d-flex align-items-center gap-2 mb-1">

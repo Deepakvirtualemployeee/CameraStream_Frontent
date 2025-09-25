@@ -112,3 +112,40 @@ export const getProcessedDriverData = (driverId) => async (dispatch) => {
     });
   }
 };
+
+// Add Event Action
+export const addEvent = (companyId, driverId, eventId = "", eventData, navigate) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.ADD_DRIVERS_EVENT_LOG_REQUEST });
+
+    const res = await axios.post(
+      `/addEditEvent?companyId=${companyId}&DriverId=${driverId}&eventId=${eventId}`,
+      eventData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Event data", eventData);
+    dispatch({
+      type: actionTypes.ADD_DRIVERS_EVENT_LOG_SUCCESS,
+      payload: res.data.data,
+    });
+
+    toast.success("Event added successfully!");
+    if (navigate) navigate(`/driver-hos/graph-details/${companyId}/${driverId}`); // redirect after success
+    
+    return true;
+  } catch (err) {
+    console.log(err);
+    dispatch({
+      type: actionTypes.ADD_DRIVERS_EVENT_LOG_FAIL,
+      payload: err.response?.data?.message || err.message,
+    });
+    toast.error(err.response?.data?.message || "Failed to add event");
+    return false;
+  }
+};

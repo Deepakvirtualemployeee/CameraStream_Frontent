@@ -935,8 +935,8 @@ const tableData = driverLogs
                                         )}
                                     </Button>
 
-                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/edit-event`)}><i className="bi bi-pencil"></i></Button>
-                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event`)}><i className="bi bi-plus-lg fs-16"></i></Button>
+                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/edit-event/${companyId}/${driverId}`)}><i className="bi bi-pencil"></i></Button>
+                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`)}><i className="bi bi-plus-lg fs-16"></i></Button>
                                     <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
                                         <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
                                         <span className="ms-1 d-sm-none">Refresh</span>
