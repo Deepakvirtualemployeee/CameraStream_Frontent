@@ -151,7 +151,7 @@ export const CompanyInfo = () => {
                       </div>
                       <div className="col-sm-7 col-xl-6">
                         <div className="value fw-semibold text-black text-opacity-75">
-                          {terminal.timeZone || "-"}
+                          {terminal.timeZoneId || "-"}
                         </div>
                       </div>
                     </div>

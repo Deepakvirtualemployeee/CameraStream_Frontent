@@ -78,7 +78,7 @@ const SignUp = (props) => {
     companyName: "",
     usdot: "",
     companyAddress: "",
-    timeZone: "",
+    timeZoneId: "",
     phoneNumber: "",
     password: "",
     confirmPassword: "",
@@ -218,15 +218,15 @@ const SignUp = (props) => {
 
                   />
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="TimeZone*">
+                <Form.Group className="mb-3" controlId="timeZoneId*">
                   <Form.Label>
                     Time Zone <span className="text-danger">*</span>
                   </Form.Label>
                   <Form.Select
                     onChange={handleChange}
                     required
-                    value={form.timeZone}
-                    name="timeZone"
+                    value={form.timeZoneId}
+                    name="timeZoneId"
 
                   >
                     <option value="">Select the Time zone</option>
