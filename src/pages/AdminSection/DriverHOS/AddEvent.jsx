@@ -75,7 +75,11 @@ export const AddEvent = () => {
     };
 
     console.log("Add event payload:", payload);
-    dispatch(addEvent(companyId, driverId, payload, navigate)); // redux dispatch
+    // dispatch(addEvent(companyId, driverId, null, payload, navigate)); // redux dispatch
+    dispatch(
+        addEvent(companyId, driverId, null, { event: payload }, navigate)
+      );
+      
   };
 
   return (

@@ -114,7 +114,7 @@ export const getProcessedDriverData = (driverId) => async (dispatch) => {
 };
 
 // Add Event Action
-export const addEvent = (companyId, driverId, eventId = "", eventData, navigate) => async (dispatch) => {
+export const addEvent = (companyId, driverId, eventId = null, eventData, navigate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.ADD_DRIVERS_EVENT_LOG_REQUEST });
 
@@ -130,6 +130,7 @@ export const addEvent = (companyId, driverId, eventId = "", eventData, navigate)
     );
 
     console.log("Event data", eventData);
+    console.log("res", res);
     dispatch({
       type: actionTypes.ADD_DRIVERS_EVENT_LOG_SUCCESS,
       payload: res.data.data,
