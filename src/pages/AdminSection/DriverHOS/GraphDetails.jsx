@@ -12,7 +12,7 @@ import EditIcon from '../../../assets/images/icons/edit.svg';
 import ExternalIcon from '../../../assets/images/icons/external.svg';
 import TrashIcon from '../../../assets/images/icons/trash.svg';
 import LogChart from "./LogChart";
-import { getDriverData, getDriverLogs, getMobileSettings, getProcessedDriverData } from '../../../store/actions/driverHOS';
+import { getDriverData, getDriverLogs, getMobileSettings, getProcessedDriverData, deleteEvent } from '../../../store/actions/driverHOS';
 import moment from "moment-timezone";
 
 export const GraphDetails = () => {
@@ -58,24 +58,33 @@ export const GraphDetails = () => {
     // }, [dispatch, driverId, companyId]);
 
     // Utility: format date as YYYY-MM-DD in driver’s timezone
-const formatDate = (date, tz = driverSettings?.timeZoneId || "America/Los_Angeles") => {
-    return moment(date).tz(tz).format("YYYY-MM-DD");
-  };
+    const formatDate = (date, tz = driverSettings?.timeZoneId || "America/Los_Angeles") => {
+        return moment(date).tz(tz).format("YYYY-MM-DD");
+    };
     // --- useEffect to fetch logs whenever selectedDate changes ---
-useEffect(() => {
-    if (driverId && selectedDate) {
-      const formattedDate = formatDate(selectedDate);
-      dispatch(getDriverData(driverId));
-      dispatch(getDriverLogs(driverId, formattedDate));
-      dispatch(getMobileSettings(driverId));
-      dispatch(getProcessedDriverData(driverId));
-    }
-  }, [dispatch, driverId, companyId, selectedDate]);
+    useEffect(() => {
+        if (driverId && selectedDate) {
+            const formattedDate = formatDate(selectedDate);
+            dispatch(getDriverData(driverId));
+            dispatch(getDriverLogs(driverId, formattedDate));
+            dispatch(getMobileSettings(driverId));
+            dispatch(getProcessedDriverData(driverId));
+        }
+    }, [dispatch, driverId, companyId, selectedDate]);
 
     const handlePrevDay = () => {
         setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
     };
 
+    const handleDeleteLog = async (eventId) => {
+        if (!window.confirm("Are you sure you want to delete this log?")) return;
+
+        await dispatch(deleteEvent(companyId, driverId, eventId, navigate));
+
+        // Refresh logs after delete
+        const formattedDate = formatDate(selectedDate);
+        dispatch(getDriverLogs(driverId, formattedDate));
+    };
     // const handleNextDay = () => {
     //     setSelectedDate((prev) => {
     //         const next = new Date(prev);
@@ -96,18 +105,18 @@ useEffect(() => {
     // Format date for driver logs
     // const formattedDate = moment(selectedDate).format("YYYY-MM-DD");
     // console.log("formattedDate", formattedDate); // 2025-09-18
-    
+
     /** Filter logs by selected date */
     // Utility: format date (YYYY-MM-DD)
     // const formatDate = (date) => {
     //     return new Date(date).toISOString().split("T")[0];
     // };
     // Utility: format date (YYYY-MM-DD)
-// const formatDate = (date) => {
-//     return moment(date).format("YYYY-MM-DD");  // <-- using moment
-//   };
-  
-  console.log("driverLogs", driverLogs);
+    // const formatDate = (date) => {
+    //     return moment(date).format("YYYY-MM-DD");  // <-- using moment
+    //   };
+
+    console.log("driverLogs", driverLogs);
 
 
     // Filter logs based on selected date
@@ -346,8 +355,15 @@ useEffect(() => {
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
                     <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event`)}><img src={EditIcon} alt="Edit Icon" /></span>
                     {/* <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span> */}
-                    <span className='pointer p-0' title='Delete' onClick={() => {
-                    }}><img src={TrashIcon} alt="Trash Icon" /></span>
+                    {/* <span className='pointer p-0' title='Delete' onClick={() => {
+                    }}><img src={TrashIcon} alt="Trash Icon" /></span> */}
+                    <span
+                        className='pointer p-0'
+                        title='Delete'
+                        onClick={() => handleDeleteLog(row._id)}
+                    >
+                        <img src={TrashIcon} alt="Trash Icon" />
+                    </span>
                 </div>
             ),
         },
@@ -446,285 +462,59 @@ useEffect(() => {
     ];
 
     // Transform filteredLogs into table data
-    // const tableData = filteredLogs
-    //     ?.flatMap((log) =>
-    //         log.hosEvents.map((event, index) => {
-    //             const nextEvent = log.hosEvents[index + 1];
-    //             let duration = "--";
-    //             console.log("Next Event", nextEvent);
-    //             console.log("Is event:", allowedEventCodes.includes(event?.eventCode));
-    //             console.log("Is next event:", allowedEventCodes.includes(nextEvent?.eventCode));
+    const tableData = driverLogs
+        ?.flatMap((log) =>
+            log.hosEvents.map((event, index) => {
+                let duration = "--";
 
-    //             // if (nextEvent) {
-    //             //     const startTime = new Date(event.eventDateTime).getTime();
-    //             //     const endTime = new Date(nextEvent.eventDateTime).getTime();
-    //             //     duration = formatDuration(endTime - startTime);
-    //             // }
+                const tz = driverSettings?.timeZoneId || "America/Los_Angeles";
 
-    //             // if (
-    //             //     nextEvent &&
-    //             //     allowedEventCodes.includes(event?.eventCode) &&
-    //             //     allowedEventCodes.includes(nextEvent?.eventCode)
-    //             //   ) {
-    //             //     const startTime = new Date(event.eventDateTime).getTime();
-    //             //     const endTime = new Date(nextEvent.eventDateTime).getTime();
-    //             //     duration = formatDuration(endTime - startTime);
-    //             //     console.log("Duration:", duration);
-    //             //   }
-    //             // if (
-    //             //     nextEvent &&
-    //             //     allowedEventCodes.includes(event?.eventCode) &&
-    //             //     allowedEventCodes.includes(nextEvent?.eventCode)
-    //             //   ) {
-    //             //     const startTime = event?.eventDateTime ? new Date(event.eventDateTime).getTime() : null;
-    //             //     const endTime = nextEvent?.eventDateTime ? new Date(nextEvent.eventDateTime).getTime() : null;
+                if (allowedEventCodes.includes(event?.eventCode)) {
+                    const eventTime = event?.eventDateTime
+                        ? moment.tz(event.eventDateTime, tz)
+                        : null;
 
-    //             //     console.log("Start time:", startTime);
-    //             //     console.log("End time:", endTime);
-    //             //     console.log("Event Date:", event?.eventDateTime, "Next Date:", nextEvent?.eventDateTime);
+                    if (eventTime) {
+                        // Find the *next allowed* event (not just index+1)
+                        const nextAllowed = log.hosEvents
+                            .slice(index + 1)
+                            .find((e) => allowedEventCodes.includes(e?.eventCode));
 
+                        if (index === 0 && nextAllowed) {
+                            // First event → duration = nextAllowed.startTime - midnight
+                            const midnight = moment.tz(log.date || eventTime, tz).startOf("day");
+                            const nextTime = moment.tz(nextAllowed.eventDateTime, tz);
+                            const diff = nextTime.diff(midnight);
+                            duration = formatDuration(diff >= 0 ? diff : 0);
+                        } else if (nextAllowed) {
+                            // Normal case → duration = nextAllowed - currentEvent
+                            const nextTime = moment.tz(nextAllowed.eventDateTime, tz);
+                            const diff = nextTime.diff(eventTime);
+                            duration = formatDuration(diff >= 0 ? diff : 0);
+                        }
+                    }
+                }
 
-    //             //     if (startTime && endTime && !isNaN(startTime) && !isNaN(endTime)) {
-    //             //       duration = formatDuration(endTime - startTime);
-    //             //     } else {
-    //             //       console.warn("Invalid datetime →", {
-    //             //         eventDateTime: event?.eventDateTime,
-    //             //         nextEventDateTime: nextEvent?.eventDateTime,
-    //             //       });
-    //             //     }
-    //             //   }
-
-    //             if (
-    //                 nextEvent &&
-    //                 allowedEventCodes.includes(event?.eventCode) &&
-    //                 allowedEventCodes.includes(nextEvent?.eventCode)
-    //               ) {
-    //                 const startTime = event?.eventDateTime ? new Date(event.eventDateTime).getTime() : null;
-    //                 const endTime = nextEvent?.eventDateTime ? new Date(nextEvent.eventDateTime).getTime() : null;
-
-    //                 if (startTime !== null && endTime !== null && !isNaN(startTime) && !isNaN(endTime)) {
-    //                   const diff = endTime - startTime;
-    //                   duration = formatDuration(diff >= 0 ? diff : 0); // if same or negative, force 0
-    //                 } else {
-    //                   console.warn("Invalid datetime →", {
-    //                     eventDateTime: event?.eventDateTime,
-    //                     nextEventDateTime: nextEvent?.eventDateTime,
-    //                   });
-    //                 }
-    //               }
-
-
-
-    //             return {
-    //                 id: String(index + 1).padStart(2, "0"),
-    //                 eventCode: event.eventCode, // add this line to apply the color codes
-    //                 status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
-    //                 start_PDT: new Date(event.eventDateTime).toLocaleString("en-US", {
-    //                     month: "short",
-    //                     day: "2-digit",
-    //                     year: "numeric",
-    //                     hour: "2-digit",
-    //                     minute: "2-digit",
-    //                     second: "2-digit",
-    //                 }),
-    //                 duration,
-    //                 location: event.manualLocation || event.calculatedLocation || "Unknown",
-    //                 vehicle: event.vehicle?.vehicleNumber || "--",
-    //                 odometer: event.odometer || "--",
-    //                 engine_hours: event.engineHours || "--",
-    //                 origin: event.origin || "--",
-    //                 trailers: event.trailers?.length ? event.trailers.join(", ") : "",
-    //                 shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
-    //                 notes: event.notes?.length ? event.notes.join(", ") : "",
-    //             };
-    //         })
-    //     )
-    //     .filter(Boolean);
-
-
-    // const tableData = driverLogs
-    //     ?.flatMap((log) =>
-    //         log.hosEvents.map((event, index) => {
-    //             const nextEvent = log.hosEvents[index + 1];
-    //             // const nextEvent = events[index + 1];
-    //             let duration = "--";
-
-    //             if (
-    //                 nextEvent &&
-    //                 allowedEventCodes.includes(event?.eventCode) &&
-    //                 allowedEventCodes.includes(nextEvent?.eventCode)
-    //             ) {
-    //                 const startTime = event?.eventDateTime
-    //                     ? new Date(event.eventDateTime).getTime()
-    //                     : null;
-    //                 const endTime = nextEvent?.eventDateTime
-    //                     ? new Date(nextEvent.eventDateTime).getTime()
-    //                     : null;
-
-    //                 if (startTime !== null && endTime !== null && !isNaN(startTime) && !isNaN(endTime)) {
-    //                     const diff = endTime - startTime;
-    //                     duration = formatDuration(diff >= 0 ? diff : 0);
-    //                 }
-    //             }
-
-    //             return {
-    //                 id: String(index + 1).padStart(2, "0"),
-    //                 eventCode: event.eventCode, // add this line to apply the color codes
-    //                 status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
-    //                 //   status: (
-    //                 //     <span
-    //                 //       className={`fw-bold ${
-    //                 //         event?.eventCode === "DS_ON" || event?.eventCode === "DS_D"
-    //                 //           ? "text-success"
-    //                 //           : "text-muted"
-    //                 //       }`}
-    //                 //     >
-    //                 //       {event.eventName}
-    //                 //     </span>
-    //                 //   ),
-    //                 //   location: event.location || "--",
-    //                 start_PDT: event.eventDateTime
-    //                     ? moment(event.eventDateTime)
-    //                         .tz(driverSettings?.timeZone || "America/Los_Angeles") // driver’s timezone
-    //                         .format("MMM DD, YYYY hh:mm:ss A")
-    //                     : "--",
-    //                 duration,
-    //                 location: event.manualLocation || event.calculatedLocation || "Unknown",
-    //                 vehicle: event.vehicle?.vehicleNumber || "--",
-    //                 odometer: event.odometer || "--",
-    //                 engine_hours: event.engineHours || "--",
-    //                 origin: event.origin || "--",
-    //                 trailers: event.trailers?.length ? event.trailers.join(", ") : "",
-    //                 shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
-    //                 notes: event.notes?.length ? event.notes.join(", ") : "",
-    //             };
-    //         }));
-
-//     const tableData = driverLogs
-//   ?.flatMap((log) =>
-//     log.hosEvents.map((event, index) => {
-//       const nextEvent = log.hosEvents[index + 1];
-//       let duration = "--";
-
-//       // driver timezone
-//       const tz = driverSettings?.timeZone || "America/Los_Angeles";
-
-//       if (allowedEventCodes.includes(event?.eventCode)) {
-//         const eventTime = event?.eventDateTime
-//           ? moment.tz(event.eventDateTime, tz)
-//           : null;
-
-//         if (eventTime) {
-//         //   if (index === 0 && nextEvent) {
-//         //     // First event: duration = nextEvent.startTime - midnight
-//         //     const midnight = eventTime.clone().startOf("day");
-//         //     const nextTime = moment.tz(nextEvent.eventDateTime, tz);
-//         //     const diff = nextTime.diff(midnight);
-//         //     duration = formatDuration(diff >= 0 ? diff : 0);
-//         //     console.log("midnight:", midnight, "duration:", duration, "nexttime:", nextTime)
-//         //   } 
-
-//         if (index === 0 && nextEvent) {
-//             // Take the date of the first event, but reset to midnight in driver TZ
-//             const midnight = moment.tz(log.date || eventTime, tz).startOf("day");
-          
-//             const nextTime = moment.tz(nextEvent.eventDateTime, tz);
-          
-//             const diff = nextTime.diff(midnight);
-//             duration = formatDuration(diff >= 0 ? diff : 0);
-          
-//             console.log(
-//               "eventTime:", eventTime.format(),
-//               "midnight:", midnight.format("YYYY-MM-DD HH:mm:ss"),
-//               "nexttime:", nextTime.format(),
-//               "duration:", duration
-//             );
-//           } else if (
-//             nextEvent &&
-//             allowedEventCodes.includes(nextEvent?.eventCode)
-//           ) {
-//             // Normal case: duration = nextEvent - currentEvent
-//             const nextTime = moment.tz(nextEvent.eventDateTime, tz);
-//             const diff = nextTime.diff(eventTime);
-//             duration = formatDuration(diff >= 0 ? diff : 0);
-//           }
-//         }
-//       }
-
-//       return {
-//         id: String(index + 1).padStart(2, "0"),
-//         eventCode: event.eventCode,
-//         status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
-//         start_PDT: event.eventDateTime
-//           ? moment(event.eventDateTime).tz(tz).format("MMM DD, YYYY hh:mm:ss A")
-//           : "--",
-//         duration,
-//         location: event.manualLocation || event.calculatedLocation || "Unknown",
-//         vehicle: event.vehicle?.vehicleNumber || "--",
-//         odometer: event.odometer || "--",
-//         engine_hours: event.engineHours || "--",
-//         origin: event.origin || "--",
-//         trailers: event.trailers?.length ? event.trailers.join(", ") : "",
-//         shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
-//         notes: event.notes?.length ? event.notes.join(", ") : "",
-//       };
-//     })
-//   );
-
-
-const tableData = driverLogs
-  ?.flatMap((log) =>
-    log.hosEvents.map((event, index) => {
-      let duration = "--";
-
-      const tz = driverSettings?.timeZoneId || "America/Los_Angeles";
-
-      if (allowedEventCodes.includes(event?.eventCode)) {
-        const eventTime = event?.eventDateTime
-          ? moment.tz(event.eventDateTime, tz)
-          : null;
-
-        if (eventTime) {
-          // Find the *next allowed* event (not just index+1)
-          const nextAllowed = log.hosEvents
-            .slice(index + 1)
-            .find((e) => allowedEventCodes.includes(e?.eventCode));
-
-          if (index === 0 && nextAllowed) {
-            // First event → duration = nextAllowed.startTime - midnight
-            const midnight = moment.tz(log.date || eventTime, tz).startOf("day");
-            const nextTime = moment.tz(nextAllowed.eventDateTime, tz);
-            const diff = nextTime.diff(midnight);
-            duration = formatDuration(diff >= 0 ? diff : 0);
-          } else if (nextAllowed) {
-            // Normal case → duration = nextAllowed - currentEvent
-            const nextTime = moment.tz(nextAllowed.eventDateTime, tz);
-            const diff = nextTime.diff(eventTime);
-            duration = formatDuration(diff >= 0 ? diff : 0);
-          }
-        }
-      }
-
-      return {
-        id: String(index + 1).padStart(2, "0"),
-        eventCode: event.eventCode,
-        status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
-        start_PDT: event.eventDateTime
-          ? moment(event.eventDateTime).tz(tz).format("MMM DD, YYYY hh:mm:ss A")
-          : "--",
-        duration,
-        location: event.manualLocation || event.calculatedLocation || "Unknown",
-        vehicle: event.vehicle?.vehicleNumber || "--",
-        odometer: event.odometer || "--",
-        engine_hours: event.engineHours || "--",
-        origin: event.origin || "--",
-        trailers: event.trailers?.length ? event.trailers.join(", ") : "",
-        shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
-        notes: event.notes?.length ? event.notes.join(", ") : "",
-        seqId: event.seqId || "--",
-      };
-    })
-  );
+                return {
+                    id: String(index + 1).padStart(2, "0"),
+                    eventCode: event.eventCode,
+                    status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
+                    start_PDT: event.eventDateTime
+                        ? moment(event.eventDateTime).tz(tz).format("MMM DD, YYYY hh:mm:ss A")
+                        : "--",
+                    duration,
+                    location: event.manualLocation || event.calculatedLocation || "Unknown",
+                    vehicle: event.vehicle?.vehicleNumber || "--",
+                    odometer: event.odometer || "--",
+                    engine_hours: event.engineHours || "--",
+                    origin: event.origin || "--",
+                    trailers: event.trailers?.length ? event.trailers.join(", ") : "",
+                    shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
+                    notes: event.notes?.length ? event.notes.join(", ") : "",
+                    seqId: event.seqId || "--",
+                };
+            })
+        );
 
 
     // Getting tailers and shipping docs

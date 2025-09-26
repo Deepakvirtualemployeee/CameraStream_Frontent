@@ -55,6 +55,16 @@ const driversHOSReducer = (state = initialState, action) => {
         case actionTypes.ADD_DRIVERS_EVENT_LOG_FAIL:
             return { ...state, loading: false, error: action.payload };
 
+        // case actionTypes.DELETE_DRIVER_EVENT_LOG_SUCCESS:
+        case actionTypes.DELETE_DRIVER_EVENT_LOG_SUCCESS:
+            return {
+                ...state,
+                driverLogs: state.driverLogs.map(log => ({
+                    ...log,
+                    hosEvents: log.hosEvents.filter(e => e.seqId !== action.payload)
+                }))
+            };
+
         default:
             return state;
     }
