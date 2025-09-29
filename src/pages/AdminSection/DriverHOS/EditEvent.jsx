@@ -4,7 +4,6 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import TrailersShippingInfoModal from "../../../components/TrailersShippingInfoModal";
 
 // Edit Screen for Driver HOS Events (UI only)
 // Mirrors the look-and-feel from the provided design and existing theme
@@ -24,11 +23,6 @@ export const EditEvent = () => {
         eld: "3B4000178655(C8:28:31:D6:56:...)"
     });
 
-    // Trailers & Shipping Docs states and modal
-    const [trailers, setTrailers] = useState("");
-    const [shippingDocs, setShippingDocs] = useState("");
-    const [showTSModal, setShowTSModal] = useState(false);
-    const [savingTS, setSavingTS] = useState(false);
 
     const updateField = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
 
@@ -182,13 +176,7 @@ export const EditEvent = () => {
 
                                     <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">Trailers </Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Separated by space; example: val1 val2"
-                                            value={trailers}
-                                            readOnly
-                                            onClick={() => setShowTSModal(true)}
-                                        />
+                                        <Form.Control type="text" placeholder="Separated by space; example: val1 val2" />
                                         <div className="text-muted mt-1 fs-12">
                                             Separated by space; example: val1 val2
                                         </div>
@@ -209,13 +197,7 @@ export const EditEvent = () => {
 
                                     <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">Shipping Docs</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Separated by space; example: val1 val2"
-                                            value={shippingDocs}
-                                            readOnly
-                                            onClick={() => setShowTSModal(true)}
-                                        />
+                                        <Form.Control type="text" placeholder="Separated by space; example: val1 val2" />
                                         <div className="text-muted mt-1 fs-12">
                                             Separated by space; example: val1 val2
                                         </div>
@@ -241,21 +223,6 @@ export const EditEvent = () => {
                     {/* <div className="text-muted fs-12 mt-3">Lucid ELD, as your service provider, is not responsible for any financial or legal repercussions resulting from facilitating your request. It is the sole responsibility of the user to maintain legal compliance while using ELD.</div> */}
                 </div>
             </div>
-            {/* Trailers & Shipping Docs Modal */}
-            <TrailersShippingInfoModal
-                show={showTSModal}
-                initialTrailers={trailers}
-                initialShippingDocs={shippingDocs}
-                submitting={savingTS}
-                onClose={() => setShowTSModal(false)}
-                onSubmit={({ trailers: t, shippingDocs: s }) => {
-                    setSavingTS(true);
-                    setTrailers(t || "");
-                    setShippingDocs(s || "");
-                    setSavingTS(false);
-                    setShowTSModal(false);
-                }}
-            />
         </div>
     );
 };

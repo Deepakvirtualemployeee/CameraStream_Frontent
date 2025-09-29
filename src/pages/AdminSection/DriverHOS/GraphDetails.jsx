@@ -12,6 +12,7 @@ import EditIcon from '../../../assets/images/icons/edit.svg';
 import ExternalIcon from '../../../assets/images/icons/external.svg';
 import TrashIcon from '../../../assets/images/icons/trash.svg';
 import LogChart from "./LogChart";
+import TrailersShippingInfoModal from "../../../components/TrailersShippingInfoModal";
 import { getDriverData, getDriverLogs, getMobileSettings, getProcessedDriverData, deleteEvent } from '../../../store/actions/driverHOS';
 import moment from "moment-timezone";
 
@@ -35,6 +36,7 @@ export const GraphDetails = () => {
     const dispatch = useDispatch();
 
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [showTSModal, setShowTSModal] = useState(false);
     console.log("selectedDate", selectedDate);
     // const [logsEnabled, setLogsEnabled] = useState(false);
 
@@ -725,7 +727,7 @@ export const GraphDetails = () => {
                                         )}
                                     </Button>
 
-                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/edit-event/${companyId}/${driverId}`)}><i className="bi bi-pencil"></i></Button>
+                                    <Button variant='outline-danger' onClick={() => setShowTSModal(true)}><i className="bi bi-pencil"></i></Button>
                                     <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`)}><i className="bi bi-plus-lg fs-16"></i></Button>
                                     <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
                                         <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
@@ -763,6 +765,12 @@ export const GraphDetails = () => {
 
                     </div>
                 </div>
+                {/* Trailers & Shipping Docs Modal */}
+            <TrailersShippingInfoModal
+              show={showTSModal}
+              onClose={() => setShowTSModal(false)}
+              onSubmit={() => setShowTSModal(false)}
+            />
             </div>
         </div>
     )
