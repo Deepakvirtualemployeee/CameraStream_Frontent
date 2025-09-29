@@ -112,3 +112,71 @@ export const getProcessedDriverData = (driverId) => async (dispatch) => {
     });
   }
 };
+
+// Add Event Action
+export const addEvent = (companyId, driverId, eventId = null, eventData, navigate) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.ADD_DRIVERS_EVENT_LOG_REQUEST });
+
+    const res = await axios.post(
+      `/addEditEvent?companyId=${companyId}&DriverId=${driverId}&eventId=${eventId}`,
+      eventData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("Params:", `/addEditEvent?companyId=${companyId}&DriverId=${driverId}&eventId=${eventId}`);
+    console.log("Event data", eventData);
+    console.log("res", res);
+    dispatch({
+      type: actionTypes.ADD_DRIVERS_EVENT_LOG_SUCCESS,
+      payload: res.data.data,
+    });
+
+    toast.success("Event added successfully!");
+    if (navigate) navigate(`/driver-hos/graph-details/${companyId}/${driverId}`); // redirect after success
+    
+    return true;
+  } catch (err) {
+    console.log(err);
+    dispatch({
+      type: actionTypes.ADD_DRIVERS_EVENT_LOG_FAIL,
+      payload: err.response?.data?.message || err.message,
+    });
+    toast.error(err.response?.data?.message || "Failed to add event");
+    return false;
+  }
+};
+
+// Delete event
+export const deleteEvent = (companyId, driverId, eventId, navigate) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.DELETE_DRIVER_EVENT_LOG_REQUEST });
+
+    await axios.delete(`/event?companyId=${companyId}&driverId=${driverId}&eventId=${eventId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    // just remove from redux by id
+    dispatch({ type: actionTypes.DELETE_DRIVER_EVENT_LOG_SUCCESS, payload: eventId });
+
+    toast.success("Event deleted successfully");
+
+    // Redirect back to drivers listing after delete
+    // if (navigate) navigate(`/settings/drivers-listing/${companyId}`);
+
+  } catch (error) {
+    dispatch({
+      type: actionTypes.DELETE_DRIVER_EVENT_LOG_FAIL,
+      payload: error.response?.data?.message || error.message,
+    });
+    console.error("Delete event error:", error);
+    toast.error(error.response?.data?.message || "Failed to delete event");
+  }
+};

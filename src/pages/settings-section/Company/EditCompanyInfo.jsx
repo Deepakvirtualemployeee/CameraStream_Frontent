@@ -195,7 +195,7 @@ export const EditCompanyInfo = () => {
                                             <Form.Label>Time Zone</Form.Label>
                                             <Form.Select
                                                 name="timeZone"
-                                                value={terminal.timeZone}
+                                                value={terminal.timeZoneId}
                                                 onChange={(e) => handleTerminalChange(index, e)}
                                                 required
                                             >
