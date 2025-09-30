@@ -113,8 +113,8 @@ export const getProcessedDriverData = (driverId) => async (dispatch) => {
   }
 };
 
-// Add Event Action
-export const addEvent = (companyId, driverId, eventId = null, eventData, navigate) => async (dispatch) => {
+// Add/Edit Event Action
+export const addEditEvent = (companyId, driverId, eventId = null, eventData, navigate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.ADD_DRIVERS_EVENT_LOG_REQUEST });
 
@@ -136,9 +136,13 @@ export const addEvent = (companyId, driverId, eventId = null, eventData, navigat
       payload: res.data.data,
     });
 
-    toast.success("Event added successfully!");
+    if (eventId) {
+      toast.success("Event updated successfully!");
+    } else {
+      toast.success("Event added successfully!");
+    }
     if (navigate) navigate(`/driver-hos/graph-details/${companyId}/${driverId}`); // redirect after success
-    
+
     return true;
   } catch (err) {
     console.log(err);
@@ -167,11 +171,8 @@ export const deleteEvent = (companyId, driverId, eventId, navigate) => async (di
     dispatch({ type: actionTypes.DELETE_DRIVER_EVENT_LOG_SUCCESS, payload: eventId });
 
     toast.success("Event deleted successfully");
-
-    // Redirect back to drivers listing after delete
-    // if (navigate) navigate(`/settings/drivers-listing/${companyId}`);
-
   } catch (error) {
+    console.log(error);
     dispatch({
       type: actionTypes.DELETE_DRIVER_EVENT_LOG_FAIL,
       payload: error.response?.data?.message || error.message,

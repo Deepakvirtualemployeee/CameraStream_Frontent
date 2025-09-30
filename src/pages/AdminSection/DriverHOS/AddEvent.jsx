@@ -4,16 +4,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, InputGroup, Badge, Spinner } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { addEvent } from "../../../store/actions/driverHOS"; // redux action
+import { addEditEvent } from "../../../store/actions/driverHOS"; // redux action
 import { getAssignableVehicles } from "../../../store/actions/vehicles";
 
 export const AddEvent = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { companyId, driverId } = useParams(); // company and driver id from URL
+    const [errors, setErrors] = useState({});
 
     const { loading, error } = useSelector(
-        (state) => state.addEvent || { loading: false, error: null }
+        (state) => state.addEditEvent || { loading: false, error: null }
     );
     const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
 
@@ -36,11 +37,26 @@ export const AddEvent = () => {
         notes: null,
     });
 
-    const updateField = (key, value) =>
-        setForm((prev) => ({ ...prev, [key]: value }));
+    // const updateField = (key, value) =>
+    //     setForm((prev) => ({ ...prev, [key]: value }));
 
-    const incrementSeq = (delta) =>
-        updateField("seqId", Number(form.seqId || 0) + delta);
+    const updateField = (key, value) => {
+        setForm((prev) => ({ ...prev, [key]: value }));
+        validateField(key, value);
+    };
+
+
+    // const incrementSeq = (delta) =>
+    //     updateField("seqId", Number(form.seqId || 0) + delta);
+
+    const incrementSeq = (delta) => {
+        setForm((prev) => {
+            let newVal = Number(prev.seqId || 0) + delta;
+            if (newVal < 0) newVal = 0; // prevent negative
+            return { ...prev, seqId: newVal };
+        });
+    };
+
 
     const chips = [
         "PTI",
@@ -65,36 +81,119 @@ export const AddEvent = () => {
         }
     };
 
+    const validateField = (name, value) => {
+        let message = "";
+    
+        // Always check the latest values
+        const currentEventCode = name === "eventCode" ? value : form.eventCode;
+        const currentOrigin = name === "origin" ? value : form.origin;
+    
+        switch (name) {
+            case "seqId":
+                if (value < 0) message = "Seq ID cannot be negative.";
+                break;
+    
+            case "eventDate":
+                if (!value) message = "Please select a valid date and time.";
+                break;
+    
+            case "eventCode":
+            case "origin":
+                if (currentEventCode === "DS_D") {
+                    // Driving → allow both AUTO & DRIVER
+                    if (!(currentOrigin === "AUTO" || currentOrigin === "DRIVER")) {
+                        message = "Driving status requires origin AUTO or DRIVER.";
+                    }
+                } else {
+                    // Not Driving → only DRIVER is allowed
+                    if (currentOrigin === "AUTO") {
+                        message = "Only DRIVER origin allowed for this status.";
+                    }
+                }
+                break;
+    
+            case "odometer":
+                if (!value || value <= 0 || value >= 10000000) {
+                    message = "Odometer must be between 1 and 9,999,999.";
+                }
+                break;
+    
+            case "engineHours":
+                if (value && isNaN(value)) {
+                    message = "Engine hours must be a valid number.";
+                }
+                break;
+    
+            default:
+                break;
+        }
+    
+        setErrors((prev) => ({ ...prev, [name]: message }));
+    
+        // Keep both fields in sync for cross-field validation
+        if (name === "eventCode" || name === "origin") {
+            let otherField = name === "eventCode" ? "origin" : "eventCode";
+            let otherMsg = "";
+    
+            if (currentEventCode === "DS_D") {
+                if (!(currentOrigin === "AUTO" || currentOrigin === "DRIVER")) {
+                    otherMsg = "Driving status requires origin AUTO or DRIVER.";
+                }
+            } else {
+                if (currentOrigin === "AUTO") {
+                    otherMsg = "Only DRIVER origin allowed for this status.";
+                }
+            }
+    
+            setErrors((prev) => ({ ...prev, [otherField]: otherMsg }));
+        }
+    
+        return message === "";
+    };
+    
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Convert isActive string to boolean
+        let isValid = true;
+
+        isValid &= validateField("seqId", form.seqId);
+        isValid &= validateField("eventDate", eventDate);
+        isValid &= validateField("eventCode", form.eventCode);
+        isValid &= validateField("origin", form.origin);
+        isValid &= validateField("odometer", form.odometer);
+        isValid &= validateField("engineHours", form.engineHours);
+
+        if (!isValid) {
+            return; // stop submit if errors
+        }
+
+        // Transform values
         const activeStatus =
             form.isActive?.toLowerCase() === "active" ? true : false;
 
-        // Convert eventDate to UTC ISO string
         const eventDateUTC = new Date(eventDate).toISOString();
+        const odometerVal = Number(form.odometer);
+        const engineHoursVal = form.engineHours
+            ? parseFloat(form.engineHours).toFixed(2)
+            : null;
 
         const payload = [
             {
                 ...form,
+                seqId: Number(form.seqId),
                 isActive: activeStatus,
                 eventDateTime: eventDateUTC,
+                odometer: odometerVal,
+                engineHours: engineHoursVal,
                 notes: form.notes
-                    ? form.notes.split(",").map(n => n.trim()).filter(Boolean) // convert to array
+                    ? form.notes.split(",").map((n) => n.trim()).filter(Boolean)
                     : [],
-                isAddEdit: false, // always false on Add
-
-                //   eventDateTime: eventDate.toISOString(), // always UTC
-                // isActive: form.isActive === "active",   // true if active, false otherwise
+                isAddEdit: false,
             },
         ];
 
         console.log("Add event payload:", payload);
-        dispatch(addEvent(companyId, driverId, null, payload, navigate)); // redux dispatch
-        // dispatch(
-        //     addEvent(companyId, driverId, null, { event: payload }, navigate)
-        // );
+        dispatch(addEditEvent(companyId, driverId, null, payload, navigate));
     };
 
     // Fetch Assignable Vehicles
@@ -147,6 +246,33 @@ export const AddEvent = () => {
                         <div className="row g-3">
                             <div className="col-xl-12">
                                 <div className="row g-3">
+                                    {/* <div className="col-sm-6">
+                                        <Form.Label className="fw-semibold">
+                                            Seq ID<span className="text-danger">*</span>
+                                        </Form.Label>
+                                        <InputGroup>
+                                            <Form.Control
+                                                type="number"
+                                                value={form.seqId}
+                                                onChange={(e) => updateField("seqId", e.target.value)}
+                                                required
+                                            />
+                                            {errors.seqId && <div className="text-danger">{errors.seqId}</div>}
+                                            <Button
+                                                variant="outline-secondary"
+                                                onClick={() => incrementSeq(1)}
+                                            >
+                                                <i className="bi bi-chevron-up" />
+                                            </Button>
+                                            <Button
+                                                variant="outline-secondary"
+                                                onClick={() => incrementSeq(-1)}
+                                            >
+                                                <i className="bi bi-chevron-down" />
+                                            </Button>
+                                        </InputGroup>
+                                    </div> */}
+
                                     <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">
                                             Seq ID<span className="text-danger">*</span>
@@ -157,6 +283,7 @@ export const AddEvent = () => {
                                                 value={form.seqId}
                                                 onChange={(e) => updateField("seqId", e.target.value)}
                                                 required
+                                                style={{ MozAppearance: "textfield" }} // extra safety for Firefox inline
                                             />
                                             <Button
                                                 variant="outline-secondary"
@@ -171,7 +298,9 @@ export const AddEvent = () => {
                                                 <i className="bi bi-chevron-down" />
                                             </Button>
                                         </InputGroup>
+                                        {errors.seqId && <div className="text-danger">{errors.seqId}</div>}
                                     </div>
+
 
                                     <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">
@@ -210,10 +339,11 @@ export const AddEvent = () => {
                                     </div>
 
                                     <div className="col-sm-6">
-                                        <Form.Label className="fw-semibold">Positioning</Form.Label>
+                                        <Form.Label className="fw-semibold">Positioning<span className="text-danger">*</span></Form.Label>
                                         <Form.Select
                                             value={form.positioning}
                                             onChange={(e) => updateField("positioning", e.target.value)}
+                                            required
                                         >
                                             <option value="">-- Select --</option>
                                             <option value="Automatic">Automatic</option>
@@ -222,10 +352,11 @@ export const AddEvent = () => {
                                     </div>
 
                                     <div className="col-sm-6">
-                                        <Form.Label className="fw-semibold">Status</Form.Label>
+                                        <Form.Label className="fw-semibold">Status<span className="text-danger">*</span></Form.Label>
                                         <Form.Select
                                             value={form.eventCode}
                                             onChange={(e) => updateField("eventCode", e.target.value)}
+                                            required
                                         >
                                             <option value="">-- Select --</option>
                                             <option value="DS_OFF">OFF</option>
@@ -249,15 +380,17 @@ export const AddEvent = () => {
                                     </div>
 
                                     <div className="col-sm-6">
-                                        <Form.Label className="fw-semibold">Origin</Form.Label>
+                                        <Form.Label className="fw-semibold">Origin<span className="text-danger">*</span></Form.Label>
                                         <Form.Select
                                             value={form.origin}
                                             onChange={(e) => updateField("origin", e.target.value)}
+                                            required
                                         >
                                             <option value="">-- Select --</option>
                                             <option value="DRIVER">Driver</option>
-                                            <option value="AUTO">System</option>
+                                            <option value="AUTO">Auto</option>
                                         </Form.Select>
+                                        {errors.origin && <div className="text-danger">{errors.origin}</div>}
                                     </div>
 
                                     <div className="col-sm-3">
@@ -284,10 +417,11 @@ export const AddEvent = () => {
                                     </div>
 
                                     <div className="col-sm-6">
-                                        <Form.Label className="fw-semibold">State</Form.Label>
+                                        <Form.Label className="fw-semibold">State<span className="text-danger">*</span></Form.Label>
                                         <Form.Select
                                             value={form.isActive}
                                             onChange={(e) => updateField("isActive", e.target.value)}
+                                            required
                                         >
                                             <option value="">-- Select --</option>
                                             <option value="active">Active</option>
@@ -316,7 +450,7 @@ export const AddEvent = () => {
                                         </Form.Select>
                                     </div> */}
                                     <div className="col-sm-6">
-                                        <Form.Label className="fw-semibold">Vehicle</Form.Label>
+                                        <Form.Label className="fw-semibold">Vehicle<span className="text-danger">*</span></Form.Label>
                                         <Form.Select
                                             value={form.vehicleId}
                                             onChange={(e) => {
@@ -325,6 +459,7 @@ export const AddEvent = () => {
 
                                                 updateField("vehicleId", selectedId);
                                             }}
+                                            required
                                         >
                                             <option value="">-- Select --</option>
                                             {vehiclesLoading && <option>Loading...</option>}
@@ -381,6 +516,7 @@ export const AddEvent = () => {
                                             onChange={(e) => updateField("odometer", e.target.value)}
                                             required
                                         />
+                                        {errors.odometer && <div className="text-danger">{errors.odometer}</div>}
                                     </div>
 
                                     {/* <div className="col-sm-6">
@@ -415,14 +551,16 @@ export const AddEvent = () => {
                                     </div>
 
                                     <div className="col-sm-6">
-                                        <Form.Label className="fw-semibold">Engine Hours</Form.Label>
+                                        <Form.Label className="fw-semibold">Engine Hours<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={form.engineHours}
                                             onChange={(e) =>
                                                 updateField("engineHours", e.target.value)
                                             }
+                                            required
                                         />
+                                        {errors.engineHours && <div className="text-danger">{errors.engineHours}</div>}
                                     </div>
                                 </div>
                             </div>

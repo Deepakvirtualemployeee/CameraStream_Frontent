@@ -14,11 +14,15 @@ import TrashIcon from '../../../assets/images/icons/trash.svg';
 import LogChart from "./LogChart";
 import { getDriverData, getDriverLogs, getMobileSettings, getProcessedDriverData, deleteEvent } from '../../../store/actions/driverHOS';
 import moment from "moment-timezone";
+import { ConfirmModal } from "../../../components/common/ConfirmModal";
 
 export const GraphDetails = () => {
     // State for showing phone
     const [showPhone, setShowPhone] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedEventId, setSelectedEventId] = useState(null);
 
     // Get params
     let { companyId, driverId } = useParams();
@@ -76,15 +80,16 @@ export const GraphDetails = () => {
         setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
     };
 
-    const handleDeleteLog = async (eventId) => {
-        if (!window.confirm("Are you sure you want to delete this log?")) return;
+    // const handleDeleteLog = async (eventId) => {
+    //     if (!window.confirm("Are you sure you want to delete this log?")) return;
 
-        await dispatch(deleteEvent(companyId, driverId, eventId, navigate));
+    //     await dispatch(deleteEvent(companyId, driverId, eventId, navigate));
 
-        // Refresh logs after delete
-        const formattedDate = formatDate(selectedDate);
-        dispatch(getDriverLogs(driverId, formattedDate));
-    };
+    //     // Refresh logs after delete
+    //     const formattedDate = formatDate(selectedDate);
+    //     dispatch(getDriverLogs(driverId, formattedDate));
+    // };
+
     // const handleNextDay = () => {
     //     setSelectedDate((prev) => {
     //         const next = new Date(prev);
@@ -128,10 +133,13 @@ export const GraphDetails = () => {
     // Convert seconds → HH:mm format
     // keep24h = true  → wrap hours within 24h (08:00, 11:00, 14:00)
     // keep24h = false → keep full hours (70:00 etc.)
-    const formatSecondsToHHMM = (seconds, keep24h = false) => {
-        if (!seconds || isNaN(seconds)) return "00:00";
+      const formatSecondsToHHMM = (seconds, keep24h = false) => {
+        if (seconds == null || isNaN(seconds)) return "00:00";
 
-        const totalMinutes = Math.floor(seconds / 60);
+        // clamp negatives to 0
+        const safeSeconds = Math.max(0, seconds);
+
+        const totalMinutes = Math.floor(safeSeconds / 60);
         const hours = Math.floor(totalMinutes / 60);
         const minutes = totalMinutes % 60;
 
@@ -183,6 +191,28 @@ export const GraphDetails = () => {
             await dispatch(getProcessedDriverData(driverId));
             setRefreshing(false);
         }
+    };
+
+    const handleDeleteLog = (eventId) => {
+        setSelectedEventId(eventId);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!selectedEventId) return;
+        await dispatch(deleteEvent(companyId, driverId, selectedEventId, navigate));
+
+        // Refresh logs after delete
+        const formattedDate = formatDate(selectedDate);
+        dispatch(getDriverLogs(driverId, formattedDate));
+
+        setShowDeleteModal(false);
+        setSelectedEventId(null);
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteModal(false);
+        setSelectedEventId(null);
     };
 
     const columns = [
@@ -353,14 +383,17 @@ export const GraphDetails = () => {
             center: true,
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event`)}><img src={EditIcon} alt="Edit Icon" /></span>
+                    <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event/${companyId}/${driverId}`, {
+                        state: { eventId: row.eventId, driverLogs: driverLogs },
+                    })}><img src={EditIcon} alt="Edit Icon" /></span>
+
                     {/* <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span> */}
                     {/* <span className='pointer p-0' title='Delete' onClick={() => {
                     }}><img src={TrashIcon} alt="Trash Icon" /></span> */}
                     <span
                         className='pointer p-0'
                         title='Delete'
-                        onClick={() => handleDeleteLog(row._id)}
+                        onClick={() => handleDeleteLog(row.eventId)}
                     >
                         <img src={TrashIcon} alt="Trash Icon" />
                     </span>
@@ -496,6 +529,7 @@ export const GraphDetails = () => {
                 }
 
                 return {
+                    eventId: event._id || "",
                     id: String(index + 1).padStart(2, "0"),
                     eventCode: event.eventCode,
                     status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
@@ -746,6 +780,16 @@ export const GraphDetails = () => {
                     timezone={driverSettings?.timeZoneId || "America/Los_Angeles"}
                 />
 
+                <ConfirmModal
+                    show={showDeleteModal}
+                    handleClose={() => setShowDeleteModal(false)}
+                    onConfirm={confirmDelete}
+                    onCancel={cancelDelete}
+                    title="Are you sure you want to permanently delete this event?"
+                    confirmText="Delete"
+                    confirmVariant="danger"
+                    iconClass="bi-trash"
+                />
 
                 {/* Error Table Section */}
                 <div className="table-content-wrapper" style={{ zIndex: 1 }}>
