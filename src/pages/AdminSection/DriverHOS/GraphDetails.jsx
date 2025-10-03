@@ -64,7 +64,7 @@ export const GraphDetails = () => {
     // }, [dispatch, driverId, companyId]);
 
     // Utility: format date as YYYY-MM-DD in driver’s timezone
-    const formatDate = (date, tz = driverSettings?.timeZoneId || "America/Los_Angeles") => {
+    const formatDate = (date, tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles") => {
         return moment(date).tz(tz).format("YYYY-MM-DD");
     };
     // --- useEffect to fetch logs whenever selectedDate changes ---
@@ -281,7 +281,7 @@ export const GraphDetails = () => {
         },
         {
             // name: `Start (PDT)`,
-            name: `Start (${driverSettings?.timeZoneId || 'PDT'})`,
+            name: `Start (${driverSettings?.timeZoneId || driverSettings?.timeZone || 'PDT'})`,
             selector: (row) => row.start_PDT,
             minWidth: '230px',
             center: true,
@@ -386,7 +386,7 @@ export const GraphDetails = () => {
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
                     <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event/${companyId}/${driverId}`, {
-                        state: { eventId: row.eventId, driverLogs: driverLogs },
+                        state: { eventId: row.eventId, driverLogs: driverLogs, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' },
                     })}><img src={EditIcon} alt="Edit Icon" /></span>
 
                     {/* <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span> */}
@@ -502,7 +502,7 @@ export const GraphDetails = () => {
             log.hosEvents.map((event, index) => {
                 let duration = "--";
 
-                const tz = driverSettings?.timeZoneId || "America/Los_Angeles";
+                const tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles";
 
                 if (allowedEventCodes.includes(event?.eventCode)) {
                     const eventTime = event?.eventDateTime
@@ -762,7 +762,7 @@ export const GraphDetails = () => {
                                     </Button>
 
                                     <Button variant='outline-danger' onClick={() => setShowTSModal(true)}><i className="bi bi-pencil"></i></Button>
-                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`)}><i className="bi bi-plus-lg fs-16"></i></Button>
+                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`, {state: {timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles'}})}><i className="bi bi-plus-lg fs-16"></i></Button>
                                     <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
                                         <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
                                         <span className="ms-1 d-sm-none">Refresh</span>
@@ -779,7 +779,7 @@ export const GraphDetails = () => {
                 <LogChart
                     logs={driverLogs}
                     selectedDate={selectedDate}
-                    timezone={driverSettings?.timeZoneId || "America/Los_Angeles"}
+                    timezone={driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles"}
                 />
 
                 <ConfirmModal

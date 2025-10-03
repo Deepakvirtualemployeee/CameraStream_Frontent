@@ -181,3 +181,41 @@ export const deleteEvent = (companyId, driverId, eventId, navigate) => async (di
     toast.error(error.response?.data?.message || "Failed to delete event");
   }
 };
+
+// Add trailers/shipping docs action
+export const trailerShippingDocs = (companyId, driverId, eventData, navigate) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.ADD_DRIVERS_TRAILERS_DATA_REQUEST });
+
+    const res = await axios.post(
+      `/trailerShippingDocs?driverId=${driverId}`,
+      eventData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("Trailer data", eventData);
+    console.log("res", res);
+    dispatch({
+      type: actionTypes.ADD_DRIVERS_TRAILERS_DATA_SUCCESS,
+      payload: res.data.data,
+    });
+
+    toast.success("Trailer & ShippingDocs updated successfully!");
+    
+    if (navigate) navigate(`/driver-hos/graph-details/${companyId}/${driverId}`); // redirect after success
+
+    return true;
+  } catch (err) {
+    console.log(err);
+    dispatch({
+      type: actionTypes.ADD_DRIVERS_TRAILERS_DATA_FAIL,
+      payload: err.response?.data?.message || err.message,
+    });
+    toast.error(err.response?.data?.message || "Failed to add data");
+    return false;
+  }
+};

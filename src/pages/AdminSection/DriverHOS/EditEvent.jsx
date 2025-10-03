@@ -6,13 +6,20 @@ import "react-datepicker/dist/react-datepicker.css";
 import { addEditEvent } from "../../../store/actions/driverHOS"; // redux action
 import { getAssignableVehicles } from "../../../store/actions/vehicles";
 import { useDispatch, useSelector } from "react-redux";
+import moment from "moment-timezone";
+import { fetchLocationFromLatLng } from "../../../data/utils";
 
 export const EditEvent = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch(); // Redux dispatch
     const location = useLocation();
-    const { eventId, driverLogs } = location.state || {};
-    console.log("EventId:", eventId, "driverLogs", driverLogs);
+    const { eventId, driverLogs, timeZoneId } = location.state || {};
+    console.log("EventId:", eventId, "driverLogs", driverLogs, "timeZoneId", timeZoneId);
+
+    // helper: get now in company timezone as Date object
+    const getNowInTZ = () => {
+        return moment.tz(timeZoneId).toDate();
+    };
 
     const { companyId, driverId } = useParams();
 
@@ -36,6 +43,8 @@ export const EditEvent = () => {
         latitude: "",
         longitude: "",
         notes: null,
+        isEldConnected: false,   // added
+        calcLocation: ""         // added for automatic positioning
     });
 
     const [errors, setErrors] = useState({});
@@ -46,10 +55,45 @@ export const EditEvent = () => {
         "Drop & Hook", "Co-Driver Joined", "Co-Driver Left"
     ];
 
+    // const updateField = (key, value) => {
+    //     setForm((prev) => ({ ...prev, [key]: value }));
+    //     validateField(key, value);
+    // };
+
+    // --- updateField ---
     const updateField = (key, value) => {
-        setForm((prev) => ({ ...prev, [key]: value }));
+        setForm((prev) => {
+            let updated = { ...prev, [key]: value };
+
+            // update isEldConnected automatically
+            if (key === "source") {
+                updated.isEldConnected = value === "connected";
+            }
+
+            // handle positioning logic
+            if (key === "positioning") {
+                if (value === "manual") {
+                    updated.latitude = "";
+                    updated.longitude = "";
+                    updated.calcLocation = "";
+                } else if (value === "automatic") {
+                    updated.locationNote = "";
+                }
+            }
+
+            return updated;
+        });
         validateField(key, value);
     };
+
+    // Auto update calcLocation when lat/lng changes
+    useEffect(() => {
+        if (form.positioning === "automatic" && form.latitude && form.longitude) {
+            fetchLocationFromLatLng(form.latitude, form.longitude).then((loc) => {
+                setForm((prev) => ({ ...prev, calcLocation: loc }));
+            });
+        }
+    }, [form.latitude, form.longitude, form.positioning]);
 
     // const incrementSeq = (delta) =>
     //   updateField("seqId", Number(form.seqId || 0) + delta);
@@ -94,8 +138,8 @@ export const EditEvent = () => {
                 break;
 
             case "odometer":
-                if (!value || value <= 0 || value >= 10000000) {
-                    message = "Odometer must be between 1 and 9,999,999.";
+                if (!value || value <= 0 || value >= 10000000 || !Number.isInteger(Number(value))) {
+                    message = "Odometer must be an integer between 1 and 9,999,999.";
                 }
                 break;
 
@@ -156,7 +200,10 @@ export const EditEvent = () => {
 
         setForm({
             seqId: event.seqId || null,
-            source: event.source || "",
+            // source: event.source || "",
+            // Prefill Location Source from isEldConnected
+            source: event.isEldConnected ? "connected" : "disconnected",
+            isEldConnected: !!event.isEldConnected,
             positioning: event.positioning || "",
             eventCode: event.eventCode || "",
             origin: event.origin || "",
@@ -169,6 +216,7 @@ export const EditEvent = () => {
             latitude: event.latitude || "",
             longitude: event.longitude || "",
             notes: event.notes ? event.notes.join(", ") : null,
+            calcLocation: "" // start empty, will be filled if positioning = automatic
         });
 
         const date = event.eventDateTime ? new Date(event.eventDateTime) : new Date();
@@ -178,7 +226,7 @@ export const EditEvent = () => {
             console.warn("Invalid eventDateTime:", event.eventDateTime);
             setEventDate(new Date());
         }
-        
+
     }, [driverLogs]);
 
     const handleSubmit = (e) => {
@@ -214,6 +262,23 @@ export const EditEvent = () => {
             ? parseFloat(form.engineHours).toFixed(2)
             : null;
 
+        // handle positioning logic for backend payload
+        let finalLocationNote = form.locationNote;
+        if (form.positioning === "automatic" && form.latitude && form.longitude) {
+            finalLocationNote = form.calcLocation || `Lat:${form.latitude}, Lng:${form.longitude}`;
+        }
+
+        // Validation against company timezone current time
+        const companyNow = moment.tz(timeZoneId);
+
+        if (moment(eventDate).isAfter(companyNow)) {
+            setErrors((prev) => ({
+                ...prev,
+                eventDate: "You cannot select a future time based on company timezone.",
+            }));
+            return;
+        }
+
         // Prepare payload for Redux action
         const payload = [
             {
@@ -226,9 +291,16 @@ export const EditEvent = () => {
                 notes: form.notes
                     ? form.notes.split(",").map((n) => n.trim()).filter(Boolean)
                     : [],
+                locationNote: finalLocationNote,
+                isEldConnected: form.source === "connected",  // force true/false
                 isAddEdit: true,
             },
         ];
+
+        // Remove calcLocation before sending
+        delete payload[0].calcLocation;
+        delete payload[0].source;
+        delete payload[0].vehicleNumber;
 
         console.log("Edit event payload:", payload);
 
@@ -315,6 +387,7 @@ export const EditEvent = () => {
                                                 type="number"
                                                 value={form.seqId}
                                                 onChange={(e) => updateField("seqId", e.target.value)}
+                                                placeholder="Enter seq id"
                                                 required
                                                 style={{ MozAppearance: "textfield" }} // extra safety for Firefox inline
                                             />
@@ -344,14 +417,17 @@ export const EditEvent = () => {
                                             onChange={(e) => updateField("source", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
-                                            <option value="Generated when connected to ECM">
+                                            <option value="">-- Not Selected --</option>
+                                            <option value="connected">
                                                 Generated when connected to ECM
                                             </option>
-                                            <option value="Manual Location">Manual Location</option>
+                                            <option value="disconnected">
+                                                Generated when not connected to ECM
+                                            </option>
+                                            {/* <option value="Manual Location">Manual Location</option>
                                             <option value="Calculated Location">
                                                 Calculated Location
-                                            </option>
+                                            </option> */}
                                         </Form.Select>
                                     </div>
 
@@ -360,13 +436,36 @@ export const EditEvent = () => {
                                             Date & Time<span className="text-danger">*</span>
                                         </Form.Label>
                                         <div className="w-100">
-                                            <DatePicker
+                                            {/* <DatePicker
                                                 selected={eventDate}
                                                 onChange={setEventDate}
                                                 showTimeSelect
                                                 dateFormat="MMMM d, yyyy hh:mm aa"
                                                 className="form-control"
                                                 required
+                                            /> */}
+                                            <DatePicker
+                                                selected={eventDate}
+                                                onChange={(date) => {
+                                                    // convert picked date into company timezone moment
+                                                    const zoned = moment.tz(date, timeZoneId);
+                                                    setEventDate(zoned.toDate());
+                                                }}
+                                                showTimeSelect
+                                                dateFormat="MMMM d, yyyy hh:mm aa"
+                                                className="form-control"
+                                                required
+                                                // Restrict calendar to today or earlier
+                                                maxDate={getNowInTZ()}
+                                                // Min time = start of the selected day
+                                                minTime={moment.tz(eventDate || getNowInTZ(), timeZoneId).startOf("day").toDate()}
+                                                // Max time = now (if same day), otherwise full day
+                                                maxTime={
+                                                    eventDate &&
+                                                        moment(eventDate).tz(timeZoneId).isSame(moment.tz(timeZoneId), "day")
+                                                        ? getNowInTZ()
+                                                        : moment.tz(eventDate || getNowInTZ(), timeZoneId).endOf("day").toDate()
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -378,7 +477,7 @@ export const EditEvent = () => {
                                             onChange={(e) => updateField("positioning", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
+                                            <option value="">-- Not Selected --</option>
                                             <option value="automatic">Automatic</option>
                                             <option value="manual">Manual</option>
                                         </Form.Select>
@@ -391,7 +490,7 @@ export const EditEvent = () => {
                                             onChange={(e) => updateField("eventCode", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
+                                            <option value="">-- Not Selected --</option>
                                             <option value="DS_OFF">OFF</option>
                                             <option value="DS_SB">Sleeper</option>
                                             <option value="DS_ON">ON Duty</option>
@@ -406,6 +505,8 @@ export const EditEvent = () => {
                                         <Form.Control
                                             type="text"
                                             value={form.locationNote}
+                                            placeholder="Enter location note"
+                                            disabled={form.positioning === "automatic"}
                                             onChange={(e) =>
                                                 updateField("locationNote", e.target.value)
                                             }
@@ -419,7 +520,7 @@ export const EditEvent = () => {
                                             onChange={(e) => updateField("origin", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
+                                            <option value="">-- Not Selected --</option>
                                             <option value="DRIVER">Driver</option>
                                             <option value="AUTO">Auto</option>
                                         </Form.Select>
@@ -434,6 +535,8 @@ export const EditEvent = () => {
                                             type="text"
                                             value={form.latitude}
                                             onChange={(e) => updateField("latitude", e.target.value)}
+                                            placeholder="Enter latitude"
+                                            disabled={form.positioning === "manual"}
                                             required
                                         />
                                     </div>
@@ -445,6 +548,8 @@ export const EditEvent = () => {
                                             type="text"
                                             value={form.longitude}
                                             onChange={(e) => updateField("longitude", e.target.value)}
+                                            placeholder="Enter longitude"
+                                            disabled={form.positioning === "manual"}
                                             required
                                         />
                                     </div>
@@ -456,7 +561,7 @@ export const EditEvent = () => {
                                             onChange={(e) => updateField("isActive", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
+                                            <option value="">-- Not Selected --</option>
                                             <option value="active">Active</option>
                                             <option value="inactive">Inactive</option>
                                         </Form.Select>
@@ -466,8 +571,12 @@ export const EditEvent = () => {
                                         <Form.Label className="fw-semibold">Calc. Location</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            placeholder="6046.5mi WSW of Bethel, AK"
-                                            disabled
+                                            value={form.calcLocation}
+                                            placeholder="Enter calc location"
+                                            disabled={form.positioning === "manual"}
+                                            onChange={(e) => updateField("calcLocation", e.target.value)}
+                                        // placeholder="6046.5mi WSW of Bethel, AK"
+                                        // disabled
                                         />
                                     </div>
 
@@ -512,7 +621,7 @@ export const EditEvent = () => {
                                             onChange={(e) => updateField("vehicleId", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
+                                            <option value="">-- Not Selected --</option>
                                             {vehiclesLoading && <option>Loading...</option>}
 
                                             {/* Normal assignable vehicles */}
@@ -576,6 +685,7 @@ export const EditEvent = () => {
                                             type="number"
                                             value={form.odometer}
                                             onChange={(e) => updateField("odometer", e.target.value)}
+                                            placeholder="Enter odometer"
                                             required
                                         />
                                         {errors.odometer && <div className="text-danger">{errors.odometer}</div>}
@@ -617,6 +727,7 @@ export const EditEvent = () => {
                                         <Form.Control
                                             type="text"
                                             value={form.engineHours}
+                                            placeholder="Enter engine hours"
                                             onChange={(e) =>
                                                 updateField("engineHours", e.target.value)
                                             }
