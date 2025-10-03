@@ -1,0 +1,74 @@
+name: ec2 testing Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  DeployOnEc2:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: npm install --legacy-peer-deps
+
+    # Login to AWS
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+        aws-region: us-east-1
+
+    - name: Check for the branch name convention
+      run: |
+        branch_name=${GITHUB_REF#refs/heads/}
+        echo "Branch name: $branch_name"
+
+        if [[ "$branch_name" != */* ]]; then
+          echo "Invalid branch name format. Workflow canceled."
+          exit 1
+        fi
+
+        IFS='/' read -ra branch_parts <<< "$branch_name"
+        if [ "${#branch_parts[@]}" -ne 2 ]; then
+          echo "Invalid branch name format. Workflow canceled."
+          exit 1
+        fi
+
+    - name: Print Branch Name
+      run: |
+        echo "Branch Name: $GITHUB_REF"
+
+    - name: Build with GitHub secrets and .env
+      run: |
+        # Export GitHub Actions secrets (if needed in build)
+        export REACT_APP_API_BASE_URL=${{ secrets.REACT_APP_API_BASE_URL }}
+
+    - name: Build with env variables
+      run: |
+        set -o allexport
+        source .env
+        set +o allexport
+        CI="" npm run build
+
+    - name: Deploy static site to S3 bucket
+      run: aws s3 sync ./build/ s3://truckappbucketfmcsa.s3-website-us-east-1.amazonaws.com --delete
+
+    - name: Invalidate CloudFront
+      uses: chetan/invalidate-cloudfront-action@v2
+      env:
+        DISTRIBUTION: E2L8DBFBLIJGU2
+        PATHS: "/*"
+        AWS_REGION: "us-east-1"
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
