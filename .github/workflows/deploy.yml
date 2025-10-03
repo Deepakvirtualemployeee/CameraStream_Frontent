@@ -29,22 +29,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
         aws-region: us-east-1
 
-    - name: Check for the branch name convention
-      run: |
-        branch_name=${GITHUB_REF#refs/heads/}
-        echo "Branch name: $branch_name"
-
-        if [[ "$branch_name" != */* ]]; then
-          echo "Invalid branch name format. Workflow canceled."
-          exit 1
-        fi
-
-        IFS='/' read -ra branch_parts <<< "$branch_name"
-        if [ "${#branch_parts[@]}" -ne 2 ]; then
-          echo "Invalid branch name format. Workflow canceled."
-          exit 1
-        fi
-
     - name: Print Branch Name
       run: |
         echo "Branch Name: $GITHUB_REF"
