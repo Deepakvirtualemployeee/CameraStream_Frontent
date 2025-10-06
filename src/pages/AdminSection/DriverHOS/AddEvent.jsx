@@ -6,8 +6,9 @@ import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addEditEvent } from "../../../store/actions/driverHOS"; // redux action
 import { getAssignableVehicles } from "../../../store/actions/vehicles";
+import { getUnassignedElds } from "../../../store/actions/eldDevices";
 import moment from "moment-timezone";
-import {fetchLocationFromLatLng} from "../../../data/utils";
+import { fetchLocationFromLatLng } from "../../../data/utils";
 
 export const AddEvent = () => {
     const navigate = useNavigate();
@@ -28,6 +29,9 @@ export const AddEvent = () => {
         (state) => state.addEditEvent || { loading: false, error: null }
     );
     const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
+    const { unassignedElds = [], loading: eldLoading } = useSelector(
+        (state) => state.eldDevices || {}
+    );
 
     // const companyNow = moment().tz(timeZoneId);
     const companyNow = moment.tz(timeZoneId);
@@ -44,13 +48,14 @@ export const AddEvent = () => {
         origin: "",
         isActive: "",
         vehicleId: null,
+        eldId: null,
         odometer: "",
         engineHours: "",
         latitude: "",
         longitude: "",
         locationNote: "",
         notes: null,
-        isEldConnected: false,   // added
+        isEldConnected: false,
         calcLocation: ""         // added for automatic positioning
     });
 
@@ -279,6 +284,13 @@ export const AddEvent = () => {
         }
     }, [companyId, dispatch]);
 
+    // Fetch Unassigned ELDs
+    useEffect(() => {
+        if (companyId) {
+            dispatch(getUnassignedElds(companyId));
+        }
+    }, [companyId, dispatch]);
+
     return (
         <div className="EditEvent-page py-3">
             <div
@@ -407,59 +419,31 @@ export const AddEvent = () => {
                                             Date & Time<span className="text-danger">*</span>
                                         </Form.Label>
                                         <div className="w-100">
-                                            {/* <DatePicker
-                                                selected={eventDate}
-                                                onChange={setEventDate}
-                                                showTimeSelect
-                                                dateFormat="MMMM d, yyyy hh:mm aa"
-                                                className="form-control"
-                                                required
-                                                maxDate={companyNow.toDate()}   // restrict date
-                                                maxTime={
-                                                    eventDate && moment(eventDate).isSame(companyNow, "day")
-                                                        ? companyNow.toDate()
-                                                        : moment().endOf("day").toDate()
-                                                }
-                                            /> */}
-                                            {/* <DatePicker
-                                                selected={eventDate}
-                                                onChange={setEventDate}
-                                                showTimeSelect
-                                                dateFormat="MMMM d, yyyy hh:mm aa"
-                                                className="form-control"
-                                                required
-                                                maxDate={companyNow.toDate()} // restrict date
-                                                minTime={moment().startOf("day").toDate()} // beginning of the day
-                                                maxTime={
-                                                    eventDate && moment(eventDate).isSame(companyNow, "day")
-                                                        ? companyNow.toDate() // restrict until current time if today
-                                                        : moment().endOf("day").toDate() // full day available if past date
-                                                }
-                                            /> */}
                                             <DatePicker
                                                 selected={eventDate}
                                                 onChange={(date) => {
-                                                    // convert picked date into company timezone moment
-                                                    const zoned = moment.tz(date, timeZoneId);
-                                                    setEventDate(zoned.toDate());
+                                                    const selectedInTZ = moment.tz(date, timeZoneId);
+                                                    const nowInTZ = moment.tz(timeZoneId);
+
+                                                    // check if selected date is in future (based on timezone)
+                                                    if (selectedInTZ.isAfter(nowInTZ)) {
+                                                        setErrors((prev) => ({
+                                                            ...prev,
+                                                            eventDate: "You cannot select a future time based on company timezone.",
+                                                        }));
+                                                    } else {
+                                                        setErrors((prev) => ({ ...prev, eventDate: "" }));
+                                                        setEventDate(selectedInTZ.toDate());
+                                                    }
                                                 }}
                                                 showTimeSelect
                                                 dateFormat="MMMM d, yyyy hh:mm aa"
                                                 className="form-control"
                                                 required
-                                                // Restrict calendar to today or earlier
-                                                maxDate={getNowInTZ()}
-                                                // Min time = start of the selected day
-                                                minTime={moment.tz(eventDate || getNowInTZ(), timeZoneId).startOf("day").toDate()}
-                                                // Max time = now (if same day), otherwise full day
-                                                maxTime={
-                                                    eventDate &&
-                                                        moment(eventDate).tz(timeZoneId).isSame(moment.tz(timeZoneId), "day")
-                                                        ? getNowInTZ()
-                                                        : moment.tz(eventDate || getNowInTZ(), timeZoneId).endOf("day").toDate()
-                                                }
                                             />
-
+                                            {errors.eventDate && (
+                                                <div className="text-danger">{errors.eventDate}</div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -717,6 +701,33 @@ export const AddEvent = () => {
                                         />
                                         {errors.engineHours && <div className="text-danger">{errors.engineHours}</div>}
                                     </div>
+                                    {/* <div className="col-sm-6">
+                                        <Form.Label className="fw-semibold">ELD</Form.Label>
+                                        <Form.Select value={form.eld} onChange={(e) => updateField("eld", e.target.value)}>
+                                            <option>{form.eld}</option>
+                                            <option>Another ELD</option>
+                                        </Form.Select>
+                                    </div> */}
+                                    <div className="col-sm-6">
+                                        <Form.Label className="fw-semibold">ELD</Form.Label>
+                                        <Form.Select
+                                            value={form.eldId || ""}
+                                            onChange={(e) => updateField("eldId", e.target.value)}
+                                        >
+                                            <option value="">-- Not Selected --</option>
+                                            {eldLoading && <option>Loading...</option>}
+                                            {unassignedElds?.length > 0 ? (
+                                                unassignedElds.map((eld) => (
+                                                    <option key={eld._id} value={eld._id}>
+                                                        {eld.serialNumber} ({eld.macAddress})
+                                                    </option>
+                                                ))
+                                            ) : (
+                                                !eldLoading && <option disabled>No unassigned ELDs</option>
+                                            )}
+                                        </Form.Select>
+                                    </div>
+
                                 </div>
                             </div>
 

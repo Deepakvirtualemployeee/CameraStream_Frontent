@@ -8,7 +8,7 @@ export const TrailersShippingInfoModal = ({ show, onClose, initialData = {} }) =
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { companyId, driverId } = useParams();
-
+  console.log("initialData", initialData);
   // Redux state
   const { loading } = useSelector((state) => state.trailersShippingDocs || {});
 
@@ -17,15 +17,32 @@ export const TrailersShippingInfoModal = ({ show, onClose, initialData = {} }) =
   const [shippingDocs, setShippingDocs] = useState("");
 
   // Prefill if initialData is provided (e.g., when editing)
+  // useEffect(() => {
+  //   if (initialData?.trailers) setTrailers(initialData.trailers.join(" "));
+  //   if (initialData?.shippingDocuments) setShippingDocs(initialData.shippingDocuments.join(" "));
+  // }, [initialData]);
+
   useEffect(() => {
-    if (initialData?.trailers) setTrailers(initialData.trailers.join(" "));
-    if (initialData?.shippingDocs) setShippingDocs(initialData.shippingDocs.join(" "));
-  }, [initialData]);
+    let data = initialData;
+  
+    // If it's an array, take the first item
+    if (Array.isArray(initialData) && initialData.length > 0) {
+      data = initialData[0];
+    }
+  
+    if (data?.trailers?.length) {
+      setTrailers(data.trailers.join(" "));
+    }
+  
+    if (data?.shippingDocuments?.length) {
+      setShippingDocs(data.shippingDocuments.join(" "));
+    }
+  }, [initialData]);  
 
   // Handle submit
   const handleSubmit = async () => {
     const eventData = {
-      logDate: new Date().toISOString(), // You may want to pass specific logDate
+      logDate: initialData[0].logDate,
       trailers: trailers
         .split(" ")
         .map((t) => t.trim())

@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addEditEvent } from "../../../store/actions/driverHOS"; // redux action
 import { getAssignableVehicles } from "../../../store/actions/vehicles";
+import { getUnassignedElds } from "../../../store/actions/eldDevices";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment-timezone";
 import { fetchLocationFromLatLng } from "../../../data/utils";
@@ -16,10 +17,10 @@ export const EditEvent = () => {
     const { eventId, driverLogs, timeZoneId } = location.state || {};
     console.log("EventId:", eventId, "driverLogs", driverLogs, "timeZoneId", timeZoneId);
 
-    // helper: get now in company timezone as Date object
-    const getNowInTZ = () => {
-        return moment.tz(timeZoneId).toDate();
-    };
+    // get now in company timezone as Date object
+    // const getNowInTZ = () => {
+    //     return moment.tz(timeZoneId).toDate();
+    // };
 
     const { companyId, driverId } = useParams();
 
@@ -28,6 +29,9 @@ export const EditEvent = () => {
         (state) => state.addEditEvent || { loading: false, error: null }
     );
     const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
+    const { unassignedElds = [], loading: eldLoading } = useSelector(
+        (state) => state.eldDevices || {}
+    );
 
     const [form, setForm] = useState({
         seqId: null,
@@ -37,13 +41,14 @@ export const EditEvent = () => {
         origin: "",
         isActive: "",
         vehicleId: null,
+        eldId: null,
         odometer: "",
         engineHours: "",
         locationNote: "",
         latitude: "",
         longitude: "",
         notes: null,
-        isEldConnected: false,   // added
+        isEldConnected: false,   // added for location source
         calcLocation: ""         // added for automatic positioning
     });
 
@@ -191,6 +196,13 @@ export const EditEvent = () => {
         }
     }, [companyId, dispatch]);
 
+    // Fetch Unassigned ELDs
+    useEffect(() => {
+        if (companyId) {
+            dispatch(getUnassignedElds(companyId));
+        }
+    }, [companyId, dispatch]);
+
     // Prefill form using driverLogs if available  
     useEffect(() => {
         console.log("useEffect triggered, driverLogs:", driverLogs);
@@ -210,6 +222,7 @@ export const EditEvent = () => {
             isActive: event.eventStatus === "ACTIVE" ? "active" : "inactive",
             vehicleId: event.vehicle?._id || "",
             vehicleNumber: event.vehicle?.vehicleNumber || "", // store label too
+            eldId: event.eldId?._id || "",
             odometer: event.odometer || "",
             engineHours: event.engineHours || "",
             locationNote: event.locationNote || "",
@@ -436,37 +449,31 @@ export const EditEvent = () => {
                                             Date & Time<span className="text-danger">*</span>
                                         </Form.Label>
                                         <div className="w-100">
-                                            {/* <DatePicker
-                                                selected={eventDate}
-                                                onChange={setEventDate}
-                                                showTimeSelect
-                                                dateFormat="MMMM d, yyyy hh:mm aa"
-                                                className="form-control"
-                                                required
-                                            /> */}
                                             <DatePicker
                                                 selected={eventDate}
                                                 onChange={(date) => {
-                                                    // convert picked date into company timezone moment
-                                                    const zoned = moment.tz(date, timeZoneId);
-                                                    setEventDate(zoned.toDate());
+                                                    const selectedInTZ = moment.tz(date, timeZoneId);
+                                                    const nowInTZ = moment.tz(timeZoneId);
+
+                                                    // check if selected date is in future (based on timezone)
+                                                    if (selectedInTZ.isAfter(nowInTZ)) {
+                                                        setErrors((prev) => ({
+                                                            ...prev,
+                                                            eventDate: "You cannot select a future time based on company timezone.",
+                                                        }));
+                                                    } else {
+                                                        setErrors((prev) => ({ ...prev, eventDate: "" }));
+                                                        setEventDate(selectedInTZ.toDate());
+                                                    }
                                                 }}
                                                 showTimeSelect
                                                 dateFormat="MMMM d, yyyy hh:mm aa"
                                                 className="form-control"
                                                 required
-                                                // Restrict calendar to today or earlier
-                                                maxDate={getNowInTZ()}
-                                                // Min time = start of the selected day
-                                                minTime={moment.tz(eventDate || getNowInTZ(), timeZoneId).startOf("day").toDate()}
-                                                // Max time = now (if same day), otherwise full day
-                                                maxTime={
-                                                    eventDate &&
-                                                        moment(eventDate).tz(timeZoneId).isSame(moment.tz(timeZoneId), "day")
-                                                        ? getNowInTZ()
-                                                        : moment.tz(eventDate || getNowInTZ(), timeZoneId).endOf("day").toDate()
-                                                }
                                             />
+                                            {errors.eventDate && (
+                                                <div className="text-danger">{errors.eventDate}</div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -581,17 +588,6 @@ export const EditEvent = () => {
                                     </div>
 
                                     {/* <div className="col-sm-6">
-                                        <Form.Label className="fw-semibold">Vehicle</Form.Label>
-                                        <Form.Select
-                                            value={form.vehicleId}
-                                            onChange={(e) => updateField("vehicleId", e.target.value)}
-                                        >
-                                            <option value="">-- Select --</option>
-                                            <option value="TESTG">TESTG</option>
-                                            <option value="93005">93005</option>
-                                        </Form.Select>
-                                    </div> */}
-                                    {/* <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">Vehicle<span className="text-danger">*</span></Form.Label>
                                         <Form.Select
                                             value={form.vehicleId}
@@ -640,7 +636,6 @@ export const EditEvent = () => {
                                                 )}
                                         </Form.Select>
                                     </div>
-
 
                                     {/* <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">Notes</Form.Label>
@@ -734,6 +729,26 @@ export const EditEvent = () => {
                                             required
                                         />
                                         {errors.engineHours && <div className="text-danger">{errors.engineHours}</div>}
+                                    </div>
+
+                                    <div className="col-sm-6">
+                                        <Form.Label className="fw-semibold">ELD</Form.Label>
+                                        <Form.Select
+                                            value={form.eldId || ""}
+                                            onChange={(e) => updateField("eldId", e.target.value)}
+                                        >
+                                            <option value="">-- Not Selected --</option>
+                                            {eldLoading && <option>Loading...</option>}
+                                            {unassignedElds?.length > 0 ? (
+                                                unassignedElds.map((eld) => (
+                                                    <option key={eld._id} value={eld._id}>
+                                                        {eld.serialNumber} ({eld.macAddress})
+                                                    </option>
+                                                ))
+                                            ) : (
+                                                !eldLoading && <option disabled>No unassigned ELDs</option>
+                                            )}
+                                        </Form.Select>
                                     </div>
                                 </div>
                             </div>

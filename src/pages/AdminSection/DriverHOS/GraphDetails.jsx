@@ -27,6 +27,7 @@ export const GraphDetails = () => {
 
     // Get params
     let { companyId, driverId } = useParams();
+    // console.log("driverId", driverId);
 
     // For testing
     // driverId = '688b50c55dc4bbb932ffad56';
@@ -82,16 +83,6 @@ export const GraphDetails = () => {
         setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
     };
 
-    // const handleDeleteLog = async (eventId) => {
-    //     if (!window.confirm("Are you sure you want to delete this log?")) return;
-
-    //     await dispatch(deleteEvent(companyId, driverId, eventId, navigate));
-
-    //     // Refresh logs after delete
-    //     const formattedDate = formatDate(selectedDate);
-    //     dispatch(getDriverLogs(driverId, formattedDate));
-    // };
-
     // const handleNextDay = () => {
     //     setSelectedDate((prev) => {
     //         const next = new Date(prev);
@@ -135,7 +126,7 @@ export const GraphDetails = () => {
     // Convert seconds → HH:mm format
     // keep24h = true  → wrap hours within 24h (08:00, 11:00, 14:00)
     // keep24h = false → keep full hours (70:00 etc.)
-      const formatSecondsToHHMM = (seconds, keep24h = false) => {
+    const formatSecondsToHHMM = (seconds, keep24h = false) => {
         if (seconds == null || isNaN(seconds)) return "00:00";
 
         // clamp negatives to 0
@@ -151,19 +142,6 @@ export const GraphDetails = () => {
             .toString()
             .padStart(2, "0")}`;
     };
-
-    // const breakTimeLeft = formatSecondsToHHMM(
-    //     (driverData.breakTime?.limitTime || 0) - (driverData.breakTime?.accumulatedTime || 0)
-    // );
-    // const driveTimeLeft = formatSecondsToHHMM(
-    //     (driverData.driveTime?.limitTime || 0) - (driverData.driveTime?.accumulatedTime || 0)
-    // );
-    // const shiftTimeLeft = formatSecondsToHHMM(
-    //     (driverData.shiftTime?.limitTime || 0) - (driverData.shiftTime?.accumulatedTime || 0)
-    // );
-    // const cycleTimeLeft = formatSecondsToHHMM(
-    //     (driverData.cycleTime?.limitTime || 0) - (driverData.cycleTime?.accumulatedTime || 0)
-    // );
 
     // Circle values now use driverProcessedData
     const breakTimeLeft = formatSecondsToHHMM(
@@ -762,7 +740,7 @@ export const GraphDetails = () => {
                                     </Button>
 
                                     <Button variant='outline-danger' onClick={() => setShowTSModal(true)}><i className="bi bi-pencil"></i></Button>
-                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`, {state: {timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles'}})}><i className="bi bi-plus-lg fs-16"></i></Button>
+                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`, { state: { timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' } })}><i className="bi bi-plus-lg fs-16"></i></Button>
                                     <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
                                         <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
                                         <span className="ms-1 d-sm-none">Refresh</span>
@@ -774,8 +752,6 @@ export const GraphDetails = () => {
                 </div>
 
                 {/* Chart Section */}
-                {/* <LogChart /> */}
-                {/* <LogChart logs={filteredLogs.flatMap(l => l.hosEvents)} driverSettings={driverSettings} /> */}
                 <LogChart
                     logs={driverLogs}
                     selectedDate={selectedDate}
@@ -810,11 +786,12 @@ export const GraphDetails = () => {
                     </div>
                 </div>
                 {/* Trailers & Shipping Docs Modal */}
-            <TrailersShippingInfoModal
-              show={showTSModal}
-              onClose={() => setShowTSModal(false)}
-              onSubmit={() => setShowTSModal(false)}
-            />
+                <TrailersShippingInfoModal
+                    show={showTSModal}
+                    onClose={() => setShowTSModal(false)}
+                    initialData={driverLogs}
+                    onSubmit={() => setShowTSModal(false)}
+                />
             </div>
         </div>
     )
