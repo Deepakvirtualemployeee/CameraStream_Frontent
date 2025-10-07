@@ -83,6 +83,13 @@ export const GraphDetails = () => {
         setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
     };
 
+    const handleRefreshDriverLogs = () => {
+        if (driverId && selectedDate) {
+            const formattedDate = formatDate(selectedDate);
+            dispatch(getDriverLogs(driverId, formattedDate));
+        }
+    };    
+
     // const handleNextDay = () => {
     //     setSelectedDate((prev) => {
     //         const next = new Date(prev);
@@ -789,6 +796,7 @@ export const GraphDetails = () => {
                 <TrailersShippingInfoModal
                     show={showTSModal}
                     onClose={() => setShowTSModal(false)}
+                    onRefresh={handleRefreshDriverLogs}   // automatically re-fetch data after submit
                     initialData={driverLogs}
                     onSubmit={() => setShowTSModal(false)}
                 />

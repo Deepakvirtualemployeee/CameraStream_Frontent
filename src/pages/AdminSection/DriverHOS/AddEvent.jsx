@@ -291,6 +291,12 @@ export const AddEvent = () => {
         }
     }, [companyId, dispatch]);
 
+    useEffect(() => {
+        if (timeZoneId) {
+            setEventDate(moment.tz(timeZoneId).toDate());
+        }
+    }, [timeZoneId]);
+
     return (
         <div className="EditEvent-page py-3">
             <div
@@ -414,18 +420,27 @@ export const AddEvent = () => {
                                         </Form.Select>
                                     </div>
 
-                                    <div className="col-sm-6">
+                                    {/* <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">
                                             Date & Time<span className="text-danger">*</span>
                                         </Form.Label>
                                         <div className="w-100">
+                                           
+
                                             <DatePicker
                                                 selected={eventDate}
                                                 onChange={(date) => {
-                                                    const selectedInTZ = moment.tz(date, timeZoneId);
+                                                    if (!date) return;
+
+                                                    // Convert picked date from local to company timezone
+                                                    const selectedInTZ = moment.tz(
+                                                        moment(date).format("YYYY-MM-DD HH:mm:ss"),
+                                                        "YYYY-MM-DD HH:mm:ss",
+                                                        timeZoneId
+                                                    );
+
                                                     const nowInTZ = moment.tz(timeZoneId);
 
-                                                    // check if selected date is in future (based on timezone)
                                                     if (selectedInTZ.isAfter(nowInTZ)) {
                                                         setErrors((prev) => ({
                                                             ...prev,
@@ -437,10 +452,74 @@ export const AddEvent = () => {
                                                     }
                                                 }}
                                                 showTimeSelect
+                                                timeFormat="hh:mm aa"
+                                                timeIntervals={1}
                                                 dateFormat="MMMM d, yyyy hh:mm aa"
                                                 className="form-control"
                                                 required
+
+                                                // remove manual `value` prop – allow react-datepicker to manage it internally
+                                                placeholderText={`Select date/time (${timeZoneId})`}
+                                                customInput={
+                                                    <Form.Control />
+                                                }
                                             />
+
+
+                                            {errors.eventDate && (
+                                                <div className="text-danger">{errors.eventDate}</div>
+                                            )}
+                                        </div>
+                                    </div> */}
+
+                                    <div className="col-sm-6">
+                                        <Form.Label className="fw-semibold">
+                                            Date & Time<span className="text-danger">*</span>
+                                        </Form.Label>
+                                        <div className="w-100">
+                                            <DatePicker
+                                                selected={
+                                                    eventDate
+                                                        ? new Date(moment(eventDate).format("YYYY-MM-DDTHH:mm:ss"))
+                                                        : null
+                                                }
+                                                onChange={(date) => {
+                                                    if (!date) return;
+
+                                                    // interpret the picked local time as company timezone
+                                                    const selectedInTZ = moment.tz(
+                                                        moment(date).format("YYYY-MM-DD HH:mm:ss"),
+                                                        "YYYY-MM-DD HH:mm:ss",
+                                                        timeZoneId
+                                                    );
+
+                                                    const nowInTZ = moment.tz(timeZoneId);
+
+                                                    if (selectedInTZ.isAfter(nowInTZ)) {
+                                                        setErrors((prev) => ({
+                                                            ...prev,
+                                                            eventDate: "You cannot select a future time based on company timezone.",
+                                                        }));
+                                                    } else {
+                                                        setErrors((prev) => ({ ...prev, eventDate: "" }));
+                                                        setEventDate(selectedInTZ); // store moment (not raw Date)
+                                                    }
+                                                }}
+                                                showTimeSelect
+                                                timeFormat="hh:mm aa"
+                                                timeIntervals={1}
+                                                dateFormat="MMMM d, yyyy hh:mm aa"
+                                                className="form-control"
+                                                required
+                                                placeholderText={`Select date/time (${timeZoneId})`}
+                                            />
+
+                                            {/* Display timezone info below */}
+                                            <div className="mt-1 text-muted small">
+                                                Current time ({timeZoneId}):{" "}
+                                                {moment().tz(timeZoneId).format("MMMM D, YYYY hh:mm A")}
+                                            </div>
+
                                             {errors.eventDate && (
                                                 <div className="text-danger">{errors.eventDate}</div>
                                             )}

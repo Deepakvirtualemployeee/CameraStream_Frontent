@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { trailerShippingDocs } from "../store/actions/driverHOS";
 import { useNavigate, useParams } from "react-router-dom";
 
-export const TrailersShippingInfoModal = ({ show, onClose, initialData = {} }) => {
+export const TrailersShippingInfoModal = ({ show, onClose, onRefresh, initialData = {} }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { companyId, driverId } = useParams();
@@ -16,39 +16,33 @@ export const TrailersShippingInfoModal = ({ show, onClose, initialData = {} }) =
   const [trailers, setTrailers] = useState("");
   const [shippingDocs, setShippingDocs] = useState("");
 
-  // Prefill if initialData is provided (e.g., when editing)
-  // useEffect(() => {
-  //   if (initialData?.trailers) setTrailers(initialData.trailers.join(" "));
-  //   if (initialData?.shippingDocuments) setShippingDocs(initialData.shippingDocuments.join(" "));
-  // }, [initialData]);
-
+  // Prefill effect (join with commas instead of spaces)
   useEffect(() => {
     let data = initialData;
-  
-    // If it's an array, take the first item
+
     if (Array.isArray(initialData) && initialData.length > 0) {
       data = initialData[0];
     }
-  
-    if (data?.trailers?.length) {
-      setTrailers(data.trailers.join(" "));
+
+    if (data?.trailers?.length || data?.shippingDocuments?.length) {
+      setTrailers(data?.trailers?.join(", ") || "");
+      setShippingDocs(data?.shippingDocuments?.join(", ") || "");
+    } else {
+      setTrailers("");
+      setShippingDocs("");
     }
-  
-    if (data?.shippingDocuments?.length) {
-      setShippingDocs(data.shippingDocuments.join(" "));
-    }
-  }, [initialData]);  
+  }, [initialData]);
 
   // Handle submit
   const handleSubmit = async () => {
     const eventData = {
       logDate: initialData[0].logDate,
       trailers: trailers
-        .split(" ")
+        .split(",")         // split by comma
         .map((t) => t.trim())
         .filter(Boolean),
       shippingDocs: shippingDocs
-        .split(" ")
+        .split(",")        // split by comma
         .map((s) => s.trim())
         .filter(Boolean),
     };
@@ -60,6 +54,8 @@ export const TrailersShippingInfoModal = ({ show, onClose, initialData = {} }) =
       onClose();
       setTrailers("");
       setShippingDocs("");
+
+      if (onRefresh) onRefresh();
     }
   };
 
@@ -73,12 +69,12 @@ export const TrailersShippingInfoModal = ({ show, onClose, initialData = {} }) =
             <Form.Label className="fw-semibold">Trailers</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Separated by space; example: TR-123 TR-457 TY-780"
+              placeholder="Separated by commas; example: TR-123, TR-457, TY-780"
               value={trailers}
               onChange={(e) => setTrailers(e.target.value)}
             />
             <div className="text-muted fs-12 mt-2">
-              Separated by space; example: TR-123 TR-457 TY-780
+              Separated by commas; example: TR-123, TR-457, TY-780
             </div>
           </div>
 
@@ -86,12 +82,12 @@ export const TrailersShippingInfoModal = ({ show, onClose, initialData = {} }) =
             <Form.Label className="fw-semibold">Shipping Docs</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Separated by space; example: DOC-789 DOC-098"
+              placeholder="Separated by commas; example: DOC-789, DOC-098"
               value={shippingDocs}
               onChange={(e) => setShippingDocs(e.target.value)}
             />
             <div className="text-muted fs-12 mt-2">
-              Separated by space; example: DOC-789 DOC-098
+              Separated by commas; example: DOC-789, DOC-098
             </div>
           </div>
         </div>
