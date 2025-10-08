@@ -7,7 +7,6 @@ export const getDriversHOS = (companyId) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_HOS_REQUEST });
 
-    const token = localStorage.getItem("token");
     const { data } = await axios.get(`/drivehos/list?companyId=${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -29,7 +28,6 @@ export const getDriverLogs = (driverId, logDate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_LOGS_REQUEST });
 
-    const token = localStorage.getItem("token");
     const { data } = await axios.get(`/driverLogs?driverId=${driverId}&logDate=${logDate}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -51,7 +49,6 @@ export const getDriverData = (driverId) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_DATA_REQUEST });
 
-    const token = localStorage.getItem("token");
     const { data } = await axios.get(`/fetchHome?driverId=${driverId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -73,7 +70,6 @@ export const getMobileSettings = (driverId) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_SETTINGS_REQUEST });
 
-    const token = localStorage.getItem("token");
     const { data } = await axios.get(`/mobileSetting?driverId=${driverId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -95,7 +91,6 @@ export const getProcessedDriverData = (driverId) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_PROCESSED_DATA_REQUEST });
 
-    const token = localStorage.getItem("token");
     const { data } = await axios.get(`/processDriverData?driverId=${driverId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -179,5 +174,43 @@ export const deleteEvent = (companyId, driverId, eventId, navigate) => async (di
     });
     console.error("Delete event error:", error);
     toast.error(error.response?.data?.message || "Failed to delete event");
+  }
+};
+
+// Add trailers/shipping docs action
+export const trailerShippingDocs = (companyId, driverId, eventData, navigate) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.ADD_DRIVERS_TRAILERS_DATA_REQUEST });
+
+    const res = await axios.post(
+      `/trailerShippingDocs?driverId=${driverId}`,
+      eventData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("Trailer data", eventData);
+    console.log("res", res);
+    dispatch({
+      type: actionTypes.ADD_DRIVERS_TRAILERS_DATA_SUCCESS,
+      payload: res.data.data,
+    });
+
+    toast.success("Trailer & ShippingDocs updated successfully!");
+    
+    if (navigate) navigate(`/driver-hos/graph-details/${companyId}/${driverId}`); // redirect after success
+
+    return true;
+  } catch (err) {
+    console.log(err);
+    dispatch({
+      type: actionTypes.ADD_DRIVERS_TRAILERS_DATA_FAIL,
+      payload: err.response?.data?.message || err.message,
+    });
+    toast.error(err.response?.data?.message || "Failed to add data");
+    return false;
   }
 };

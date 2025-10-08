@@ -1,15 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, InputGroup, Badge, Spinner } from "react-bootstrap";
-import DatePicker from "react-datepicker";
+import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addEditEvent } from "../../../store/actions/driverHOS"; // redux action
 import { getAssignableVehicles } from "../../../store/actions/vehicles";
+import { getUnassignedElds } from "../../../store/actions/eldDevices";
+import moment from "moment-timezone";
+import { fetchLocationFromLatLng } from "../../../data/utils";
 
 export const AddEvent = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const location = useLocation();
+    const { timeZoneId } = location.state || {};
+    console.log("timeZoneId", timeZoneId);
+
+    // helper: get now in company timezone as Date object
+    const getNowInTZ = () => {
+        return moment.tz(timeZoneId).toDate();
+    };
+
     const { companyId, driverId } = useParams(); // company and driver id from URL
     const [errors, setErrors] = useState({});
 
@@ -17,6 +29,13 @@ export const AddEvent = () => {
         (state) => state.addEditEvent || { loading: false, error: null }
     );
     const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
+    const { unassignedElds = [], loading: eldLoading } = useSelector(
+        (state) => state.eldDevices || {}
+    );
+
+    // const companyNow = moment().tz(timeZoneId);
+    const companyNow = moment.tz(timeZoneId);
+
 
     // dynamic form state (empty on page load)
     const [eventDate, setEventDate] = useState(new Date());
@@ -29,21 +48,59 @@ export const AddEvent = () => {
         origin: "",
         isActive: "",
         vehicleId: null,
+        eldId: null,
         odometer: "",
         engineHours: "",
         latitude: "",
         longitude: "",
         locationNote: "",
         notes: null,
+        isEldConnected: false,
+        calcLocation: ""         // added for automatic positioning
     });
 
     // const updateField = (key, value) =>
     //     setForm((prev) => ({ ...prev, [key]: value }));
 
+    // const updateField = (key, value) => {
+    //     setForm((prev) => ({ ...prev, [key]: value }));
+    //     validateField(key, value);
+    // };
+
+    // --- updateField ---
     const updateField = (key, value) => {
-        setForm((prev) => ({ ...prev, [key]: value }));
+        setForm((prev) => {
+            let updated = { ...prev, [key]: value };
+
+            // update isEldConnected automatically
+            if (key === "source") {
+                updated.isEldConnected = value === "connected";
+            }
+
+            // handle positioning logic
+            if (key === "positioning") {
+                if (value === "manual") {
+                    updated.latitude = "";
+                    updated.longitude = "";
+                    updated.calcLocation = "";
+                } else if (value === "automatic") {
+                    updated.locationNote = "";
+                }
+            }
+
+            return updated;
+        });
         validateField(key, value);
     };
+
+    // Auto update calcLocation when lat/lng changes
+    useEffect(() => {
+        if (form.positioning === "automatic" && form.latitude && form.longitude) {
+            fetchLocationFromLatLng(form.latitude, form.longitude).then((loc) => {
+                setForm((prev) => ({ ...prev, calcLocation: loc }));
+            });
+        }
+    }, [form.latitude, form.longitude, form.positioning]);
 
 
     // const incrementSeq = (delta) =>
@@ -83,20 +140,20 @@ export const AddEvent = () => {
 
     const validateField = (name, value) => {
         let message = "";
-    
+
         // Always check the latest values
         const currentEventCode = name === "eventCode" ? value : form.eventCode;
         const currentOrigin = name === "origin" ? value : form.origin;
-    
+
         switch (name) {
             case "seqId":
                 if (value < 0) message = "Seq ID cannot be negative.";
                 break;
-    
+
             case "eventDate":
                 if (!value) message = "Please select a valid date and time.";
                 break;
-    
+
             case "eventCode":
             case "origin":
                 if (currentEventCode === "DS_D") {
@@ -111,30 +168,30 @@ export const AddEvent = () => {
                     }
                 }
                 break;
-    
+
             case "odometer":
-                if (!value || value <= 0 || value >= 10000000) {
-                    message = "Odometer must be between 1 and 9,999,999.";
+                if (!value || value <= 0 || value >= 10000000 || !Number.isInteger(Number(value))) {
+                    message = "Odometer must be an integer between 1 and 9,999,999.";
                 }
                 break;
-    
+
             case "engineHours":
                 if (value && isNaN(value)) {
                     message = "Engine hours must be a valid number.";
                 }
                 break;
-    
+
             default:
                 break;
         }
-    
+
         setErrors((prev) => ({ ...prev, [name]: message }));
-    
+
         // Keep both fields in sync for cross-field validation
         if (name === "eventCode" || name === "origin") {
             let otherField = name === "eventCode" ? "origin" : "eventCode";
             let otherMsg = "";
-    
+
             if (currentEventCode === "DS_D") {
                 if (!(currentOrigin === "AUTO" || currentOrigin === "DRIVER")) {
                     otherMsg = "Driving status requires origin AUTO or DRIVER.";
@@ -144,13 +201,13 @@ export const AddEvent = () => {
                     otherMsg = "Only DRIVER origin allowed for this status.";
                 }
             }
-    
+
             setErrors((prev) => ({ ...prev, [otherField]: otherMsg }));
         }
-    
+
         return message === "";
     };
-    
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -172,10 +229,28 @@ export const AddEvent = () => {
             form.isActive?.toLowerCase() === "active" ? true : false;
 
         const eventDateUTC = new Date(eventDate).toISOString();
+        // console.log("eventDateUTC:", eventDateUTC);
         const odometerVal = Number(form.odometer);
         const engineHoursVal = form.engineHours
             ? parseFloat(form.engineHours).toFixed(2)
             : null;
+
+        // handle positioning logic for backend payload
+        let finalLocationNote = form.locationNote;
+        if (form.positioning === "automatic" && form.latitude && form.longitude) {
+            finalLocationNote = form.calcLocation || `Lat:${form.latitude}, Lng:${form.longitude}`;
+        }
+
+        // Validation against company timezone current time
+        const companyNow = moment.tz(timeZoneId);
+
+        if (moment(eventDate).isAfter(companyNow)) {
+            setErrors((prev) => ({
+                ...prev,
+                eventDate: "You cannot select a future time based on company timezone.",
+            }));
+            return;
+        }
 
         const payload = [
             {
@@ -188,9 +263,16 @@ export const AddEvent = () => {
                 notes: form.notes
                     ? form.notes.split(",").map((n) => n.trim()).filter(Boolean)
                     : [],
+                locationNote: finalLocationNote,
+                isEldConnected: form.source === "connected",  // force true/false
                 isAddEdit: false,
             },
         ];
+
+        // Remove calcLocation, source, and vehicleNumber before sending
+        delete payload[0].calcLocation;
+        delete payload[0].source;
+        delete payload[0].vehicleNumber;
 
         console.log("Add event payload:", payload);
         dispatch(addEditEvent(companyId, driverId, null, payload, navigate));
@@ -202,6 +284,19 @@ export const AddEvent = () => {
             dispatch(getAssignableVehicles(companyId));
         }
     }, [companyId, dispatch]);
+
+    // Fetch Unassigned ELDs
+    useEffect(() => {
+        if (companyId) {
+            dispatch(getUnassignedElds(companyId));
+        }
+    }, [companyId, dispatch]);
+
+    useEffect(() => {
+        if (timeZoneId) {
+            setEventDate(moment.tz(timeZoneId).toDate());
+        }
+    }, [timeZoneId]);
 
     return (
         <div className="EditEvent-page py-3">
@@ -283,6 +378,7 @@ export const AddEvent = () => {
                                                 value={form.seqId}
                                                 onChange={(e) => updateField("seqId", e.target.value)}
                                                 required
+                                                placeholder="Enter seq id"
                                                 style={{ MozAppearance: "textfield" }} // extra safety for Firefox inline
                                             />
                                             <Button
@@ -311,16 +407,71 @@ export const AddEvent = () => {
                                             onChange={(e) => updateField("source", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
-                                            <option value="Generated when connected to ECM">
+                                            <option value="">-- Not Selected --</option>
+                                            <option value="connected">
                                                 Generated when connected to ECM
                                             </option>
-                                            <option value="Manual Location">Manual Location</option>
+                                            <option value="disconnected">
+                                                Generated when not connected to ECM
+                                            </option>
+                                            {/* <option value="Manual Location">Manual Location</option>
                                             <option value="Calculated Location">
                                                 Calculated Location
-                                            </option>
+                                            </option> */}
                                         </Form.Select>
                                     </div>
+
+                                    {/* <div className="col-sm-6">
+                                        <Form.Label className="fw-semibold">
+                                            Date & Time<span className="text-danger">*</span>
+                                        </Form.Label>
+                                        <div className="w-100">
+                                           
+
+                                            <DatePicker
+                                                selected={eventDate}
+                                                onChange={(date) => {
+                                                    if (!date) return;
+
+                                                    // Convert picked date from local to company timezone
+                                                    const selectedInTZ = moment.tz(
+                                                        moment(date).format("YYYY-MM-DD HH:mm:ss"),
+                                                        "YYYY-MM-DD HH:mm:ss",
+                                                        timeZoneId
+                                                    );
+
+                                                    const nowInTZ = moment.tz(timeZoneId);
+
+                                                    if (selectedInTZ.isAfter(nowInTZ)) {
+                                                        setErrors((prev) => ({
+                                                            ...prev,
+                                                            eventDate: "You cannot select a future time based on company timezone.",
+                                                        }));
+                                                    } else {
+                                                        setErrors((prev) => ({ ...prev, eventDate: "" }));
+                                                        setEventDate(selectedInTZ.toDate());
+                                                    }
+                                                }}
+                                                showTimeSelect
+                                                timeFormat="hh:mm aa"
+                                                timeIntervals={1}
+                                                dateFormat="MMMM d, yyyy hh:mm aa"
+                                                className="form-control"
+                                                required
+
+                                                // remove manual `value` prop – allow react-datepicker to manage it internally
+                                                placeholderText={`Select date/time (${timeZoneId})`}
+                                                customInput={
+                                                    <Form.Control />
+                                                }
+                                            />
+
+
+                                            {errors.eventDate && (
+                                                <div className="text-danger">{errors.eventDate}</div>
+                                            )}
+                                        </div>
+                                    </div> */}
 
                                     <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">
@@ -328,13 +479,51 @@ export const AddEvent = () => {
                                         </Form.Label>
                                         <div className="w-100">
                                             <DatePicker
-                                                selected={eventDate}
-                                                onChange={setEventDate}
+                                                selected={
+                                                    eventDate
+                                                        ? new Date(moment(eventDate).format("YYYY-MM-DDTHH:mm:ss"))
+                                                        : null
+                                                }
+                                                onChange={(date) => {
+                                                    if (!date) return;
+
+                                                    // interpret the picked local time as company timezone
+                                                    const selectedInTZ = moment.tz(
+                                                        moment(date).format("YYYY-MM-DD HH:mm:ss"),
+                                                        "YYYY-MM-DD HH:mm:ss",
+                                                        timeZoneId
+                                                    );
+
+                                                    const nowInTZ = moment.tz(timeZoneId);
+
+                                                    if (selectedInTZ.isAfter(nowInTZ)) {
+                                                        setErrors((prev) => ({
+                                                            ...prev,
+                                                            eventDate: "You cannot select a future time based on company timezone.",
+                                                        }));
+                                                    } else {
+                                                        setErrors((prev) => ({ ...prev, eventDate: "" }));
+                                                        setEventDate(selectedInTZ); // store moment (not raw Date)
+                                                    }
+                                                }}
                                                 showTimeSelect
+                                                timeFormat="hh:mm aa"
+                                                timeIntervals={1}
                                                 dateFormat="MMMM d, yyyy hh:mm aa"
                                                 className="form-control"
                                                 required
+                                                placeholderText={`Select date/time (${timeZoneId})`}
                                             />
+
+                                            {/* Display timezone info below */}
+                                            <div className="mt-1 text-muted small">
+                                                Current time ({timeZoneId}):{" "}
+                                                {moment().tz(timeZoneId).format("MMMM D, YYYY hh:mm A")}
+                                            </div>
+
+                                            {errors.eventDate && (
+                                                <div className="text-danger">{errors.eventDate}</div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -345,9 +534,9 @@ export const AddEvent = () => {
                                             onChange={(e) => updateField("positioning", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
-                                            <option value="Automatic">Automatic</option>
-                                            <option value="Manual">Manual</option>
+                                            <option value="">-- Not Selected --</option>
+                                            <option value="automatic">Automatic</option>
+                                            <option value="manual">Manual</option>
                                         </Form.Select>
                                     </div>
 
@@ -358,7 +547,7 @@ export const AddEvent = () => {
                                             onChange={(e) => updateField("eventCode", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
+                                            <option value="">-- Not Selected --</option>
                                             <option value="DS_OFF">OFF</option>
                                             <option value="DS_SB">Sleeper</option>
                                             <option value="DS_ON">ON Duty</option>
@@ -368,7 +557,7 @@ export const AddEvent = () => {
                                         </Form.Select>
                                     </div>
 
-                                    <div className="col-sm-6">
+                                    {/* <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">Location Note</Form.Label>
                                         <Form.Control
                                             type="text"
@@ -376,6 +565,17 @@ export const AddEvent = () => {
                                             onChange={(e) =>
                                                 updateField("locationNote", e.target.value)
                                             }
+                                        />
+                                    </div> */}
+                                    {/* Location Note (disabled if Automatic) */}
+                                    <div className="col-sm-6">
+                                        <Form.Label className="fw-semibold">Location Note</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={form.locationNote}
+                                            placeholder="Enter location note"
+                                            disabled={form.positioning === "automatic"}
+                                            onChange={(e) => updateField("locationNote", e.target.value)}
                                         />
                                     </div>
 
@@ -386,7 +586,7 @@ export const AddEvent = () => {
                                             onChange={(e) => updateField("origin", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
+                                            <option value="">-- Not Selected --</option>
                                             <option value="DRIVER">Driver</option>
                                             <option value="AUTO">Auto</option>
                                         </Form.Select>
@@ -400,6 +600,8 @@ export const AddEvent = () => {
                                         <Form.Control
                                             type="text"
                                             value={form.latitude}
+                                            placeholder="Enter latitude"
+                                            disabled={form.positioning === "manual"}
                                             onChange={(e) => updateField("latitude", e.target.value)}
                                             required
                                         />
@@ -411,6 +613,8 @@ export const AddEvent = () => {
                                         <Form.Control
                                             type="text"
                                             value={form.longitude}
+                                            placeholder="Enter longitude"
+                                            disabled={form.positioning === "manual"}
                                             onChange={(e) => updateField("longitude", e.target.value)}
                                             required
                                         />
@@ -423,20 +627,33 @@ export const AddEvent = () => {
                                             onChange={(e) => updateField("isActive", e.target.value)}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
+                                            <option value="">-- Not Selected --</option>
                                             <option value="active">Active</option>
                                             <option value="inactive">Inactive</option>
                                         </Form.Select>
                                     </div>
 
+                                    {/* <div className="col-sm-6">
+                                        <Form.Label className="fw-semibold">Calc. Location</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            // placeholder="6046.5mi WSW of Bethel, AK"
+                                            placeholder="Enter calc location"
+                                            disabled={form.positioning === "manual"}
+                                        />
+                                    </div> */}
+
                                     <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">Calc. Location</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            placeholder="6046.5mi WSW of Bethel, AK"
-                                            disabled
+                                            value={form.calcLocation}
+                                            placeholder="Enter calc location"
+                                            disabled={form.positioning === "manual"}
+                                            onChange={(e) => updateField("calcLocation", e.target.value)}
                                         />
                                     </div>
+
 
                                     {/* <div className="col-sm-6">
                                         <Form.Label className="fw-semibold">Vehicle</Form.Label>
@@ -461,7 +678,7 @@ export const AddEvent = () => {
                                             }}
                                             required
                                         >
-                                            <option value="">-- Select --</option>
+                                            <option value="">-- Not Selected --</option>
                                             {vehiclesLoading && <option>Loading...</option>}
                                             {assignableVehicles?.map((v) => (
                                                 <option key={v._id} value={v._id}>
@@ -512,6 +729,7 @@ export const AddEvent = () => {
                                         </Form.Label>
                                         <Form.Control
                                             type="number"
+                                            placeholder="Enter odometer"
                                             value={form.odometer}
                                             onChange={(e) => updateField("odometer", e.target.value)}
                                             required
@@ -554,6 +772,7 @@ export const AddEvent = () => {
                                         <Form.Label className="fw-semibold">Engine Hours<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
                                             type="text"
+                                            placeholder="Enter engine hours"
                                             value={form.engineHours}
                                             onChange={(e) =>
                                                 updateField("engineHours", e.target.value)
@@ -562,6 +781,33 @@ export const AddEvent = () => {
                                         />
                                         {errors.engineHours && <div className="text-danger">{errors.engineHours}</div>}
                                     </div>
+                                    {/* <div className="col-sm-6">
+                                        <Form.Label className="fw-semibold">ELD</Form.Label>
+                                        <Form.Select value={form.eld} onChange={(e) => updateField("eld", e.target.value)}>
+                                            <option>{form.eld}</option>
+                                            <option>Another ELD</option>
+                                        </Form.Select>
+                                    </div> */}
+                                    <div className="col-sm-6">
+                                        <Form.Label className="fw-semibold">ELD</Form.Label>
+                                        <Form.Select
+                                            value={form.eldId || ""}
+                                            onChange={(e) => updateField("eldId", e.target.value)}
+                                        >
+                                            <option value="">-- Not Selected --</option>
+                                            {eldLoading && <option>Loading...</option>}
+                                            {unassignedElds?.length > 0 ? (
+                                                unassignedElds.map((eld) => (
+                                                    <option key={eld._id} value={eld._id}>
+                                                        {eld.serialNumber} ({eld.macAddress})
+                                                    </option>
+                                                ))
+                                            ) : (
+                                                !eldLoading && <option disabled>No unassigned ELDs</option>
+                                            )}
+                                        </Form.Select>
+                                    </div>
+
                                 </div>
                             </div>
 

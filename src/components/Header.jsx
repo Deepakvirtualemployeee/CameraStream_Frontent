@@ -58,8 +58,8 @@ export const Header = ({ collapsed, toggleSidebar }) => {
               </div>
             </Dropdown.Toggle>
 
-            <Dropdown.Menu className="text-theme3 shadow-sm rounded-3">
-              <Dropdown.Item href={`/settings/company-info/${companyId}`} className="text-theme3">
+            <Dropdown.Menu className="shadow-sm rounded-3">
+              <Dropdown.Item href={`/settings/company-info/${companyId}`} className="">
                 <img src={UserIcon} alt="User Icon" className="img-fluid" /> Profile
               </Dropdown.Item>
               {/* <Dropdown.Divider /> */}
@@ -83,7 +83,7 @@ export const Header = ({ collapsed, toggleSidebar }) => {
                   navigate('/login');
                   localStorage.removeItem("token");
                 }}
-                className="text-theme3"
+                className=""
               >
                 <img
                   src={LogoutIcon}

@@ -106,7 +106,7 @@ const SignUp = (props) => {
         <div className="content-wrapper bg-theme1 rounded-3 shadow">
           <div className="logo-wrapper text-center mb-4">
             <img
-              src={require("../../assets/images/logo.png")}
+              src={require("../../assets/images/sidebar-logo.png")}
               alt="Logo"
               className="img-fluid"
               style={{ width: "136px" }}

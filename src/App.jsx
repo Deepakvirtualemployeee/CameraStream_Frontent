@@ -58,6 +58,7 @@ import { EditPortalUser } from './pages/settings-section/Portal-Users/EditPortal
 import { ResourcesList } from './pages/settings-section/Resources/ResourcesList';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -73,15 +74,20 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
-        <Route path="/companies-list/create-company" element={<CreateCompany />} />
+        {/* <Route path="/companies-list/create-company" element={<CreateCompany />} />
 
         <Route path="/system-users-management/add-user" element={<AddUser />} />
         <Route path="/system-users-management/edit-user-info" element={<EditUserInfo />} />
 
-        <Route path="/group-management/add-group" element={<AddGroup />} />
+        <Route path="/group-management/add-group" element={<AddGroup />} /> */}
 
         {/* Main Layout Routes */}
-        <Route path="/" element={<Layout />}>
+        {/* Protected Routes */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
           {/* <Route index element={<Dashboard />} /> */}
           <Route path="companies-list" element={<CompaniesList />} />
           <Route path="system-users-management" element={<UsersManagement />} />
@@ -94,10 +100,19 @@ function App() {
           <Route path="resource" element={<Resources />} />
           <Route path="drivers-list" element={<DriversList />} />
           <Route path="*" element={<PageNotFound />} />
+
+          <Route path="/companies-list/create-company" element={<CreateCompany />} />
+          <Route path="/system-users-management/add-user" element={<AddUser />} />
+          <Route path="/system-users-management/edit-user-info" element={<EditUserInfo />} />
+          <Route path="/group-management/add-group" element={<AddGroup />} />
         </Route>
 
         {/* Routes using Sidebar + Topbar */}
-        <Route element={<Layout2 />}>
+        <Route element={
+          <ProtectedRoute>
+            <Layout2 />
+          </ProtectedRoute>
+        }>
           <Route path="driver-hos/:companyId" element={<DriversHOSList />} />
           {/* <Route path="driver-hos/graph-details/:driverId" element={<GraphDetails />} /> */}
           <Route path="driver-hos/graph-details/:companyId/:driverId" element={<GraphDetails />} />
