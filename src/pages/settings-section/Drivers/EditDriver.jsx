@@ -758,7 +758,8 @@ export const EditDriver = () => {
                                     <Form.Control
                                         type="text"
                                         name="hosRules"
-                                        value={formData.hosRules || "USA 70 Hour / 8 Day"}
+                                        // value={formData.hosRules || "USA 70 Hour / 8 Day"}
+                                        value={"USA 70 Hour / 8 Day"}
                                         onChange={handleChange}
                                         placeholder="Enter HOS rules"
                                         autoComplete='off'
@@ -773,7 +774,8 @@ export const EditDriver = () => {
                                     <Form.Control
                                         type="text"
                                         name="cargoType"
-                                        value={formData.cargoType || "Property"}
+                                        // value={formData.cargoType || "Property"}
+                                        value={"Property"}
                                         onChange={handleChange}
                                         placeholder="Enter cargo type"
                                         autoComplete='off'
@@ -800,7 +802,8 @@ export const EditDriver = () => {
                                     <Form.Control
                                         type="text"
                                         name="restart"
-                                        value={formData.restart || "34 Hour Restart"}
+                                        // value={formData.restart || "34 Hour Restart"}
+                                        value={"34 Hour Restart"}
                                         onChange={handleChange}
                                         placeholder="Enter restart"
                                         autoComplete='off'
@@ -815,7 +818,8 @@ export const EditDriver = () => {
                                     <Form.Control
                                         type="text"
                                         name="restBreak"
-                                        value={formData.restBreak || "30 min Break"}
+                                        // value={formData.restBreak || "30 min Break"}
+                                        value={"30 min Break"}
                                         onChange={handleChange}
                                         placeholder="Enter rest break"
                                         autoComplete='off'

@@ -133,8 +133,27 @@ export default function LogChart({ logs = [], selectedDate, timezone = "America/
       const xVal = toPixels(ev.start);
 
       // Find next allowed event, otherwise end of day
+      // const nextAllowed = eventsForDay.slice(idx + 1).find((e) => allowedEventCodes.includes(e.eventCode));
+      // const nextTime = nextAllowed ? nextAllowed.start : endOfDay;
+
       const nextAllowed = eventsForDay.slice(idx + 1).find((e) => allowedEventCodes.includes(e.eventCode));
-      const nextTime = nextAllowed ? nextAllowed.start : endOfDay;
+      let nextTime;
+
+      if (nextAllowed) {
+        nextTime = nextAllowed.start;
+      } else {
+        // Determine if selected date is today (in the same timezone)
+        const today = moment.tz(timezone).startOf("day");
+
+        if (selectedDay.isSame(today, "day")) {
+          // If viewing current day → stop at event start
+          nextTime = ev.start;
+        } else {
+          // For past dates → continue till end of day
+          nextTime = endOfDay;
+        }
+      }
+
       const nextX = toPixels(nextTime);
 
       // Duration logic (same as tableData)

@@ -9,7 +9,7 @@ export const SignupFinished = () => {
             <div className="container-xl" style={{ maxWidth: '525px' }}>
                 <div className="content-wrapper bg-theme1 rounded-3 text-center shadow">
                     <div className="logo-wrapper text-center mb-4 pb-2">
-                        <img src={require('../../assets/images/logo.png')} alt="Logo" className="img-fluid" style={{ width: '136px' }} />
+                        <img src={require('../../assets/images/sidebar-logo.png')} alt="Logo" className="img-fluid" style={{ width: '136px' }} />
                     </div>
                     <div className="wrapper mb-4 pb-3">
                         <div className="heading font-roboto text-dark mb-1" style={{ fontSize: '22px' }}>Email has been sent</div>

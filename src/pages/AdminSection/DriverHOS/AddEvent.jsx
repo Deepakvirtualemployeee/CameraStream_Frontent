@@ -229,6 +229,7 @@ export const AddEvent = () => {
             form.isActive?.toLowerCase() === "active" ? true : false;
 
         const eventDateUTC = new Date(eventDate).toISOString();
+        // console.log("eventDateUTC:", eventDateUTC);
         const odometerVal = Number(form.odometer);
         const engineHoursVal = form.engineHours
             ? parseFloat(form.engineHours).toFixed(2)
