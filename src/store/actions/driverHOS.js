@@ -109,7 +109,7 @@ export const getProcessedDriverData = (driverId) => async (dispatch) => {
 };
 
 // Add/Edit Event Action
-export const addEditEvent = (companyId, driverId, eventId = null, eventData, navigate) => async (dispatch) => {
+export const addEditEvent = (companyId, driverId, eventId = null, eventData, selectedDate, navigate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.ADD_DRIVERS_EVENT_LOG_REQUEST });
 
@@ -126,6 +126,8 @@ export const addEditEvent = (companyId, driverId, eventId = null, eventData, nav
     console.log("Params:", `/addEditEvent?companyId=${companyId}&DriverId=${driverId}&eventId=${eventId}`);
     console.log("Event data", eventData);
     console.log("res", res);
+    console.log("selected date", selectedDate);
+
     dispatch({
       type: actionTypes.ADD_DRIVERS_EVENT_LOG_SUCCESS,
       payload: res.data.data,
@@ -136,7 +138,9 @@ export const addEditEvent = (companyId, driverId, eventId = null, eventData, nav
     } else {
       toast.success("Event added successfully!");
     }
-    if (navigate) navigate(`/driver-hos/graph-details/${companyId}/${driverId}`); // redirect after success
+    if (navigate) navigate(`/driver-hos/graph-details/${companyId}/${driverId}`, {
+      state: { selectedDate }, // pass back the date
+    }); // redirect after success
 
     return true;
   } catch (err) {

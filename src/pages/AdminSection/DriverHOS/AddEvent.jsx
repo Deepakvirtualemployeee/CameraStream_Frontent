@@ -14,7 +14,7 @@ export const AddEvent = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
-    const { timeZoneId } = location.state || {};
+    const { selectedDate, timeZoneId } = location.state || {};
     console.log("timeZoneId", timeZoneId);
 
     // helper: get now in company timezone as Date object
@@ -39,6 +39,7 @@ export const AddEvent = () => {
 
     // dynamic form state (empty on page load)
     const [eventDate, setEventDate] = useState(new Date());
+    
     const [form, setForm] = useState({
         // companyId: companyId,
         seqId: null,
@@ -275,7 +276,7 @@ export const AddEvent = () => {
         delete payload[0].vehicleNumber;
 
         console.log("Add event payload:", payload);
-        dispatch(addEditEvent(companyId, driverId, null, payload, navigate));
+        dispatch(addEditEvent(companyId, driverId, null, payload, selectedDate, navigate));
     };
 
     // Fetch Assignable Vehicles
@@ -481,7 +482,7 @@ export const AddEvent = () => {
                                             <DatePicker
                                                 selected={
                                                     eventDate
-                                                        ? new Date(moment(eventDate).format("YYYY-MM-DDTHH:mm:ss"))
+                                                        ? moment().tz(timeZoneId).format("MMMM D, YYYY hh:mm A")
                                                         : null
                                                 }
                                                 onChange={(date) => {

@@ -13,16 +13,16 @@ export const LogsList = () => {
             sortable: true,
             minWidth: '150px',
         },
-        {
-            name: 'HOS Violations',
-            minWidth: '170px',
-            cell: (row) => (
-                <div className="d-flex flex-wrap align-items-center gap-1">
-                    <span className={`${row.hos_violations === "PTI Violations" ? "text-danger" : "text-body"}`}>{row.hos_violations}</span>
-                    <span className="counter bg-theme2 fs-12 fw-medium text-danger rounded lh-1 ms-1 px-2 py-1">+3</span>
-                </div>
-            ),
-        },
+        // {
+        //     name: 'HOS Violations',
+        //     minWidth: '170px',
+        //     cell: (row) => (
+        //         <div className="d-flex flex-wrap align-items-center gap-1">
+        //             <span className={`${row.hos_violations === "PTI Violations" ? "text-danger" : "text-body"}`}>{row.hos_violations}</span>
+        //             <span className="counter bg-theme2 fs-12 fw-medium text-danger rounded lh-1 ms-1 px-2 py-1">+3</span>
+        //         </div>
+        //     ),
+        // },
         {
             name: 'Forms & Manner Errors',
             minWidth: '130px',
@@ -118,18 +118,18 @@ export const LogsList = () => {
 
     // Dropdown filter options
     const filters = [
-        {
-            value: filterHOSViolation,
-            setValue: setfilterHOSViolation,
-            placeholder: 'Filter by HOS Violation',
-            options: ['All', 'No Violations', 'PTI Violations'],
-        },
-        {
-            value: filterFormMannerErrors,
-            setValue: setFilterFormMannerErrors,
-            placeholder: 'Filter by Form & Manner Errors',
-            options: ['All', 'Trailer Number Missing', 'Number Missing'],
-        },
+        // {
+        //     value: filterHOSViolation,
+        //     setValue: setfilterHOSViolation,
+        //     placeholder: 'Filter by HOS Violation',
+        //     options: ['All', 'No Violations', 'PTI Violations'],
+        // },
+        // {
+        //     value: filterFormMannerErrors,
+        //     setValue: setFilterFormMannerErrors,
+        //     placeholder: 'Filter by Form & Manner Errors',
+        //     options: ['All', 'Trailer Number Missing', 'Number Missing'],
+        // },
     ];
 
     // Filtered data
@@ -163,7 +163,7 @@ export const LogsList = () => {
                             startDate={startDate}
                             endDate={endDate}
                             setDateRange={setDateRange}
-                            showDateFilter={true}
+                            // showDateFilter={true}
                             onReset={resetFilters}
                         />
 
