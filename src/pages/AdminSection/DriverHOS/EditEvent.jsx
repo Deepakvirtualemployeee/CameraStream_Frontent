@@ -14,8 +14,9 @@ export const EditEvent = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch(); // Redux dispatch
     const location = useLocation();
-    const { eventId, driverLogs, timeZoneId } = location.state || {};
-    console.log("EventId:", eventId, "driverLogs", driverLogs, "timeZoneId", timeZoneId);
+
+    const { selectedDate, eventId, driverLogs, timeZoneId } = location.state || {};
+    console.log("EventId:", eventId, "driverLogs", driverLogs, "timeZoneId", timeZoneId, "selectedDate", selectedDate);
 
     // get now in company timezone as Date object
     // const getNowInTZ = () => {
@@ -318,7 +319,7 @@ export const EditEvent = () => {
         console.log("Edit event payload:", payload);
 
         // Dispatch Redux action
-        dispatch(addEditEvent(companyId, driverId, eventId, payload, navigate));
+        dispatch(addEditEvent(companyId, driverId, eventId, payload, selectedDate, navigate));
     };
 
     return (

@@ -28,10 +28,27 @@ export const DriversHOSList = () => {
     // Convert seconds → HH:mm format
     // keep24h = true  → wrap hours within 24h (08:00, 11:00, 14:00)
     // keep24h = false → keep full hours (70:00 etc.)
-    const formatSecondsToHHMM = (seconds, keep24h = false) => {
-        if (!seconds || isNaN(seconds)) return "00:00";
+    // const formatSecondsToHHMM = (seconds, keep24h = false) => {
+    //     if (!seconds || isNaN(seconds)) return "00:00";
 
-        const totalMinutes = Math.floor(seconds / 60);
+    //     const totalMinutes = Math.floor(seconds / 60);
+    //     const hours = Math.floor(totalMinutes / 60);
+    //     const minutes = totalMinutes % 60;
+
+    //     const displayHours = keep24h ? hours % 24 : hours;
+
+    //     return `${displayHours.toString().padStart(2, "0")}:${minutes
+    //         .toString()
+    //         .padStart(2, "0")}`;
+    // };
+
+    const formatSecondsToHHMM = (seconds, keep24h = false) => {
+        if (seconds == null || isNaN(seconds)) return "00:00";
+
+        // clamp negatives to 0
+        const safeSeconds = Math.max(0, seconds);
+
+        const totalMinutes = Math.floor(safeSeconds / 60);
         const hours = Math.floor(totalMinutes / 60);
         const minutes = totalMinutes % 60;
 

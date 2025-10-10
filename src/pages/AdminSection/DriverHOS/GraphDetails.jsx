@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../../assets/style/dataTableCustomStyles';
@@ -16,6 +16,7 @@ import TrailersShippingInfoModal from "../../../components/TrailersShippingInfoM
 import { getDriverData, getDriverLogs, getMobileSettings, getProcessedDriverData, deleteEvent } from '../../../store/actions/driverHOS';
 import moment from "moment-timezone";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
+import CircularTimer from "./CircularTimer";
 
 export const GraphDetails = () => {
     // State for showing phone
@@ -24,6 +25,8 @@ export const GraphDetails = () => {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedEventId, setSelectedEventId] = useState(null);
+    const [allRefreshing, setAllRefreshing] = useState(false);
+    const [dateLoading, setDateLoading] = useState(false);
 
     // Get params
     let { companyId, driverId } = useParams();
@@ -47,6 +50,14 @@ export const GraphDetails = () => {
 
     const navigate = useNavigate();
 
+    const location = useLocation();
+
+    // On mount, set selected date from location.state
+    useEffect(() => {
+        if (location.state?.selectedDate) {
+            setSelectedDate(new Date(location.state.selectedDate));
+        }
+    }, [location.state]);
     // Redux state
     const { driverData, driverLogs, driverSettings, driverProcessedData, loading, error } = useSelector((state) => state.driversHOS);
 
@@ -69,26 +80,97 @@ export const GraphDetails = () => {
         return moment(date).tz(tz).format("YYYY-MM-DD");
     };
     // --- useEffect to fetch logs whenever selectedDate changes ---
+    // useEffect(() => {
+    //     if (driverId && selectedDate) {
+    //         const formattedDate = formatDate(selectedDate);
+    //         dispatch(getDriverData(driverId));
+    //         dispatch(getDriverLogs(driverId, formattedDate));
+    //         dispatch(getMobileSettings(driverId));
+    //         dispatch(getProcessedDriverData(driverId));
+    //     }
+    // }, [dispatch, driverId, companyId, selectedDate]);
+
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //       if (driverId && selectedDate) {
+    //         setDateLoading(true); // show spinner
+
+    //         const formattedDate = formatDate(selectedDate);
+
+    //         try {
+    //           await Promise.all([
+    //             dispatch(getDriverData(driverId)),
+    //             dispatch(getDriverLogs(driverId, formattedDate)),
+    //             dispatch(getMobileSettings(driverId)),
+    //             dispatch(getProcessedDriverData(driverId)),
+    //           ]);
+    //         } catch (error) {
+    //           console.error("Error fetching data for new date:", error);
+    //         } finally {
+    //           setDateLoading(false); // hide spinner
+    //         }
+    //       }
+    //     };
+
+    //     fetchData();
+    //   }, [dispatch, driverId, companyId, selectedDate]);
+
     useEffect(() => {
-        if (driverId && selectedDate) {
+        if (!driverId || !selectedDate) return;
+
+        const fetchData = async () => {
+            setDateLoading(true); // Show spinner as soon as date changes
             const formattedDate = formatDate(selectedDate);
-            dispatch(getDriverData(driverId));
-            dispatch(getDriverLogs(driverId, formattedDate));
-            dispatch(getMobileSettings(driverId));
-            dispatch(getProcessedDriverData(driverId));
-        }
+
+            try {
+                await Promise.all([
+                    dispatch(getDriverData(driverId)),
+                    dispatch(getDriverLogs(driverId, formattedDate)),
+                    dispatch(getMobileSettings(driverId)),
+                    // dispatch(getProcessedDriverData(driverId)),
+                ]);
+            } catch (error) {
+                console.error("Error fetching data for new date:", error);
+            }
+        };
+
+        fetchData();
     }, [dispatch, driverId, companyId, selectedDate]);
+
+    useEffect(() => {
+        if (driverLogs && driverLogs.length > 0) {
+            setDateLoading(false); // Hide spinner after logs are loaded
+        }
+    }, [driverLogs]);
+
+    // const handlePrevDay = () => {
+    //     setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
+    // };
 
     const handlePrevDay = () => {
         setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
     };
+
+    const handleNextDay = () => {
+        setSelectedDate((prev) => {
+            const next = new Date(prev);
+            next.setDate(next.getDate() + 1);
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (next > today) return prev; // prevent future
+            return next;
+        });
+    };
+
 
     const handleRefreshDriverLogs = () => {
         if (driverId && selectedDate) {
             const formattedDate = formatDate(selectedDate);
             dispatch(getDriverLogs(driverId, formattedDate));
         }
-    };    
+    };
 
     // const handleNextDay = () => {
     //     setSelectedDate((prev) => {
@@ -179,6 +261,28 @@ export const GraphDetails = () => {
             setRefreshing(false);
         }
     };
+
+    const handleRefreshAllData = async () => {
+        if (!driverId || !selectedDate) return;
+        setAllRefreshing(true);
+
+        const formattedDate = formatDate(selectedDate);
+
+        try {
+            await Promise.all([
+                dispatch(getDriverData(driverId)),
+                dispatch(getDriverLogs(driverId, formattedDate)),
+                dispatch(getMobileSettings(driverId)),
+                // dispatch(getProcessedDriverData(driverId)),
+            ]);
+            console.log("All data refreshed successfully!");
+        } catch (error) {
+            console.error("Error refreshing all data:", error);
+        } finally {
+            setAllRefreshing(false);
+        }
+    };
+
 
     const handleDeleteLog = (eventId) => {
         setSelectedEventId(eventId);
@@ -371,7 +475,7 @@ export const GraphDetails = () => {
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
                     <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event/${companyId}/${driverId}`, {
-                        state: { eventId: row.eventId, driverLogs: driverLogs, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' },
+                        state: { selectedDate: selectedDate, eventId: row.eventId, driverLogs: driverLogs, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' },
                     })}><img src={EditIcon} alt="Edit Icon" /></span>
 
                     {/* <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span> */}
@@ -558,6 +662,25 @@ export const GraphDetails = () => {
         d1.getDate() === d2.getDate();
 
     const today = new Date();
+
+    if (dateLoading || allRefreshing || refreshing) {
+        return (
+            <div className="d-flex flex-column align-items-center justify-content-center" style={{ height: "70vh" }}>
+                <div className="spinner-border text-primary" style={{ width: "4rem", height: "4rem" }} role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+                <p className="mt-3 fw-semibold text-secondary">
+                    {allRefreshing
+                        ? "Refreshing all data..."
+                        : refreshing
+                            ? "Refreshing processed data..."
+                            : "Loading driver data..."}
+                </p>
+            </div>
+        );
+    }
+
+    // if (dateLoading) {
     return (
         <div className="GraphDetails-page py-2">
             <div className="container-fluid">
@@ -655,27 +778,31 @@ export const GraphDetails = () => {
                         <div className="col-lg-6 col-xl-4">
                             <div className="wrapper text-lg-center">
                                 <div className="fs-14 text-muted mb-1">Worked Hours: <span className="text-body fs-12 fw-bold">00:00</span></div>
-                                <div className="d-flex flex-wrap justify-content-lg-center gap-1">
-                                    <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-primary rounded-circle" style={{ width: '65px', height: '65px' }}>
-                                        <span className="text-black fs-12 fw-bold">{breakTimeLeft}</span>
-                                        <span className="fs-10 fw-bold text-muted text-uppercase">Break</span>
-                                    </div>
-                                    <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-success rounded-circle" style={{ width: '65px', height: '65px' }}>
-                                        <span className="text-black fs-12 fw-bold">{driveTimeLeft}</span>
-                                        <span className="fs-10 fw-bold text-muted text-uppercase">Drive</span>
-                                    </div>
-                                    <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-theme6 rounded-circle" style={{ width: '65px', height: '65px' }}>
-                                        <span className="text-black fs-12 fw-bold">{shiftTimeLeft}</span>
-                                        <span className="fs-10 fw-bold text-muted text-uppercase">Shift</span>
-                                    </div>
-                                    <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-secondary rounded-circle" style={{ width: '65px', height: '65px' }}>
-                                        <span className="text-black fs-12 fw-bold">{cycleTimeLeft}</span>
-                                        <span className="fs-10 fw-bold text-muted text-uppercase">Cycle</span>
-                                    </div>
-                                    {/* <div className="info-circle d-flex flex-column align-items-center justify-content-center border border-3 border-dark rounded-circle" style={{ width: '65px', height: '65px' }}>
-                                        <span className="text-black fs-12 fw-bold">00:00</span>
-                                        <span className="fs-10 fw-bold text-muted text-uppercase">Recap</span>
-                                    </div> */}
+                                <div className="d-flex flex-wrap justify-content-lg-center gap-3">
+                                    <CircularTimer
+                                        label="Break"
+                                        limit={driverProcessedData?.breakTime?.limitTime || 0}
+                                        accumulated={driverProcessedData?.breakTime?.accumulatedTime || 0}
+                                        color="#A67C52" // brown
+                                    />
+                                    <CircularTimer
+                                        label="Drive"
+                                        limit={driverProcessedData?.driveTime?.limitTime || 0}
+                                        accumulated={driverProcessedData?.driveTime?.accumulatedTime || 0}
+                                        color="#4C8EF3" // blue
+                                    />
+                                    <CircularTimer
+                                        label="Shift"
+                                        limit={driverProcessedData?.shiftTime?.limitTime || 0}
+                                        accumulated={driverProcessedData?.shiftTime?.accumulatedTime || 0}
+                                        color="#54B571" // green
+                                    />
+                                    <CircularTimer
+                                        label="Cycle"
+                                        limit={driverProcessedData?.cycleTime?.limitTime || 0}
+                                        accumulated={driverProcessedData?.cycleTime?.accumulatedTime || 0}
+                                        color="#808080" // grey
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -747,9 +874,23 @@ export const GraphDetails = () => {
                                     </Button>
 
                                     <Button variant='outline-danger' onClick={() => setShowTSModal(true)}><i className="bi bi-pencil"></i></Button>
-                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`, { state: { timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' } })}><i className="bi bi-plus-lg fs-16"></i></Button>
-                                    <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
+                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`, { state: { selectedDate: selectedDate, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' } })}><i className="bi bi-plus-lg fs-16"></i></Button>
+                                    {/* <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
                                         <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
+                                        <span className="ms-1 d-sm-none">Refresh</span>
+                                    </Button> */}
+                                    <Button
+                                        variant="white"
+                                        className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1"
+                                        title="Refresh All"
+                                        onClick={handleRefreshAllData}
+                                        disabled={allRefreshing}
+                                    >
+                                        {allRefreshing ? (
+                                            <i className="bi bi-arrow-clockwise fs-5 spin"></i>
+                                        ) : (
+                                            <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
+                                        )}
                                         <span className="ms-1 d-sm-none">Refresh</span>
                                     </Button>
                                 </div>
@@ -779,6 +920,7 @@ export const GraphDetails = () => {
                 {/* Error Table Section */}
                 <div className="table-content-wrapper" style={{ zIndex: 1 }}>
                     <div className='table-responsive table-custom-wrapper'>
+
                         <DataTable
                             columns={columns}
                             data={tableData || []}
@@ -792,6 +934,7 @@ export const GraphDetails = () => {
 
                     </div>
                 </div>
+
                 {/* Trailers & Shipping Docs Modal */}
                 <TrailersShippingInfoModal
                     show={showTSModal}
@@ -803,4 +946,5 @@ export const GraphDetails = () => {
             </div>
         </div>
     )
+    // }
 }
