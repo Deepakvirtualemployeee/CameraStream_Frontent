@@ -11,7 +11,8 @@ import ReloadIcon from '../../../assets/images/icons/reload.svg';
 import EditIcon from '../../../assets/images/icons/edit.svg';
 import ExternalIcon from '../../../assets/images/icons/external.svg';
 import TrashIcon from '../../../assets/images/icons/trash.svg';
-import LogChart from "./LogChart";
+// import LogChart from "./LogChart";
+import Chart from "./Chart";
 import TrailersShippingInfoModal from "../../../components/TrailersShippingInfoModal";
 import { getDriverData, getDriverLogs, getMobileSettings, getProcessedDriverData, deleteEvent } from '../../../store/actions/driverHOS';
 import moment from "moment-timezone";
@@ -389,8 +390,8 @@ export const GraphDetails = () => {
             cell: (row) => (
                 <div className="d-flex align-items-center gap-1">
                     <span className="fw-semibold text-body text-nowrap ms-1">{row.location}</span>
-                    <span><img src={ExternalIcon} alt="ExternalIcon" className="img-fluid" /></span>
-                    <span><i className="bi bi-copy fs-5 text-body"></i></span>
+                    {/* <span><img src={ExternalIcon} alt="ExternalIcon" className="img-fluid" /></span>
+                    <span><i className="bi bi-copy fs-5 text-body"></i></span> */}
                 </div>
             ),
         },
@@ -474,20 +475,24 @@ export const GraphDetails = () => {
             center: true,
             cell: (row) => (
                 <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event/${companyId}/${driverId}`, {
-                        state: { selectedDate: selectedDate, eventId: row.eventId, driverLogs: driverLogs, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' },
-                    })}><img src={EditIcon} alt="Edit Icon" /></span>
+                    {!row.isFirstEvent && (
+                        <>
+                            <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event/${companyId}/${driverId}`, {
+                                state: { selectedDate: selectedDate, eventId: row.eventId, driverLogs: driverLogs, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' },
+                            })}><img src={EditIcon} alt="Edit Icon" /></span>
 
-                    {/* <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span> */}
-                    {/* <span className='pointer p-0' title='Delete' onClick={() => {
+                            {/* <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span> */}
+                            {/* <span className='pointer p-0' title='Delete' onClick={() => {
                     }}><img src={TrashIcon} alt="Trash Icon" /></span> */}
-                    <span
-                        className='pointer p-0'
-                        title='Delete'
-                        onClick={() => handleDeleteLog(row.eventId)}
-                    >
-                        <img src={TrashIcon} alt="Trash Icon" />
-                    </span>
+                            <span
+                                className='pointer p-0'
+                                title='Delete'
+                                onClick={() => handleDeleteLog(row.eventId)}
+                            >
+                                <img src={TrashIcon} alt="Trash Icon" />
+                            </span>
+                        </>
+                    )}
                 </div>
             ),
         },
@@ -637,6 +642,7 @@ export const GraphDetails = () => {
                     shippingDocs: event.shippingDocs?.length ? event.shippingDocs.join(", ") : "",
                     notes: event.notes?.length ? event.notes.join(", ") : "",
                     seqId: event.seqId || "--",
+                    isFirstEvent: index === 0 // <-- mark the first event
                 };
             })
         );
@@ -663,9 +669,33 @@ export const GraphDetails = () => {
 
     const today = new Date();
 
-    if (dateLoading || allRefreshing || refreshing) {
-        return (
-            <div className="d-flex flex-column align-items-center justify-content-center" style={{ height: "70vh" }}>
+    // if (dateLoading || allRefreshing || refreshing) {
+    //     return (
+    //         <div className="d-flex flex-column align-items-center justify-content-center" style={{ height: "70vh" }}>
+    //             <div className="spinner-border text-primary" style={{ width: "4rem", height: "4rem" }} role="status">
+    //                 <span className="visually-hidden">Loading...</span>
+    //             </div>
+    //             <p className="mt-3 fw-semibold text-secondary">
+    //                 {allRefreshing
+    //                     ? "Refreshing all data..."
+    //                     : refreshing
+    //                         ? "Refreshing processed data..."
+    //                         : "Loading driver data..."}
+    //             </p>
+    //         </div>
+    //     );
+    // }
+
+    {
+        (dateLoading || allRefreshing || refreshing) && (
+            <div
+                className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+                style={{
+                    background: "rgba(255, 255, 255, 0.7)",
+                    zIndex: 9999,
+                    backdropFilter: "blur(2px)",
+                }}
+            >
                 <div className="spinner-border text-primary" style={{ width: "4rem", height: "4rem" }} role="status">
                     <span className="visually-hidden">Loading...</span>
                 </div>
@@ -677,27 +707,50 @@ export const GraphDetails = () => {
                             : "Loading driver data..."}
                 </p>
             </div>
-        );
+        )
     }
 
     // if (dateLoading) {
     return (
         <div className="GraphDetails-page py-2">
-            <div className="container-fluid">
-                <div className="top-section mb-3">
-                    <div className="row gx-2 gy-3">
-                        <div className="col-lg-6 col-xl-4">
-                            <div className="info-wrapper">
-                                <div className="info-box d-flex gap-1 mb-1">
-                                    <span className="label-name text-muted text-truncate">Carrier:</span>
-                                    <span className="text-body fw-semibold text-truncate">{driverSettings?.companyName}</span>
-                                </div>
-                                {/* <div className="info-box d-flex gap-1 mb-1">
+            <div className="GraphDetails-page py-2 position-relative">
+                {/* Loader Overlay */}
+                {(dateLoading || allRefreshing || refreshing) && (
+                    <div
+                        className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center"
+                        style={{
+                            background: "rgba(255, 255, 255, 0.3)",
+                            zIndex: 9999,
+                            backdropFilter: "blur(2px)",
+                        }}
+                    >
+                        <div className="spinner-border text-primary" style={{ width: "4rem", height: "4rem" }} role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                        <p className="mt-3 fw-semibold text-secondary">
+                            {allRefreshing
+                                ? "Refreshing all data..."
+                                : refreshing
+                                    ? "Refreshing processed data..."
+                                    : "Loading driver data..."}
+                        </p>
+                    </div>
+                )}
+                <div className="container-fluid">
+                    <div className="top-section mb-3">
+                        <div className="row gx-2 gy-3">
+                            <div className="col-lg-6 col-xl-4">
+                                <div className="info-wrapper">
+                                    <div className="info-box d-flex gap-1 mb-1">
+                                        <span className="label-name text-muted text-truncate">Carrier:</span>
+                                        <span className="text-body fw-semibold text-truncate">{driverSettings?.companyName}</span>
+                                    </div>
+                                    {/* <div className="info-box d-flex gap-1 mb-1">
                                     <span className="label-name text-muted text-truncate">Driver:</span>
                                     <span className="text-body fw-semibold text-truncate">{driverSettings?.driverName} <i className="bi bi-telephone text-theme6 ms-1"></i></span>
                                 </div> */}
 
-                                {/* <div className="info-box d-flex gap-1 mb-1">
+                                    {/* <div className="info-box d-flex gap-1 mb-1">
                                     <span className="label-name text-muted text-truncate">Driver:</span>
                                     <span className="text-body fw-semibold text-truncate">
                                         {driverSettings?.driverName}
@@ -713,238 +766,308 @@ export const GraphDetails = () => {
                                         )}
                                     </span>
                                 </div> */}
-                                <div className="info-box d-flex gap-1 mb-1">
-                                    <span className="label-name text-muted">Driver:</span>
+                                    <div className="info-box d-flex gap-1 mb-1">
+                                        <span className="label-name text-muted">Driver:</span>
 
-                                    <span className="text-body fw-semibold">
-                                        {driverSettings?.driverName}
-                                        <i
-                                            className="bi bi-telephone text-theme6 ms-1 pointer"
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => setShowPhone(!showPhone)}
-                                        ></i>
-                                    </span>
-
-                                    {showPhone && (
-                                        <span className="ms-2 fw-semibold text-primary">
-                                            {driverSettings?.phoneNumber || "No Number"}
+                                        <span className="text-body fw-semibold">
+                                            {driverSettings?.driverName}
+                                            <i
+                                                className="bi bi-telephone text-theme6 ms-1 pointer"
+                                                style={{ cursor: "pointer" }}
+                                                onClick={() => setShowPhone(!showPhone)}
+                                            ></i>
                                         </span>
-                                    )}
-                                </div>
 
-                                <div className="info-box d-flex gap-1 mb-1">
-                                    <span className="label-name text-muted text-truncate">Vehicle:</span>
-                                    <span className="text-body fw-semibold text-truncate">{driverSettings?.vehicleNumber}</span>
-                                </div>
+                                        {showPhone && (
+                                            <span className="ms-2 fw-semibold text-primary">
+                                                {driverSettings?.phoneNumber || "No Number"}
+                                            </span>
+                                        )}
+                                    </div>
 
-                                <div className="info-box d-flex gap-1 mb-1">
-                                    <span className="label-name text-muted text-truncate">Trailers:</span>
-                                    <span
-                                        className={`fw-semibold text-truncate ${trailersText === "Missing" ? "text-danger" : "text-success"
-                                            }`}
-                                    >
-                                        {trailersText}
-                                    </span>
-                                </div>
+                                    <div className="info-box d-flex gap-1 mb-1">
+                                        <span className="label-name text-muted text-truncate">Vehicle:</span>
+                                        <span className="text-body fw-semibold text-truncate">{driverSettings?.vehicleNumber}</span>
+                                    </div>
 
-                                <div className="info-box d-flex gap-1 mb-1">
-                                    <span className="label-name text-muted text-truncate">Shipping Docs:</span>
-                                    <span
-                                        className={`fw-semibold text-truncate ${shippingDocsText === "Missing" ? "text-danger" : "text-success"
-                                            }`}
-                                    >
-                                        {shippingDocsText}
-                                    </span>
-                                </div>
+                                    <div className="info-box d-flex gap-1 mb-1">
+                                        <span className="label-name text-muted text-truncate">Trailers:</span>
+                                        <span
+                                            className={`fw-semibold text-truncate ${trailersText === "Missing" ? "text-danger" : "text-success"
+                                                }`}
+                                        >
+                                            {trailersText}
+                                        </span>
+                                    </div>
 
-                                <div className="info-box d-flex gap-1 mb-1">
-                                    <span className="label-name text-muted text-truncate">Certification:</span>
-                                    {/* <span
+                                    <div className="info-box d-flex gap-1 mb-1">
+                                        <span className="label-name text-muted text-truncate">Shipping Docs:</span>
+                                        <span
+                                            className={`fw-semibold text-truncate ${shippingDocsText === "Missing" ? "text-danger" : "text-success"
+                                                }`}
+                                        >
+                                            {shippingDocsText}
+                                        </span>
+                                    </div>
+
+                                    <div className="info-box d-flex gap-1 mb-1">
+                                        <span className="label-name text-muted text-truncate">Certification:</span>
+                                        {/* <span
                                         className={`fw-semibold text-truncate ${driverLogs.isCertified ? "text-success" : "text-danger"
                                             }`}
                                     >
                                         {driverLogs.isCertified ? "Certified" : "Uncertified"}
                                     </span> */}
-                                    <span
-                                        className={`fw-semibold text-truncate ${driverLogs[0]?.isCertified ? "text-success" : "text-danger"
-                                            }`}
-                                    >
-                                        {driverLogs[0]?.isCertified ? "Certified" : "Uncertified"}
-                                    </span>
+                                        <span
+                                            className={`fw-semibold text-truncate ${driverLogs[0]?.isCertified ? "text-success" : "text-danger"
+                                                }`}
+                                        >
+                                            {driverLogs[0]?.isCertified ? "Certified" : "Uncertified"}
+                                        </span>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-lg-6 col-xl-4">
+                                <div className="wrapper text-lg-center">
+                                    <div className="fs-14 text-muted mb-1">Worked Hours: <span className="text-body fs-12 fw-bold">00:00</span></div>
+                                    {/* <div className="d-flex flex-wrap justify-content-lg-center gap-3">
+                                        <CircularTimer
+                                            label="Break"
+                                            limit={driverProcessedData?.breakTime?.limitTime || driverData?.breakTime?.limitTime || 0}
+                                            accumulated={driverProcessedData?.breakTime?.accumulatedTime || driverData?.breakTime?.accumulatedTime || 0}
+                                            color="#A67C52" // brown
+                                        />
+                                        <CircularTimer
+                                            label="Drive"
+                                            limit={driverProcessedData?.driveTime?.limitTime || 0}
+                                            accumulated={driverProcessedData?.driveTime?.accumulatedTime || 0}
+                                            color="#4C8EF3" // blue
+                                        />
+                                        <CircularTimer
+                                            label="Shift"
+                                            limit={driverProcessedData?.shiftTime?.limitTime || 0}
+                                            accumulated={driverProcessedData?.shiftTime?.accumulatedTime || 0}
+                                            color="#54B571" // green
+                                        />
+                                        <CircularTimer
+                                            label="Cycle"
+                                            limit={driverProcessedData?.cycleTime?.limitTime || 0}
+                                            accumulated={driverProcessedData?.cycleTime?.accumulatedTime || 0}
+                                            color="#808080" // grey
+                                        />
+                                    </div> */}
+                                    <div className="d-flex flex-wrap justify-content-lg-center gap-3">
+                                        <CircularTimer
+                                            label="Break"
+                                            limit={
+                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                    ? driverProcessedData.breakTime?.limitTime
+                                                    : driverData.breakTime?.limitTime) || 0
+                                            }
+                                            accumulated={
+                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                    ? driverProcessedData.breakTime?.accumulatedTime
+                                                    : driverData.breakTime?.accumulatedTime) || 0
+                                            }
+                                            color="#A67C52" // brown
+                                        />
+
+                                        <CircularTimer
+                                            label="Drive"
+                                            limit={
+                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                    ? driverProcessedData.driveTime?.limitTime
+                                                    : driverData.driveTime?.limitTime)
+                                            }
+                                            accumulated={
+                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                    ? driverProcessedData.driveTime?.accumulatedTime
+                                                    : driverData.driveTime?.accumulatedTime)
+                                            }
+                                            color="#4C8EF3" // blue
+                                        />
+
+                                        <CircularTimer
+                                            label="Shift"
+                                            limit={
+                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                    ? driverProcessedData.shiftTime?.limitTime
+                                                    : driverData.shiftTime?.limitTime)
+                                            }
+                                            accumulated={
+                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                    ? driverProcessedData.shiftTime?.accumulatedTime
+                                                    : driverData.shiftTime?.accumulatedTime)
+                                            }
+                                            color="#54B571" // green
+                                        />
+
+                                        <CircularTimer
+                                            label="Cycle"
+                                            limit={
+                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                    ? driverProcessedData.cycleTime?.limitTime
+                                                    : driverData.cycleTime?.limitTime)
+                                            }
+                                            accumulated={
+                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                    ? driverProcessedData.cycleTime?.accumulatedTime
+                                                    : driverData.cycleTime?.accumulatedTime)
+                                            }
+                                            color="#808080" // grey
+                                        />
+                                    </div>
 
                                 </div>
                             </div>
-                        </div>
-                        <div className="col-lg-6 col-xl-4">
-                            <div className="wrapper text-lg-center">
-                                <div className="fs-14 text-muted mb-1">Worked Hours: <span className="text-body fs-12 fw-bold">00:00</span></div>
-                                <div className="d-flex flex-wrap justify-content-lg-center gap-3">
-                                    <CircularTimer
-                                        label="Break"
-                                        limit={driverProcessedData?.breakTime?.limitTime || 0}
-                                        accumulated={driverProcessedData?.breakTime?.accumulatedTime || 0}
-                                        color="#A67C52" // brown
-                                    />
-                                    <CircularTimer
-                                        label="Drive"
-                                        limit={driverProcessedData?.driveTime?.limitTime || 0}
-                                        accumulated={driverProcessedData?.driveTime?.accumulatedTime || 0}
-                                        color="#4C8EF3" // blue
-                                    />
-                                    <CircularTimer
-                                        label="Shift"
-                                        limit={driverProcessedData?.shiftTime?.limitTime || 0}
-                                        accumulated={driverProcessedData?.shiftTime?.accumulatedTime || 0}
-                                        color="#54B571" // green
-                                    />
-                                    <CircularTimer
-                                        label="Cycle"
-                                        limit={driverProcessedData?.cycleTime?.limitTime || 0}
-                                        accumulated={driverProcessedData?.cycleTime?.accumulatedTime || 0}
-                                        color="#808080" // grey
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-xl-4">
-                            <div className="content-wrapper d-flex flex-column gap-2">
-                                {/* Calendar Row */}
-                                <div className="d-flex justify-content-xl-end">
-                                    <div className="date-picker-element d-flex gap-1">
-                                        <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handlePrevDay}>
-                                            <i className="bi bi-chevron-left"></i>
-                                        </span>
-                                        <DatePicker
-                                            selected={selectedDate}
-                                            onChange={(date) => setSelectedDate(date)}
-                                            maxDate={new Date()}   // disables all future dates
-                                            dateFormat="MMM dd, yyyy"
-                                            customInput={
-                                                <div className="input-field d-flex align-items-center gap-2 border border-secondary border-opacity-50 rounded">
-                                                    <i className="bi bi-calendar-week"></i>
-                                                    <span className="text-body fw-medium">
-                                                        {selectedDate.toLocaleDateString("en-US", {
-                                                            month: "short",
-                                                            day: "2-digit",
-                                                            year: "numeric",
-                                                        })}
-                                                    </span>
-                                                </div>
-                                            }
-                                        />
-                                        {/* <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handleNextDay}>
+                            <div className="col-xl-4">
+                                <div className="content-wrapper d-flex flex-column gap-2">
+                                    {/* Calendar Row */}
+                                    <div className="d-flex justify-content-xl-end">
+                                        <div className="date-picker-element d-flex gap-1">
+                                            <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handlePrevDay}>
+                                                <i className="bi bi-chevron-left"></i>
+                                            </span>
+                                            <DatePicker
+                                                selected={selectedDate}
+                                                onChange={(date) => setSelectedDate(date)}
+                                                maxDate={new Date()}   // disables all future dates
+                                                dateFormat="MMM dd, yyyy"
+                                                customInput={
+                                                    <div className="input-field d-flex align-items-center gap-2 border border-secondary border-opacity-50 rounded">
+                                                        <i className="bi bi-calendar-week"></i>
+                                                        <span className="text-body fw-medium">
+                                                            {selectedDate.toLocaleDateString("en-US", {
+                                                                month: "short",
+                                                                day: "2-digit",
+                                                                year: "numeric",
+                                                            })}
+                                                        </span>
+                                                    </div>
+                                                }
+                                            />
+                                            {/* <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handleNextDay}>
                                             <i className="bi bi-chevron-right"></i>
                                         </span> */}
 
-                                        <span
-                                            className={`event-btn border border-secondary border-opacity-50 rounded ${isSameDay(selectedDate, today) ? "disabled text-muted" : "cursor-pointer"
-                                                }`}
-                                            onClick={() => {
-                                                if (!isSameDay(selectedDate, today)) {
-                                                    // move one day forward
-                                                    const nextDate = new Date(selectedDate);
-                                                    nextDate.setDate(nextDate.getDate() + 1);
+                                            <span
+                                                className={`event-btn border border-secondary border-opacity-50 rounded ${isSameDay(selectedDate, today) ? "disabled text-muted" : "cursor-pointer"
+                                                    }`}
+                                                onClick={() => {
+                                                    if (!isSameDay(selectedDate, today)) {
+                                                        // move one day forward
+                                                        const nextDate = new Date(selectedDate);
+                                                        nextDate.setDate(nextDate.getDate() + 1);
 
-                                                    // only allow up to today
-                                                    if (nextDate <= today) {
-                                                        setSelectedDate(nextDate);
+                                                        // only allow up to today
+                                                        if (nextDate <= today) {
+                                                            setSelectedDate(nextDate);
+                                                        }
                                                     }
-                                                }
-                                            }}
-                                        >
-                                            <i className="bi bi-chevron-right"></i>
-                                        </span>
+                                                }}
+                                            >
+                                                <i className="bi bi-chevron-right"></i>
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
 
-                                {/* Buttons Row */}
-                                <div className="action-btn-wrapper d-flex flex-wrap justify-content-xl-end gap-1">
-                                    {/* <Button variant='outline-danger'><i className="bi bi-sun fs-16"></i></Button> */}
-                                    <Button
-                                        variant="outline-danger"
-                                        title="Recalculate Processed Data"
-                                        onClick={handleRefreshProcessedData}
-                                        disabled={refreshing}
-                                    >
-                                        {refreshing ? (
-                                            <span className="spinner-border spinner-border-sm text-danger" role="status" />
-                                        ) : (
-                                            <i className="bi bi-sun fs-16"></i>
-                                        )}
-                                    </Button>
+                                    {/* Buttons Row */}
+                                    <div className="action-btn-wrapper d-flex flex-wrap justify-content-xl-end gap-1">
+                                        {/* <Button variant='outline-danger'><i className="bi bi-sun fs-16"></i></Button> */}
+                                        <Button
+                                            variant="outline-danger"
+                                            title="Recalculate Processed Data"
+                                            onClick={handleRefreshProcessedData}
+                                            disabled={refreshing}
+                                        >
+                                            {refreshing ? (
+                                                <span className="spinner-border spinner-border-sm text-danger" role="status" />
+                                            ) : (
+                                                <i className="bi bi-sun fs-16"></i>
+                                            )}
+                                        </Button>
 
-                                    <Button variant='outline-danger' onClick={() => setShowTSModal(true)}><i className="bi bi-pencil"></i></Button>
-                                    <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`, { state: { selectedDate: selectedDate, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' } })}><i className="bi bi-plus-lg fs-16"></i></Button>
-                                    {/* <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
+                                        <Button variant='outline-danger' onClick={() => setShowTSModal(true)}><i className="bi bi-pencil"></i></Button>
+                                        <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`, { state: { selectedDate: selectedDate, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' } })}><i className="bi bi-plus-lg fs-16"></i></Button>
+                                        {/* <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
                                         <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
                                         <span className="ms-1 d-sm-none">Refresh</span>
                                     </Button> */}
-                                    <Button
-                                        variant="white"
-                                        className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1"
-                                        title="Refresh All"
-                                        onClick={handleRefreshAllData}
-                                        disabled={allRefreshing}
-                                    >
-                                        {allRefreshing ? (
-                                            <i className="bi bi-arrow-clockwise fs-5 spin"></i>
-                                        ) : (
-                                            <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
-                                        )}
-                                        <span className="ms-1 d-sm-none">Refresh</span>
-                                    </Button>
+                                        <Button
+                                            variant="white"
+                                            className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1"
+                                            title="Refresh All"
+                                            onClick={handleRefreshAllData}
+                                            disabled={allRefreshing}
+                                        >
+                                            {allRefreshing ? (
+                                                <i className="bi bi-arrow-clockwise fs-5 spin"></i>
+                                            ) : (
+                                                <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
+                                            )}
+                                            <span className="ms-1 d-sm-none">Refresh</span>
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Chart Section */}
-                <LogChart
+                    {/* Chart Section */}
+                    {/* <LogChart
                     logs={driverLogs}
                     selectedDate={selectedDate}
                     timezone={driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles"}
-                />
+                /> */}
+                    <Chart
+                        logs={driverLogs}
+                        selectedDate={selectedDate}
+                        timezone={driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles"}
+                    />
 
-                <ConfirmModal
-                    show={showDeleteModal}
-                    handleClose={() => setShowDeleteModal(false)}
-                    onConfirm={confirmDelete}
-                    onCancel={cancelDelete}
-                    title="Are you sure you want to permanently delete this event?"
-                    confirmText="Delete"
-                    confirmVariant="danger"
-                    iconClass="bi-trash"
-                />
+                    <ConfirmModal
+                        show={showDeleteModal}
+                        handleClose={() => setShowDeleteModal(false)}
+                        onConfirm={confirmDelete}
+                        onCancel={cancelDelete}
+                        title="Are you sure you want to permanently delete this event?"
+                        confirmText="Delete"
+                        confirmVariant="danger"
+                        iconClass="bi-trash"
+                    />
 
-                {/* Error Table Section */}
-                <div className="table-content-wrapper" style={{ zIndex: 1 }}>
-                    <div className='table-responsive table-custom-wrapper'>
+                    {/* Error Table Section */}
+                    <div className="table-content-wrapper" style={{ zIndex: 1 }}>
+                        <div className='table-responsive table-custom-wrapper'>
 
-                        <DataTable
-                            columns={columns}
-                            data={tableData || []}
-                            pagination
-                            highlightOnHover
-                            responsive
-                            customStyles={dataTableCustomStyles}
-                            noDataComponent={<NoDataComponent />}
-                            striped
-                        />
+                            <DataTable
+                                columns={columns}
+                                data={tableData || []}
+                                pagination
+                                highlightOnHover
+                                responsive
+                                customStyles={dataTableCustomStyles}
+                                noDataComponent={<NoDataComponent />}
+                                striped
+                            />
 
+                        </div>
                     </div>
-                </div>
 
-                {/* Trailers & Shipping Docs Modal */}
-                <TrailersShippingInfoModal
-                    show={showTSModal}
-                    onClose={() => setShowTSModal(false)}
-                    onRefresh={handleRefreshDriverLogs}   // automatically re-fetch data after submit
-                    initialData={driverLogs}
-                    onSubmit={() => setShowTSModal(false)}
-                />
+                    {/* Trailers & Shipping Docs Modal */}
+                    <TrailersShippingInfoModal
+                        show={showTSModal}
+                        onClose={() => setShowTSModal(false)}
+                        onRefresh={handleRefreshDriverLogs}   // automatically re-fetch data after submit
+                        initialData={driverLogs}
+                        onSubmit={() => setShowTSModal(false)}
+                    />
+                </div>
             </div>
+            );
         </div>
+
     )
     // }
 }
