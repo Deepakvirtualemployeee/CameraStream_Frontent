@@ -482,8 +482,10 @@ export const EditDriver = () => {
                                                 minLength={6}
                                                 maxLength={24}
                                                 onChange={handleChange}
-                                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-                                                title="Must be at least 6 characters long, include one uppercase letter, one lowercase letter, one number, and one special character."
+                                                // pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                                                // title="Must be at least 6 characters long, include one uppercase letter, one lowercase letter, one number, and one special character."
+                                                pattern=".{6,}" // at least 6 characters
+                                                title="Password must be at least 6 characters long."
                                                 autoComplete="new-password"
                                             // required
                                             />
@@ -509,8 +511,10 @@ export const EditDriver = () => {
                                                 minLength={6}
                                                 maxLength={24}
                                                 onChange={handleChange}
-                                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-                                                title="Must be at least 6 characters long, include one uppercase letter, one lowercase letter, one number, and one special character."
+                                                // pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                                                // title="Must be at least 6 characters long, include one uppercase letter, one lowercase letter, one number, and one special character."
+                                                pattern=".{6,}" // at least 6 characters
+                                                title="Password must be at least 6 characters long."
                                                 autoComplete="new-password"
                                             // required
                                             />

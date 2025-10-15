@@ -633,7 +633,7 @@ export const GraphDetails = () => {
                         ? moment(event.eventDateTime).tz(tz).format("MMM DD, YYYY hh:mm:ss A")
                         : "--",
                     duration,
-                    location: event.manualLocation || event.calculatedLocation || "Unknown",
+                    location: event.location || event.manualLocation || event.calculatedLocation || "Unknown",
                     vehicle: event.vehicle?.vehicleNumber || "--",
                     odometer: event.odometer || "--",
                     engine_hours: event.engineHours || "--",

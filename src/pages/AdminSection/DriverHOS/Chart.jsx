@@ -210,7 +210,7 @@ export default function ChartComponent({
                     return labels[val] || "";
                 },
                 style: { colors: "#333", fontWeight: 500 },
-                offsetY: -32,
+                offsetY: -17,
             },
             //   labels: {
             //     formatter: (val) => {
@@ -255,7 +255,7 @@ export default function ChartComponent({
 
     return (
         <div className="bg-white border border-theme_clr1 rounded-xl mt-6 p-2">
-            <Chart options={options} series={series} type="line" height={300} />
+            <Chart options={options} series={series} type="line" height={220} />
         </div>
     );
 }
