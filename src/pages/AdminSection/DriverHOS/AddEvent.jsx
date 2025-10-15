@@ -38,8 +38,13 @@ export const AddEvent = () => {
 
 
     // dynamic form state (empty on page load)
-    const [eventDate, setEventDate] = useState(new Date());
-    
+    // const [eventDate, setEventDate] = useState(new Date());
+
+    const [eventDate, setEventDate] = useState(() => {
+        // default to current time in company timezone
+        return moment.tz(timeZoneId).toDate();
+    });
+
     const [form, setForm] = useState({
         // companyId: companyId,
         seqId: null,
@@ -230,6 +235,7 @@ export const AddEvent = () => {
             form.isActive?.toLowerCase() === "active" ? true : false;
 
         const eventDateUTC = new Date(eventDate).toISOString();
+
         // console.log("eventDateUTC:", eventDateUTC);
         const odometerVal = Number(form.odometer);
         const engineHoursVal = form.engineHours
@@ -479,7 +485,7 @@ export const AddEvent = () => {
                                             Date & Time<span className="text-danger">*</span>
                                         </Form.Label>
                                         <div className="w-100">
-                                            <DatePicker
+                                            {/* <DatePicker
                                                 selected={
                                                     eventDate
                                                         ? moment().tz(timeZoneId).format("MMMM D, YYYY hh:mm A")
@@ -514,7 +520,40 @@ export const AddEvent = () => {
                                                 className="form-control"
                                                 required
                                                 placeholderText={`Select date/time (${timeZoneId})`}
+                                            /> */}
+
+                                            <DatePicker
+                                                selected={eventDate ? new Date(moment(eventDate).format("YYYY-MM-DDTHH:mm:ss")) : null}
+                                                onChange={(date) => {
+                                                    if (!date) return;
+
+                                                    // interpret the picked date in company timezone
+                                                    const selectedInTZ = moment.tz(
+                                                        moment(date).format("YYYY-MM-DD HH:mm:ss"),
+                                                        "YYYY-MM-DD HH:mm:ss",
+                                                        timeZoneId
+                                                    );
+
+                                                    const nowInTZ = moment.tz(timeZoneId);
+
+                                                    if (selectedInTZ.isAfter(nowInTZ)) {
+                                                        setErrors((prev) => ({
+                                                            ...prev,
+                                                            eventDate: "You cannot select a future time based on company timezone.",
+                                                        }));
+                                                    } else {
+                                                        setErrors((prev) => ({ ...prev, eventDate: "" }));
+                                                        setEventDate(selectedInTZ); // store as moment object
+                                                    }
+                                                }}
+                                                showTimeSelect
+                                                timeFormat="hh:mm aa"
+                                                timeIntervals={1}
+                                                dateFormat="MMMM d, yyyy hh:mm aa"
+                                                className="form-control"
+                                                required
                                             />
+
 
                                             {/* Display timezone info below */}
                                             <div className="mt-1 text-muted small">
