@@ -620,7 +620,12 @@ export const GraphDetails = () => {
                             const nextTime = moment.tz(nextAllowed.eventDateTime, tz);
                             const diff = nextTime.diff(eventTime);
                             duration = formatDuration(diff >= 0 ? diff : 0);
-                        }
+                        } else {
+                            // Last event → duration = current time - currentEvent
+                            const now = moment().tz(tz);
+                            const diff = now.diff(eventTime);
+                            duration = formatDuration(diff >= 0 ? diff : 0);
+                          }
                     }
                 }
 
