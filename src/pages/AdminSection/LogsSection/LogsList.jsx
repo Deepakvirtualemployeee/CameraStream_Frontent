@@ -1,114 +1,116 @@
-import React, { useState } from 'react';
-import { Button } from 'react-bootstrap';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Button, Spinner, Alert } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../../components/NoDataComponent';
 import TableFilter from '../../../components/TableFilter';
+import { getDriversEventSummary } from '../../../store/actions/driverHOS';
 
 export const LogsList = () => {
-    const columns = [
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { companyId } = useParams();
+
+    // Redux state
+    const { driversSummary, loading, error } = useSelector((state) => state.driversHOS);
+
+    useEffect(() => {
+        if (companyId) dispatch(getDriversEventSummary(companyId));
+    }, [dispatch, companyId]);
+
+    // // Convert seconds → "X Hours" (for Last Sync style)
+    // const formatSecondsToHoursText = (seconds) => {
+    //     if (!seconds || isNaN(seconds)) return "0 Hours";
+
+    //     const hours = Math.floor(seconds / 3600);
+    //     return `${hours} Hour${hours !== 1 ? "s" : ""}`;
+    // };
+
+    // Convert seconds → "X seconds/minutes/hours ago"
+    const formatSecondsToHoursText = (seconds) => {
+        if (!seconds || isNaN(seconds)) return "0 seconds ago";
+
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+
+        if (hours > 0) {
+            return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+        } else if (minutes > 0) {
+            return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+        } else {
+            return `${secs} second${secs !== 1 ? "s" : ""} ago`;
+        }
+    };
+
+    // Columns
+    const columns = useMemo(() => [
         {
             name: 'Driver',
-            selector: (row) => row.driver_name,
+            selector: (row) => row.driverName || 'N/A',
             sortable: true,
             minWidth: '150px',
         },
         // {
-        //     name: 'HOS Violations',
-        //     minWidth: '170px',
-        //     cell: (row) => (
-        //         <div className="d-flex flex-wrap align-items-center gap-1">
-        //             <span className={`${row.hos_violations === "PTI Violations" ? "text-danger" : "text-body"}`}>{row.hos_violations}</span>
-        //             <span className="counter bg-theme2 fs-12 fw-medium text-danger rounded lh-1 ms-1 px-2 py-1">+3</span>
-        //         </div>
-        //     ),
+        //   name: 'Forms & Manner Errors',
+        //   minWidth: '130px',
+        //   cell: (row) => (
+        //     <div className="d-flex flex-wrap align-items-center gap-1">
+        //       <span className="text-danger">
+        //         {row.manner_errors || '—'}
+        //       </span>
+        //     </div>
+        //   ),
         // },
         {
             name: 'Forms & Manner Errors',
-            minWidth: '130px',
-            cell: (row) => (
-                <div className="d-flex flex-wrap align-items-center gap-1">
-                    <span className="text-danger">{row.manner_errors}</span>
-                    <span className="counter bg-theme2 fs-12 fw-medium text-danger rounded lh-1 ms-1 px-2 py-1">+23</span>
-                </div>
-            ),
+            minWidth: '250px',
+            cell: (row) => {
+                const errors = [];
+
+                if (row.trailerShippingDocs === false) {
+                    errors.push('Trailer shipping doc is missing');
+                }
+
+                if (row.certifiedRecordDate === false) {
+                    errors.push('Certified record date is missing');
+                }
+
+                // If no errors found
+                if (errors.length === 0) {
+                    return <span className="text-success">No Errors</span>;
+                }
+
+                return (
+                    <div className="d-flex flex-column gap-1">
+                        {errors.map((err, i) => (
+                            <span key={i} className="text-danger">
+                                {err}
+                            </span>
+                        ))}
+                    </div>
+                );
+            },
         },
+
         {
             name: 'Last Sync',
             minWidth: '100px',
-            selector: (row) => row.last_sync,
-        },
-    ];
+            //   selector: (row) => row.last_sync || '—',
+            selector: (row) => row.lastSync ? formatSecondsToHoursText(row.lastSync) : "—",
 
-    const data = [
-        {
-            id: '01',
-            driver_name: 'Android Review',
-            hos_violations: 'No Violations',
-            manner_errors: 'Trailer Number Missing',
-            last_sync: '18 Hours',
         },
-        {
-            id: '02',
-            driver_name: 'Test Driver',
-            hos_violations: 'PTI Violations',
-            manner_errors: 'Trailer Number Missing',
-            last_sync: '18 Hours',
-        },
-        {
-            id: '03',
-            driver_name: 'Android Review',
-            hos_violations: 'No Violations',
-            manner_errors: 'Number Missing',
-            last_sync: '18 Hours',
-        },
-        {
-            id: '04',
-            driver_name: 'Test Driver',
-            hos_violations: 'No Violations',
-            manner_errors: 'Trailer Number Missing',
-            last_sync: '18 Hours',
-        },
-        {
-            id: '05',
-            driver_name: 'Android Review',
-            hos_violations: 'No Violations',
-            manner_errors: 'Trailer Number Missing',
-            last_sync: '18 Hours',
-        },
-        {
-            id: '06',
-            driver_name: 'Test Driver',
-            hos_violations: 'No Violations',
-            manner_errors: 'Trailer Number Missing',
-            last_sync: '18 Hours',
-        },
-        {
-            id: '07',
-            driver_name: 'Android Review',
-            hos_violations: 'No Violations',
-            manner_errors: 'Trailer Number Missing',
-            last_sync: '18 Hours',
-        },
-        {
-            id: '08',
-            driver_name: 'Test Driver',
-            hos_violations: 'No Violations',
-            manner_errors: 'Trailer Number Missing',
-            last_sync: '18 Hours',
-        },
-    ];
-
-    const today = new Date();
+    ], []);
 
     // Filter state
     const [searchText, setSearchText] = useState('');
     const [filterHOSViolation, setfilterHOSViolation] = useState('');
     const [filterFormMannerErrors, setFilterFormMannerErrors] = useState('');
-    const [dateRange, setDateRange] = useState([today, today]); // <-- For date picker
+    const [dateRange, setDateRange] = useState([null, null]);
     const [startDate, endDate] = dateRange;
 
-    // Reset filters
     const resetFilters = () => {
         setSearchText('');
         setfilterHOSViolation('');
@@ -116,43 +118,38 @@ export const LogsList = () => {
         setDateRange([null, null]);
     };
 
-    // Dropdown filter options
-    const filters = [
-        // {
-        //     value: filterHOSViolation,
-        //     setValue: setfilterHOSViolation,
-        //     placeholder: 'Filter by HOS Violation',
-        //     options: ['All', 'No Violations', 'PTI Violations'],
-        // },
-        // {
-        //     value: filterFormMannerErrors,
-        //     setValue: setFilterFormMannerErrors,
-        //     placeholder: 'Filter by Form & Manner Errors',
-        //     options: ['All', 'Trailer Number Missing', 'Number Missing'],
-        // },
-    ];
+    const filters = []; // currently unused but can be added back easily
 
-    // Filtered data
-    const filteredData = data.filter(item => {
-        const matchesSearch = Object.values(item).some(val =>
-            val?.toString().toLowerCase().includes(searchText.toLowerCase())
-        );
+    // ✅ Use real data from Redux
+    const filteredData = useMemo(() => {
+        if (!driversSummary?.length) return [];
 
-        const matchesHOSViolation = filterHOSViolation === 'All' || filterHOSViolation === '' || item.hos_violations === filterHOSViolation;
-        const matchesFormMannerErrors = filterFormMannerErrors === 'All' || filterFormMannerErrors === '' || item.manner_errors === filterFormMannerErrors;
+        return driversSummary.filter((item) => {
+            const matchesSearch = Object.values(item).some((val) =>
+                val?.toString().toLowerCase().includes(searchText.toLowerCase())
+            );
 
-        // ✅ Date filter
-        const itemDate = new Date(item.date);
-        const matchesDate = (!startDate || !endDate) || (itemDate >= startDate && itemDate <= endDate);
+            const matchesHOSViolation =
+                filterHOSViolation === 'All' ||
+                filterHOSViolation === '' ||
+                item.hos_violations === filterHOSViolation;
 
-        return matchesSearch && matchesHOSViolation && matchesFormMannerErrors
-        // && matchesDate;
-    });
+            const matchesFormMannerErrors =
+                filterFormMannerErrors === 'All' ||
+                filterFormMannerErrors === '' ||
+                item.manner_errors === filterFormMannerErrors;
+
+            return matchesSearch && matchesHOSViolation && matchesFormMannerErrors;
+        });
+    }, [driversSummary, searchText, filterHOSViolation, filterFormMannerErrors]);
 
     return (
         <div className="LogsList-page py-3">
             <div className="container-fluid">
-                <div className="main-heading mb-3">Logs (10)</div>
+                <div className="main-heading mb-3">
+                    Logs ({driversSummary?.length || 0})
+                </div>
+
                 <div className="table-content-wrapper">
                     <div className="action-wrapper d-flex flex-column flex-sm-row flex-wrap align-items-sm-start justify-content-between gap-2 mb-4">
                         <TableFilter
@@ -163,29 +160,35 @@ export const LogsList = () => {
                             startDate={startDate}
                             endDate={endDate}
                             setDateRange={setDateRange}
-                            // showDateFilter={true}
                             onReset={resetFilters}
                         />
+                    </div>
 
-                        {/* <div className="btn-wrapper d-flex flex-wrap gap-2">
-                            <Button variant='primary' className="d-flex align-items-center justify-center gap-1"><i className="bi bi-cloud-upload fs-16"></i> Transfer Data</Button>
-                            <Button variant='warning' className="d-flex align-items-center justify-center gap-1"><i className="bi bi-file-earmark-arrow-down fs-16"></i> Download Data</Button>
-                        </div> */}
-                    </div>
-                    <div className='table-responsive table-custom-wrapper'>
-                        <DataTable
-                            columns={columns}
-                            data={filteredData}
-                            pagination
-                            highlightOnHover
-                            responsive
-                            customStyles={dataTableCustomStyles}
-                            noDataComponent={<NoDataComponent />}
-                            striped
-                        />
-                    </div>
+                    {/* 🟢 Handle loading, error, and data */}
+                    {loading ? (
+                        <div className="text-center py-5">
+                            <Spinner animation="border" variant="primary" />
+                        </div>
+                    ) : error ? (
+                        <Alert variant="danger" className="text-center">
+                            {error}
+                        </Alert>
+                    ) : (
+                        <div className="table-responsive table-custom-wrapper">
+                            <DataTable
+                                columns={columns}
+                                data={filteredData}
+                                pagination
+                                highlightOnHover
+                                responsive
+                                customStyles={dataTableCustomStyles}
+                                noDataComponent={<NoDataComponent />}
+                                striped
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};

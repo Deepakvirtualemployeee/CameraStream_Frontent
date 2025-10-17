@@ -218,3 +218,24 @@ export const trailerShippingDocs = (companyId, driverId, eventData, navigate) =>
     return false;
   }
 };
+
+export const getDriversEventSummary = (companyId) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.GET_DRIVERS_EVENT_SUMMARY_REQUEST });
+
+    const { data } = await axios.get(`/getDriversEventSummary?companyId=${companyId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // console.log("Company:", companyId);
+    console.log("Event Summary:", data);
+    dispatch({ type: actionTypes.GET_DRIVERS_EVENT_SUMMARY_SUCCESS, payload: data.data });
+  } catch (error) {
+    dispatch({
+      type: actionTypes.GET_DRIVERS_EVENT_SUMMARY_FAIL,
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};

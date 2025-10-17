@@ -348,10 +348,28 @@ export const EditEvent = () => {
                                 </>
                             )}
                         </Button>
-                        <Button
+                        {/* <Button
                             variant="white"
                             className="bg-white border-gray"
                             onClick={() => navigate(-1)}
+                        >
+                            Cancel
+                        </Button> */}
+                        <Button
+                            variant="white"
+                            className="bg-white border-gray"
+                            onClick={() => {
+                                if (selectedDate && companyId && driverId) {
+                                    navigate(`/driver-hos/graph-details/${companyId}/${driverId}`, {
+                                        state: {
+                                            selectedDate,
+                                            timeZoneId
+                                        },
+                                    });
+                                } else {
+                                    navigate(-1); // fallback if no date
+                                }
+                            }}
                         >
                             Cancel
                         </Button>

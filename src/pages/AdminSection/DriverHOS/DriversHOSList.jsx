@@ -60,11 +60,47 @@ export const DriversHOSList = () => {
     };
 
     // Convert seconds → "X Hours" (for Last Sync style)
+    // const formatSecondsToHoursText = (seconds) => {
+    //     if (!seconds || isNaN(seconds)) return "0 Hours";
+
+    //     const hours = Math.floor(seconds / 3600);
+    //     return `${hours} Hour${hours !== 1 ? "s" : ""}`;
+    // };
+
     const formatSecondsToHoursText = (seconds) => {
-        if (!seconds || isNaN(seconds)) return "0 Hours";
+        if (!seconds || isNaN(seconds)) return "0 seconds ago";
 
         const hours = Math.floor(seconds / 3600);
-        return `${hours} Hour${hours !== 1 ? "s" : ""}`;
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+
+        if (hours > 0) {
+            return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+        } else if (minutes > 0) {
+            return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+        } else {
+            return `${secs} second${secs !== 1 ? "s" : ""} ago`;
+        }
+    };
+
+    // Convert ISO eventDatetime to "X seconds/minutes/hours ago" using UTC
+    const timeAgoFromEventUTC = (eventDatetime) => {
+        if (!eventDatetime) return "—";
+
+        const nowUTC = new Date(); // current UTC time
+        const eventTime = new Date(eventDatetime); // ISO date in UTC
+
+        let diffSeconds = Math.floor((nowUTC.getTime() - eventTime.getTime()) / 1000); // difference in seconds
+
+        if (diffSeconds < 0) diffSeconds = 0; // clamp negative
+
+        const hours = Math.floor(diffSeconds / 3600);
+        const minutes = Math.floor((diffSeconds % 3600) / 60);
+        const seconds = diffSeconds % 60;
+
+        if (hours > 0) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+        if (minutes > 0) return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+        return `${seconds} second${seconds !== 1 ? "s" : ""} ago`;
     };
 
     const columns = [
@@ -129,7 +165,10 @@ export const DriversHOSList = () => {
                     style={{ width: '120px' }}
                 >
                     <div className="fs-14 fw-medium">{row.status}</div>
-                    <div className="fs-10 mt-1">{row.statusUpdated || "—"}</div>
+                    {/* <div className="fs-10 mt-1">{row.statusUpdated || "—"}</div> */}
+                    <div className="fs-10 mt-1">
+                        {timeAgoFromEventUTC(row.eventDatetime)}
+                    </div>
                 </div>
             ),
         },
