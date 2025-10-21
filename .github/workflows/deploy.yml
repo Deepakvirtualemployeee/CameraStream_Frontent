@@ -33,6 +33,8 @@ jobs:
       run: |
         echo "Branch Name: $GITHUB_REF"
 
+    - name: Clean previous build
+      run: rm -rf ./build
     - name: Build with GitHub Secrets and Dynamic Env Vars
       run: |
         echo "Running build with secrets and env variables..."
