@@ -41,8 +41,8 @@ jobs:
         REACT_APP_API_BASE_URL: ${{ secrets.REACT_APP_API_BASE_URL }}
 
     - name: Deploy static site to S3 bucket
-      run: find build -type f | while read file; do
-          aws s3 cp "$file" "s3://truckappbucketfmcsa/${file#build/}" \
-            --cache-control "no-cache, no-store, must-revalidate" \
-           --content-type "$(file --mime-type -b "$file")"
-         done
+      run: aws s3 sync ./build/ s3://truckappbucketfmcsa \
+        --delete \
+        --exact-timestamps \
+        --cache-control "no-cache, no-store, must-revalidate" \
+        --metadata-directive REPLACE
