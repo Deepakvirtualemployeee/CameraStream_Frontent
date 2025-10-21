@@ -33,8 +33,6 @@ jobs:
       run: |
         echo "Branch Name: $GITHUB_REF"
 
-    - name: Clean previous build
-      run: rm -rf ./build
     - name: Build with GitHub Secrets and Dynamic Env Vars
       run: |
         echo "Running build with secrets and env variables..."
@@ -43,5 +41,8 @@ jobs:
         REACT_APP_API_BASE_URL: ${{ secrets.REACT_APP_API_BASE_URL }}
 
     - name: Deploy static site to S3 bucket
-      run: aws s3 sync ./build/ s3://truckappbucketfmcsa --delete \
-            --cache-control "no-cache, no-store, must-revalidate"
+      run: find build -type f | while read file; do
+          aws s3 cp "$file" "s3://truckappbucketfmcsa/${file#build/}" \
+            --cache-control "no-cache, no-store, must-revalidate" \
+           --content-type "$(file --mime-type -b "$file")"
+         done
