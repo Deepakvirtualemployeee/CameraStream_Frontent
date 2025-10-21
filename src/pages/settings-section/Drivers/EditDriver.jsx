@@ -191,7 +191,7 @@ export const EditDriver = () => {
     }, [driver, companyId]);
 
     useEffect(() => {
-        console.log("Fetched driver in redux:", driver);
+        // console.log("Fetched driver in redux:", driver);
         console.log("Fetched codriver in redux:", coDrivers);
 
     }, [driver]);
