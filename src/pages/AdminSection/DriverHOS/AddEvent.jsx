@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, InputGroup, Badge, Spinner } from "react-bootstrap";
-import DatePicker, { registerLocale } from "react-datepicker";
+// import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addEditEvent } from "../../../store/actions/driverHOS"; // redux action
 import { getAssignableVehicles } from "../../../store/actions/vehicles";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
 import moment from "moment-timezone";
 import { fetchLocationFromLatLng } from "../../../data/utils";
+import { DatePicker as RsuiteDatePicker, Stack } from "rsuite";
+import "rsuite/dist/rsuite.min.css";
+import { FaCalendar } from "react-icons/fa";
 
 export const AddEvent = () => {
     const navigate = useNavigate();
@@ -18,9 +21,9 @@ export const AddEvent = () => {
     console.log("timeZoneId", timeZoneId);
 
     // helper: get now in company timezone as Date object
-    const getNowInTZ = () => {
-        return moment.tz(timeZoneId).toDate();
-    };
+    // const getNowInTZ = () => {
+    //     return moment.tz(timeZoneId).toDate();
+    // };
 
     const { companyId, driverId } = useParams(); // company and driver id from URL
     const [errors, setErrors] = useState({});
@@ -34,8 +37,7 @@ export const AddEvent = () => {
     );
 
     // const companyNow = moment().tz(timeZoneId);
-    const companyNow = moment.tz(timeZoneId);
-
+    // const companyNow = moment.tz(timeZoneId);
 
     // dynamic form state (empty on page load)
     // const [eventDate, setEventDate] = useState(new Date());
@@ -522,7 +524,7 @@ export const AddEvent = () => {
                                                 placeholderText={`Select date/time (${timeZoneId})`}
                                             /> */}
 
-                                            <DatePicker
+                                            {/* <DatePicker
                                                 selected={eventDate ? new Date(moment(eventDate).format("YYYY-MM-DDTHH:mm:ss")) : null}
                                                 onChange={(date) => {
                                                     if (!date) return;
@@ -552,8 +554,40 @@ export const AddEvent = () => {
                                                 dateFormat="MMMM d, yyyy hh:mm aa"
                                                 className="form-control"
                                                 required
-                                            />
-
+                                            /> */}
+                                             <Stack spacing={10} direction="column" alignItems="flex-start">
+                                                                                                    <RsuiteDatePicker
+                                                                                                    className="form-control"
+                                                                                                        format="dd MMM yyyy hh:mm:ss aa"
+                                                                                                        showMeridiem
+                                                                                                        caretAs={FaCalendar}
+                                                                                                        value={eventDate}
+                                                                                                        onChange={(date) => {
+                                                                                                            if (!date) return;
+                                            
+                                                                                                            // interpret the picked time in company's timezone
+                                                                                                            const selectedInTZ = moment.tz(
+                                                                                                                moment(date).format("YYYY-MM-DD HH:mm:ss"),
+                                                                                                                "YYYY-MM-DD HH:mm:ss",
+                                                                                                                timeZoneId
+                                                                                                            );
+                                            
+                                                                                                            const nowInTZ = moment.tz(timeZoneId);
+                                            
+                                                                                                            if (selectedInTZ.isAfter(nowInTZ)) {
+                                                                                                                setErrors((prev) => ({
+                                                                                                                    ...prev,
+                                                                                                                    eventDate:
+                                                                                                                        "You cannot select a future time based on company timezone.",
+                                                                                                                }));
+                                                                                                            } else {
+                                                                                                                setErrors((prev) => ({ ...prev, eventDate: "" }));
+                                                                                                                setEventDate(selectedInTZ.toDate()); // store actual Date object
+                                                                                                            }
+                                                                                                        }}
+                                                                                                        style={{ width: "100%" }}
+                                                                                                    />
+                                                                                                </Stack>
 
                                             {/* Display timezone info below */}
                                             <div className="mt-1 text-muted small">
@@ -712,7 +746,7 @@ export const AddEvent = () => {
                                             value={form.vehicleId}
                                             onChange={(e) => {
                                                 const selectedId = e.target.value;
-                                                const selectedVehicle = assignableVehicles.find(v => v._id === selectedId);
+                                                // const selectedVehicle = assignableVehicles.find(v => v._id === selectedId);
 
                                                 updateField("vehicleId", selectedId);
                                             }}

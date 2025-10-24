@@ -11,7 +11,7 @@ import VerifyEmail from './pages/authentication/VerifyEmail'
 
 // Main Layout and Pages
 import { Layout } from './components/layouts/Layout';
-import { Dashboard } from './pages/Dashboard';
+// import { Dashboard } from './pages/Dashboard';
 import { CompaniesList } from './pages/company-list/CompaniesList';
 import CreateCompany from './pages/company-list/CreateCompany';
 
@@ -55,7 +55,7 @@ import { EditCompanyInfo } from './pages/settings-section/Company/EditCompanyInf
 import { PortalUsers } from './pages/settings-section/Portal-Users/PortalUsers';
 import { AddPortalUser } from './pages/settings-section/Portal-Users/AddPortalUser';
 import { EditPortalUser } from './pages/settings-section/Portal-Users/EditPortalUser';
-import { ResourcesList } from './pages/settings-section/Resources/ResourcesList';
+// import { ResourcesList } from './pages/settings-section/Resources/ResourcesList';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProtectedRoute from "./components/ProtectedRoute";

@@ -9,6 +9,10 @@ import { getUnassignedElds } from "../../../store/actions/eldDevices";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment-timezone";
 import { fetchLocationFromLatLng } from "../../../data/utils";
+import { DatePicker as RsuiteDatePicker, Stack } from "rsuite";
+import "rsuite/dist/rsuite.min.css";
+import { FaCalendar } from "react-icons/fa";
+
 
 export const EditEvent = () => {
     const navigate = useNavigate();
@@ -501,7 +505,7 @@ export const EditEvent = () => {
                                             Date & Time<span className="text-danger">*</span>
                                         </Form.Label>
                                         <div className="w-100">
-                                            <DatePicker
+                                            {/* <DatePicker
                                                 selected={
                                                     eventDate
                                                         ? new Date(moment(eventDate).format("YYYY-MM-DDTHH:mm:ss"))
@@ -536,12 +540,63 @@ export const EditEvent = () => {
                                                 className="form-control"
                                                 required
                                                 placeholderText={`Select date/time (${timeZoneId})`}
-                                            />
+                                            /> */}
+                                            {/* <div className="col-sm-6">
+                                                <Form.Label className="fw-semibold">
+                                                    Date & Time<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <div className="w-100"> */}
+                                                    <Stack spacing={10} direction="column" alignItems="flex-start">
+                                                        <RsuiteDatePicker
+                                                        className="form-control"
+                                                            format="dd MMM yyyy hh:mm:ss aa"
+                                                            showMeridiem
+                                                            caretAs={FaCalendar}
+                                                            value={eventDate}
+                                                            onChange={(date) => {
+                                                                if (!date) return;
+
+                                                                // interpret the picked time in company's timezone
+                                                                const selectedInTZ = moment.tz(
+                                                                    moment(date).format("YYYY-MM-DD HH:mm:ss"),
+                                                                    "YYYY-MM-DD HH:mm:ss",
+                                                                    timeZoneId
+                                                                );
+
+                                                                const nowInTZ = moment.tz(timeZoneId);
+
+                                                                if (selectedInTZ.isAfter(nowInTZ)) {
+                                                                    setErrors((prev) => ({
+                                                                        ...prev,
+                                                                        eventDate:
+                                                                            "You cannot select a future time based on company timezone.",
+                                                                    }));
+                                                                } else {
+                                                                    setErrors((prev) => ({ ...prev, eventDate: "" }));
+                                                                    setEventDate(selectedInTZ.toDate()); // store actual Date object
+                                                                }
+                                                            }}
+                                                            style={{ width: "100%" }}
+                                                        />
+                                                    </Stack>
+
+                                                    {/* Show current company time below */}
+                                                    {/* <div className="mt-1 text-muted small">
+                                                        Current time ({timeZoneId}):{" "}
+                                                        {moment().tz(timeZoneId).format("MMMM D, YYYY hh:mm:ss A")}
+                                                    </div>
+
+                                                    {errors.eventDate && (
+                                                        <div className="text-danger">{errors.eventDate}</div>
+                                                    )} */}
+                                                {/* </div>
+                                            </div> */}
+
 
                                             {/* Display timezone info below */}
                                             <div className="mt-1 text-muted small">
                                                 Current time ({timeZoneId}):{" "}
-                                                {moment().tz(timeZoneId).format("MMMM D, YYYY hh:mm A")}
+                                                {moment().tz(timeZoneId).format("MMMM D, YYYY hh:mm:ss A")}
                                             </div>
 
                                             {errors.eventDate && (

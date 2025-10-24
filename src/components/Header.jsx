@@ -1,11 +1,11 @@
 import React from "react";
 import { Dropdown } from "react-bootstrap";
-import { Link, NavLink, useParams, useNavigate } from "react-router-dom";
-import BellIcon from "../assets/images/icons/bell.svg";
-import BookIcon from "../assets/images/icons/book.svg";
+import { Link, useParams, useNavigate } from "react-router-dom";
+// import BellIcon from "../assets/images/icons/bell.svg";
+// import BookIcon from "../assets/images/icons/book.svg";
 import UserIcon from "../assets/images/icons/user.svg";
-import CreditCardIcon from "../assets/images/icons/credit-card.svg";
-import APIIcon from "../assets/images/icons/api.svg";
+// import CreditCardIcon from "../assets/images/icons/credit-card.svg";
+// import APIIcon from "../assets/images/icons/api.svg";
 import LogoutIcon from "../assets/images/icons/log-out.svg";
 
 export const Header = ({ collapsed, toggleSidebar }) => {

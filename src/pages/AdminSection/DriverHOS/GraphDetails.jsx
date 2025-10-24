@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../../components/NoDataComponent';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Button, Form } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import ReloadIcon from '../../../assets/images/icons/reload.svg';
 import EditIcon from '../../../assets/images/icons/edit.svg';
-import ExternalIcon from '../../../assets/images/icons/external.svg';
+// import ExternalIcon from '../../../assets/images/icons/external.svg';
 import TrashIcon from '../../../assets/images/icons/trash.svg';
 // import LogChart from "./LogChart";
 import Chart from "./Chart";
@@ -76,10 +76,18 @@ export const GraphDetails = () => {
     //     }
     // }, [dispatch, driverId, companyId]);
 
+    // Convert a Date object into a Date adjusted for a specific timezone
+    const convertToCompanyTimezone = (date, tz) => {
+        if (!tz) return date;
+        // moment.tz keeps time correct, then format back to JS Date
+        return moment.tz(moment(date), tz).toDate();
+    };
+
     // Utility: format date as YYYY-MM-DD in driver’s timezone
     const formatDate = (date, tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles") => {
         return moment(date).tz(tz).format("YYYY-MM-DD");
     };
+
     // --- useEffect to fetch logs whenever selectedDate changes ---
     // useEffect(() => {
     //     if (driverId && selectedDate) {
@@ -152,18 +160,18 @@ export const GraphDetails = () => {
         setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
     };
 
-    const handleNextDay = () => {
-        setSelectedDate((prev) => {
-            const next = new Date(prev);
-            next.setDate(next.getDate() + 1);
+    // const handleNextDay = () => {
+    //     setSelectedDate((prev) => {
+    //         const next = new Date(prev);
+    //         next.setDate(next.getDate() + 1);
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+    //         const today = new Date();
+    //         today.setHours(0, 0, 0, 0);
 
-            if (next > today) return prev; // prevent future
-            return next;
-        });
-    };
+    //         if (next > today) return prev; // prevent future
+    //         return next;
+    //     });
+    // };
 
 
     const handleRefreshDriverLogs = () => {
@@ -625,7 +633,7 @@ export const GraphDetails = () => {
                             const now = moment().tz(tz);
                             const diff = now.diff(eventTime);
                             duration = formatDuration(diff >= 0 ? diff : 0);
-                          }
+                        }
                     }
                 }
 
@@ -715,6 +723,16 @@ export const GraphDetails = () => {
         )
     }
 
+    const tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles";
+
+    // Convert UTC to company timezone for display
+    const displayDate = selectedDate
+        ? moment.tz(selectedDate, tz).format("MMM DD, YYYY")
+        : "";
+
+    // Get current date in company timezone (without time)
+    const todayInTZ = moment.tz(tz).startOf("day").toDate();
+
     // if (dateLoading) {
     return (
         <div className="GraphDetails-page py-2">
@@ -789,6 +807,13 @@ export const GraphDetails = () => {
                                             </span>
                                         )}
                                     </div>
+                                    
+                                    {(driverSettings?.coDriverName) && (
+                                    <div className="info-box d-flex gap-1 mb-1">
+                                        <span className="label-name text-muted text-truncate">Co-Driver:</span>
+                                        <span className="text-body fw-semibold text-truncate">{driverSettings?.coDriverName}</span>
+                                    </div>
+                                    )}
 
                                     <div className="info-box d-flex gap-1 mb-1">
                                         <span className="label-name text-muted text-truncate">Vehicle:</span>
@@ -934,7 +959,7 @@ export const GraphDetails = () => {
                                             <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handlePrevDay}>
                                                 <i className="bi bi-chevron-left"></i>
                                             </span>
-                                            <DatePicker
+                                            {/* <DatePicker
                                                 selected={selectedDate}
                                                 onChange={(date) => setSelectedDate(date)}
                                                 maxDate={new Date()}   // disables all future dates
@@ -951,7 +976,27 @@ export const GraphDetails = () => {
                                                         </span>
                                                     </div>
                                                 }
+                                            /> */}
+                                            <DatePicker
+                                                selected={convertToCompanyTimezone(selectedDate, driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles")}
+                                                onChange={(date) => {
+                                                    // Convert picked date back to UTC (neutral) for API usage
+                                                    const tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles";
+                                                    const utcDate = moment.tz(moment(date).format("YYYY-MM-DD"), tz).utc().toDate();
+                                                    setSelectedDate(utcDate);
+                                                }}
+                                                dateFormat="MMM dd, yyyy"
+                                                className="form-control"
+                                                showPopperArrow={false}
+                                                maxDate={todayInTZ} // disables future dates according to company timezone
+                                                customInput={
+                                                    <div className="input-field d-flex align-items-center gap-2 border border-secondary border-opacity-50 rounded p-2">
+                                                        <i className="bi bi-calendar-week"></i>
+                                                        <span className="text-body fw-medium">{displayDate || "Select Date"}</span>
+                                                    </div>
+                                                }
                                             />
+
                                             {/* <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handleNextDay}>
                                             <i className="bi bi-chevron-right"></i>
                                         </span> */}

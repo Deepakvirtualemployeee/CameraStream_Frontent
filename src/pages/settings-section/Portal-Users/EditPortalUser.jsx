@@ -258,9 +258,10 @@ export const EditPortalUser = () => {
                                                 required: true,
                                             }}
                                             enableSearch
-                                            countryCodeEditable={false}
+                                            countryCodeEditable={true}
                                             inputClass="w-100 py-2"
                                             dropdownClass="text-start"
+                                            disableDropdown={true}
                                             inputStyle={{ height: "auto", minHeight: "44px", width: "100%" }}
                                             placeholder="Enter phone number"
                                         />

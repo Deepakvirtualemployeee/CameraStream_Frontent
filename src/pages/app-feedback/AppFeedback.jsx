@@ -9,7 +9,7 @@ import LogoutIocn from '../../assets/images/icons/logout.svg';
 import FileIcon from '../../assets/images/icons/file.svg';
 import TrashIcon from '../../assets/images/icons/trash.svg'
 import AndroidIcon from '../../assets/images/icons/android.svg'
-import IOSIcon from '../../assets/images/icons/ios.svg'
+// import IOSIcon from '../../assets/images/icons/ios.svg'
 
 export const AppFeedback = () => {
     const navigate = useNavigate();

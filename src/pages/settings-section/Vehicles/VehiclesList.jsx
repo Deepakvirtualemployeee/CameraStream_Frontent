@@ -20,7 +20,7 @@ export const VehiclesList = () => {
 
     useEffect(() => {
         dispatch(getVehicles(companyId));
-    }, [dispatch]);
+    }, [companyId, dispatch]);
 
     const columns = [
         {
