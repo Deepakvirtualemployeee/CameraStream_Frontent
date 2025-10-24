@@ -1,13 +1,12 @@
 import * as actionTypes from "../actions/actionTypes";
 import axios from "../../axios-config";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 const token = localStorage.getItem("token");
 
 export const getDashboardVehicles = (companyId) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DASHBOARD_REQUEST });
 
-    const token = localStorage.getItem("token");
     const { data } = await axios.get(`/dashoard/vehicleStatus?companyId=${companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,

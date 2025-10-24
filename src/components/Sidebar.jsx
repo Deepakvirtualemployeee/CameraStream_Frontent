@@ -21,7 +21,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
         if (!isSettingsActive) {
             setOpenSettings(false);
         }
-    }, [location.pathname]);
+    }, [isSettingsActive, location.pathname]);
 
     return (
         <aside className={`sidebar d-flex flex-column ${collapsed ? 'collapsed' : ''} py-2`}>

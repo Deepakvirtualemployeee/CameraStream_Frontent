@@ -275,7 +275,8 @@ export const AddDriver = () => {
                                             value={formData.phoneNumber}
                                             onChange={handlePhoneChange}
                                             // enableSearch={true}
-                                            countryCodeEditable={false}
+                                            countryCodeEditable={true}
+                                            disableDropdown={true}
                                             inputClass="w-100 py-2"
                                             dropdownClass="text-start"
                                             inputStyle={{ height: "auto", minHeight: "44px" }}

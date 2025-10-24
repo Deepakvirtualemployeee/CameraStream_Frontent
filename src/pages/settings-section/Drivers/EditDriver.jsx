@@ -329,7 +329,7 @@ export const EditDriver = () => {
                         >
                             Deactivate
                         </Button> */}
-                        {driver?.status === "Active" ? (
+                        {driver?.isActive === true ? (
                             <Button
                                 variant="outline-danger"
                                 onClick={() => setShowDeactivate(true)}
@@ -461,9 +461,10 @@ export const EditDriver = () => {
                                             country={'in'}
                                             value={formData.phoneNumber}
                                             onChange={handlePhoneChange}
-                                            countryCodeEditable={false}
+                                            countryCodeEditable={true}
                                             inputClass="w-100 py-2"
                                             dropdownClass="text-start"
+                                            disableDropdown={true}
                                             inputStyle={{ height: "auto", minHeight: "44px" }}
                                             placeholder="Enter phone number"
                                             name="phoneNumber"

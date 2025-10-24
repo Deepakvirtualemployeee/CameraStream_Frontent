@@ -277,7 +277,8 @@ const SignUp = (props) => {
                     value={form.phoneNumber}
                     onChange={handleOnChange}
                     // enableSearch={true}
-                    countryCodeEditable={false}
+                    countryCodeEditable={true}
+                    disableDropdown={true}
                     inputClass="w-100 py-2"
                     dropdownClass="text-start"
                     inputStyle={{ height: "auto", minHeight: "54px" }}

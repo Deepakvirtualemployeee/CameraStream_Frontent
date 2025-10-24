@@ -49,7 +49,20 @@ export const LogsList = () => {
     const columns = useMemo(() => [
         {
             name: 'Driver',
-            selector: (row) => row.driverName || 'N/A',
+            // selector: (row) => row.driverName || 'N/A',
+            selector: (row) => (
+                <span
+                    className="text-primary pointer client-name fw-medium text-capitalize text-primary text-decoration-underline"
+                    onClick={() =>
+                        window.open(
+                            `/driver-hos/graph-details/${companyId}/${row.driverId}`,
+                            '_blank' // opens in new tab
+                        )
+                    }
+                >
+                    {row.driverName}
+                </span>
+            ),
             sortable: true,
             minWidth: '150px',
         },

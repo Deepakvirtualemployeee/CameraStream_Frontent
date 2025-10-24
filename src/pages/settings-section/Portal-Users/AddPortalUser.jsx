@@ -160,7 +160,8 @@ export const AddPortalUser = () => {
                         required: true,
                       }}
                       enableSearch={true}
-                      countryCodeEditable={false}
+                      countryCodeEditable={true}
+                      disableDropdown={true}
                       inputClass="w-100 py-2"
                       dropdownClass="text-start"
                       inputStyle={{

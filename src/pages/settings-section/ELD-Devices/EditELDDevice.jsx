@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 export const EditELDDevice = () => {
     const { companyId, id } = useParams(); // eld id from URL
     const navigate = useNavigate();
-    const location = useLocation();
+    // const location = useLocation();
     // const { companyId } = location.state || {};
     const dispatch = useDispatch();
 

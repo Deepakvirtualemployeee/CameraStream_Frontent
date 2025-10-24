@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Modal, Button } from 'react-bootstrap';
+import React from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import { Modal, Button } from 'react-bootstrap';
 import DataTable from 'react-data-table-component';
 import dataTableCustomStyles from '../../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../../components/NoDataComponent';
-import TableFilter from '../../../components/TableFilter';
-import LogoutIocn from '../../../assets/images/icons/logout.svg';
+// import TableFilter from '../../../components/TableFilter';
+// import LogoutIocn from '../../../assets/images/icons/logout.svg';
 import AndroidIocn from '../../../assets/images/icons/android.svg';
 import IOSIcon from '../../../assets/images/icons/ios.svg';
 import BookDownloadIcon from '../../../assets/images/icons/book-download.svg'
 
-
 export const ResourcesList = () => {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const columns = [
         {
