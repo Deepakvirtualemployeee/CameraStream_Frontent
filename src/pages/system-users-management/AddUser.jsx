@@ -183,11 +183,10 @@ export const AddUser = () => {
                                             onChange={handleChange}
                                             required
                                         >
-                                            <option value="" disabled hidden>Select Role</option>
-                                            <option value="System Super Admin">System Super Admin</option>
+                                             <option value="" disabled hidden>Select Role</option>
+                                            <option value="Broker">Broker</option>
                                             <option value="System Administrator">System Administrator</option>
-                                            <option value="System Technicians">System Technicians</option>
-                                            <option value="Lab Technician">Lab Technician</option>
+                                            <option value="Fleet Manager">Fleet Manager</option>
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>

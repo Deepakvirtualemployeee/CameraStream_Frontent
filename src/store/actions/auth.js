@@ -10,13 +10,14 @@ export const startAuth = () => {
 };
 
 // Auth success
-export const AuthSuccess = (message) => {
-  toast.success(message);
+export const AuthSuccess = (payload) => {
+  toast.success(payload.message);
   return {
     type: actionTypes.AUTH_SUCCESS,
-    message: message,
+    payload: payload,   
   };
 };
+
 
 // Auth failure
 export const AuthFail = (message) => {
@@ -24,6 +25,17 @@ export const AuthFail = (message) => {
   return {
     type: actionTypes.AUTH_FAIL,
     message: message
+  };
+};
+ 
+export const restoreUserFromLocalStorage = () => {
+  return (dispatch) => {
+    const storedUser = localStorage.getItem("admin_user");
+    
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      dispatch(AuthSuccess({ user }));
+    }
   };
 };
 

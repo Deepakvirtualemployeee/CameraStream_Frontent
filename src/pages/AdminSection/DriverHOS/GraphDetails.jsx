@@ -20,6 +20,10 @@ import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import CircularTimer from "./CircularTimer";
 
 export const GraphDetails = () => {
+    
+       const { userDetails } = useSelector((state) => state.auth);
+        const userRole = userDetails?.role;
+ 
     // State for showing phone
     const [showPhone, setShowPhone] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
@@ -477,33 +481,31 @@ export const GraphDetails = () => {
             minWidth: '120px',
             center: true,
         },
-        {
-            name: 'Actions',
-            minWidth: '120px',
-            center: true,
-            cell: (row) => (
-                <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
-                    {!row.isFirstEvent && (
-                        <>
-                            <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event/${companyId}/${driverId}`, {
-                                state: { selectedDate: selectedDate, eventId: row.eventId, driverLogs: driverLogs, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' },
-                            })}><img src={EditIcon} alt="Edit Icon" /></span>
+     {
+    name: userRole === "Fleet Manager" ? "" : "Actions",
+    minWidth: '120px',
+    center: true,
+    cell: (row) => 
+        userRole === "Fleet Manager" ? null : (
+            <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
+                {!row.isFirstEvent && (
+                    <>
+                        <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event/${companyId}/${driverId}`, {
+                            state: { selectedDate: selectedDate, eventId: row.eventId, driverLogs: driverLogs, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' },
+                        })}><img src={EditIcon} alt="Edit Icon" /></span>
 
-                            {/* <span className='pointer p-0' title='Clock'><i className="bi bi-clock fs-5"></i></span> */}
-                            {/* <span className='pointer p-0' title='Delete' onClick={() => {
-                    }}><img src={TrashIcon} alt="Trash Icon" /></span> */}
-                            <span
-                                className='pointer p-0'
-                                title='Delete'
-                                onClick={() => handleDeleteLog(row.eventId)}
-                            >
-                                <img src={TrashIcon} alt="Trash Icon" />
-                            </span>
-                        </>
-                    )}
-                </div>
-            ),
-        },
+                        <span
+                            className='pointer p-0'
+                            title='Delete'
+                            onClick={() => handleDeleteLog(row.eventId)}
+                        >
+                            <img src={TrashIcon} alt="Trash Icon" />
+                        </span>
+                    </>
+                )}
+            </div>
+        )
+},
     ];
 
     // Define event code → color mapping
@@ -1023,6 +1025,7 @@ export const GraphDetails = () => {
                                     </div>
 
                                     {/* Buttons Row */}
+                                     {userRole !== "Fleet Manager" && (
                                     <div className="action-btn-wrapper d-flex flex-wrap justify-content-xl-end gap-1">
                                         {/* <Button variant='outline-danger'><i className="bi bi-sun fs-16"></i></Button> */}
                                         <Button
@@ -1040,10 +1043,7 @@ export const GraphDetails = () => {
 
                                         <Button variant='outline-danger' onClick={() => setShowTSModal(true)}><i className="bi bi-pencil"></i></Button>
                                         <Button variant='outline-danger' onClick={() => navigate(`/driver-hos/graph-details/add-event/${companyId}/${driverId}`, { state: { selectedDate: selectedDate, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' } })}><i className="bi bi-plus-lg fs-16"></i></Button>
-                                        {/* <Button variant='white' className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1" title="Reset" >
-                                        <img src={ReloadIcon} alt="Reload Icon" className="lh-1" />
-                                        <span className="ms-1 d-sm-none">Refresh</span>
-                                    </Button> */}
+                                  
                                         <Button
                                             variant="white"
                                             className="bg-white border-gray d-flex align-items-center justify-content-center gap-1 lh-1"
@@ -1058,7 +1058,7 @@ export const GraphDetails = () => {
                                             )}
                                             <span className="ms-1 d-sm-none">Refresh</span>
                                         </Button>
-                                    </div>
+                                    </div>)}
                                 </div>
                             </div>
                         </div>

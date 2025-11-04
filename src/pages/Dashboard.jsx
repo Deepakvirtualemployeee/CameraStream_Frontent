@@ -6,9 +6,10 @@ import MonthlyRevenueChart from '../components/charts/MonthlyRevenueChart';
 import PetTypeChart from '../components/charts/PetTypeChart';
 import { NoDataComponent } from '../components/NoDataComponent';
 import CustomerChart from '../components/charts/CustomerChart';
-
+import { useSelector } from 'react-redux';
 
 export const Dashboard = () => {
+
     const columns = [
         {
             name: 'Customer Name',

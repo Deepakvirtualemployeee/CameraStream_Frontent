@@ -354,6 +354,13 @@ export const EditPortalUser = () => {
                                             <option value="company administrator">
                                                 Company Administrator
                                             </option>
+                                             
+                                            <option value="Broker">
+                                            Broker
+                                            </option>
+                                            <option value="Fleet Manager">
+                                            Fleet Manager
+                                            </option>
                                             {/* <option value="system super-admin">
                                                 System Super-Admin
                                             </option>
