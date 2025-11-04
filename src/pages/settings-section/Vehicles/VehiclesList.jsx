@@ -16,6 +16,9 @@ export const VehiclesList = () => {
     const { companyId } = useParams(); // company id from URL
 
     // Correct selector
+    const { userDetails } = useSelector((state) => state.auth);
+    const userRole = userDetails?.role;
+
     const { vehicles, loading } = useSelector((state) => state.vehicles);
 
     useEffect(() => {
@@ -79,21 +82,24 @@ export const VehiclesList = () => {
                 </Badge>
             ),
         },
+       
         {
-            name: "Actions",
+           name: userRole === "Broker" ? "" : "Actions", 
             minWidth: "150px",
             cell: (row) => (
-                <div className="action-wrapper d-flex flex-wrap align-items-center gap-3">
-                    <span
-                        className="pointer ms-3"
-                        title="Edit"
-                        onClick={() =>
-                            navigate(`/settings/vehicles-list/edit-vehicle/${companyId}/${row._id}`, { state: { companyId: companyId } })
-                        }
-                    >
-                        <img src={EditIcon} alt="Edit Icon" />
-                    </span>
-                </div>
+                userRole !== "Broker" && (
+                    <div className="action-wrapper d-flex flex-wrap align-items-center gap-3">
+                        <span
+                            className="pointer ms-3"
+                            title="Edit"
+                            onClick={() =>
+                                navigate(`/settings/vehicles-list/edit-vehicle/${companyId}/${row._id}`, { state: { companyId: companyId } })
+                            }
+                        >
+                            <img src={EditIcon} alt="Edit Icon" />
+                        </span>
+                    </div>
+                )
             ),
         },
     ];
@@ -133,8 +139,6 @@ export const VehiclesList = () => {
         <div className="VehiclesList-page py-3">
             <div className="container-fluid">
                 <div className="main-heading mb-3">
-                    {/* Vehicles ({vehicles?.length || 0}) */}
-                    {/* Vehicles ({filteredData?.length || 0} / {vehicles?.length || 0}) */}
                     Vehicles ({filteredData?.length || 0})
                 </div>
                 <div className="table-content-wrapper">
@@ -147,26 +151,29 @@ export const VehiclesList = () => {
                             onReset={resetFilters}
                         />
 
-                        <div className="btn-wrapper d-flex flex-wrap gap-2">
-                            <Button
-                                variant="white"
-                                className="bg-white border-gray d-flex align-items-center gap-2"
-                            >
-                                <img
-                                    src={CreditCardIcon}
-                                    alt="Credit Card Icon"
-                                    className="img-fluid"
-                                    style={{ filter: "brightness(0.2)" }}
-                                />{" "}
-                                Billing Page
-                            </Button>
-                            <Button
-                                variant="primary"
-                                onClick={() => navigate(`/settings/vehicles-list/add-vehicle/${companyId}`)}
-                            >
-                                <i className="bi bi-plus-lg fs-16"></i> Add Vehicle
-                            </Button>
-                        </div>
+                       
+                        {userRole !== "Broker" && (
+                            <div className="btn-wrapper d-flex flex-wrap gap-2">
+                                <Button
+                                    variant="white"
+                                    className="bg-white border-gray d-flex align-items-center gap-2"
+                                >
+                                    <img
+                                        src={CreditCardIcon}
+                                        alt="Credit Card Icon"
+                                        className="img-fluid"
+                                        style={{ filter: "brightness(0.2)" }}
+                                    />{" "}
+                                    Billing Page
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    onClick={() => navigate(`/settings/vehicles-list/add-vehicle/${companyId}`)}
+                                >
+                                    <i className="bi bi-plus-lg fs-16"></i> Add Vehicle
+                                </Button>
+                            </div>
+                        )}
                     </div>
                     <div className="table-responsive table-custom-wrapper">
                         <DataTable

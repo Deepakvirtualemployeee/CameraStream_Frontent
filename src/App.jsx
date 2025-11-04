@@ -1,6 +1,10 @@
-import React from 'react';
+import React , {useEffect} from 'react';
 import './App.scss';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { useSelector , useDispatch } from "react-redux";
+ 
+import { restoreUserFromLocalStorage } from './store/actions/auth'; 
+
 
 // Auth Pages
 import LogIn from './pages/authentication/LogIn';
@@ -60,7 +64,22 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProtectedRoute from "./components/ProtectedRoute";
 
+
+
 function App() {
+    const dispatch = useDispatch();
+  const userRole = useSelector(state => state.auth.userDetails?.role);
+ 
+  useEffect(() => {
+    console.log("User Role in App.jsx useEffect:", userRole);
+    
+    dispatch(restoreUserFromLocalStorage());
+  }, [dispatch]);
+  
+  //   const { userDetails } = useSelector((state) => state.auth);
+  //   console.log("User Details in App.jsx:", userDetails);
+  // const userRole = userDetails?.role;
+  // console.log("User Role in App.jsx:", userRole); //
   return (
     <BrowserRouter>
       <ToastContainer position="top-right" autoClose={3000} />

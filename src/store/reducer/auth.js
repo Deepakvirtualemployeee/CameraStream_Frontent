@@ -5,10 +5,12 @@ const initialState = {
   error: null,
   success: null,
   userDetails:{},
-  cardDetails:{}
+  cardDetails:{},
+  
 };
 
 const reducer = (state = initialState, action) => {
+    console.log("Action dispatched:", action.type); 
   switch (action.type) {
     case actionTypes.START_AUTH:
       return {
@@ -17,19 +19,23 @@ const reducer = (state = initialState, action) => {
         error: null
       };
     case actionTypes.AUTH_FAIL:
+         console.log("AUTH_FAIL - clearing userDetails"); 
       return {
         ...state,
         loading: null,
         error: action.message,
         success: null,
+        
       }
-      case actionTypes.AUTH_SUCCESS:
-      return {
-        ...state,
-        loading: null,
-        success: action.message,
-        error: null,
-      }
+case actionTypes.AUTH_SUCCESS:
+  console.log("AUTH_SUCCESS payload:", action.payload);
+  return {
+    ...state,
+    loading: null,
+    success: action.payload.message,
+    userDetails: action.payload.user ,  
+    error: null,
+  }
     default:
       return state;
   }
