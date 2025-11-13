@@ -14,11 +14,14 @@ import { getDriversIssuingState } from "../../../store/actions/drivers";
 import { FUELTYPE, MAKE, VEHICLE_MODEL_OPTIONS, ALPHABATES_NUMERIC, VIN_REGEX } from "../../../constants";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
+import { ROLES } from '../../../constants';
 
 export const EditVehicles = () => {
   const { companyId, id } = useParams(); // vehicle id from URL
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { userDetails } = useSelector((state) => state.auth);
+  const userRole = userDetails?.role;
 
   // const location = useLocation();
   // const { companyId } = location.state || {}; // reading state
@@ -252,12 +255,13 @@ export const EditVehicles = () => {
                 Activate
               </Button>
             )}
+            {userRole !== ROLES.Company_Safety_Personal && (
             <Button
               variant="danger"
               onClick={() => setShowDelete(true)} // delete button
             >
               Delete Vehicle
-            </Button>
+            </Button>)}
             <Button variant="primary" type="submit" form="edit-vehicle-form">
               Save Changes
             </Button>

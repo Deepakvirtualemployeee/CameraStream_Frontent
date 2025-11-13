@@ -308,11 +308,22 @@ export const VEHICLE_MODEL_OPTIONS = [
     {value:"4200",label:"4200"},
     {value:"57X Chassis",label:"57X Chassis"}
   ];
-export const ROLE = [
-{value:"company-administrator",label:"Company Administrator"},
-{value:"company-portal-user",label:"Company Safety Personal"},
-{value:"company-fleet-manager",label:"Company Fleet Manager"},
-{value:"company-broker",label:"Broker"}]
+export const ROLES = {
+ 
+  FLEET_MANAGER: 1,
+  Broker: 2,
+  Company_Administrator: 3,
+  Company_Safety_Personal: 4,
+  
+};
+
+export const ROLE_NAMES = {
+ 
+  1: 'Fleet Manager',
+  2: 'Broker',
+  3: 'Company Administrator',
+  4: 'Company Safety Personal'
+};
 
 export const VEHICLE_STATUS = [
   {value: '', label: 'All'},

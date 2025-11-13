@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { createPortalUser } from "../../../store/actions/portalUsers"; // import action
+import { ROLES, ROLE_NAMES } from "../../../constants";
 
 export const AddPortalUser = () => {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ export const AddPortalUser = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+const handleSubmit = (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
@@ -55,12 +56,41 @@ export const AddPortalUser = () => {
       return;
     }
 
+    // ✅ Direct mapping without relying on ROLES
+    let roleNumber = role;
+    
+    if (typeof role === 'string') {
+        const roleMap = {
+            'company administrator': 4,
+            'broker': 3,
+            'fleet manager': 2,
+            'company safety personal': 5,
+        };
+        
+        console.log("Role before conversion:", role);
+        roleNumber = roleMap[role.toLowerCase()] || null;
+        console.log("Role after conversion:", roleNumber, "Type:", typeof roleNumber);
+        
+        if (!roleNumber) {
+            alert("Invalid role selected!");
+            return;
+        }
+    }
+
     // Prepare payload (include companyId from params)
     const payload = {
-      ...formData,
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      password,
+      confirmPassword,
+      role: roleNumber,  
       companyId: companyId,
     };
-    console.log("Payload:", payload);
+    
+ 
+    
     // Dispatch action
     dispatch(createPortalUser(companyId, payload, navigate));
   };
@@ -260,7 +290,7 @@ export const AddPortalUser = () => {
                 </Col>
 
                 {/* Role */}
-                <Col xs={12}>
+                            <Col xs={12}>
                   <Form.Group controlId="role">
                     <Form.Label>
                       Role<span className="text-danger">*</span>
@@ -277,34 +307,15 @@ export const AddPortalUser = () => {
                       <option value="company administrator">
                         Company Administrator
                       </option>
-                      <option value="Broker">
-                      Broker
+                      <option value="broker">
+                        Broker
                       </option>
-                       <option value="Fleet Manager">
-                      Fleet Manager
+                      <option value="fleet manager">
+                        Fleet Manager
                       </option>
-                      {/*
-                      <option value="system administrator">
-                        System Administrator
+                      <option value="company safety personal">
+                        Company Safety Personal
                       </option>
-                      <option value="system technician">
-                        System Technician
-                      </option>
-                      <option value="system sales">
-                        System Sales
-                      </option>
-                      <option value="company support-user">
-                        Company Support-User
-                      </option>
-                      <option value="company fleet-manager">
-                      Company Fleet Manager
-                      </option>
-                      <option value="company portal-user">
-                      Company Portal-User
-                      </option>
-                      <option value="driver">
-                        Driver
-                      </option> */}
                     </Form.Select>
                   </Form.Group>
                 </Col>

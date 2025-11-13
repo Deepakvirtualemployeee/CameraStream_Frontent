@@ -9,6 +9,7 @@ import TableFilter from "../../../components/TableFilter";
 import CreditCardIcon from "../../../assets/images/icons/credit-card.svg";
 import EditIcon from "../../../assets/images/icons/edit.svg";
 import { getVehicles } from "../../../store/actions/vehicles";
+import { ROLES } from "../../../constants";
 
 export const VehiclesList = () => {
     const dispatch = useDispatch();
@@ -84,10 +85,10 @@ export const VehiclesList = () => {
         },
        
         {
-           name: userRole === "Broker" ? "" : "Actions", 
+           name: userRole === ROLES.Broker ? "" : "Actions", 
             minWidth: "150px",
             cell: (row) => (
-                userRole !== "Broker" && (
+                userRole !==  ROLES.Broker && (
                     <div className="action-wrapper d-flex flex-wrap align-items-center gap-3">
                         <span
                             className="pointer ms-3"
@@ -152,7 +153,7 @@ export const VehiclesList = () => {
                         />
 
                        
-                        {userRole !== "Broker" && (
+                        {userRole !== ROLES.Broker && (
                             <div className="btn-wrapper d-flex flex-wrap gap-2">
                                 <Button
                                     variant="white"
@@ -166,12 +167,14 @@ export const VehiclesList = () => {
                                     />{" "}
                                     Billing Page
                                 </Button>
+                                {userRole !== ROLES.Company_Safety_Personal && (
                                 <Button
                                     variant="primary"
                                     onClick={() => navigate(`/settings/vehicles-list/add-vehicle/${companyId}`)}
                                 >
                                     <i className="bi bi-plus-lg fs-16"></i> Add Vehicle
                                 </Button>
+                                )}
                             </div>
                         )}
                     </div>

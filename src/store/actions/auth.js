@@ -1,6 +1,7 @@
 import * as actionTypes from "../actions/actionTypes";
 import axios from "../../axios-config";
 import { toast } from "react-toastify";
+import {ROLES } from "../../../src/constants"
 
 // Start loading
 export const startAuth = () => {
@@ -40,26 +41,47 @@ export const restoreUserFromLocalStorage = () => {
 };
 
 // Login action
-export const login = (data, navigate) => {
-  return dispatch => {
-    dispatch(startAuth());
-    axios.post("/auth/login", data)
-      .then(async response => {
-        if (response.status === 200) {
+export const login = (data, navigate) => {   
+  return dispatch => {     
+    dispatch(startAuth());     
+    axios.post("/auth/login", data)       
+      .then(async response => {         
+        if (response.status === 200) {           
           const user = response.data.data.user;   // user details
-
-          await dispatch(AuthSuccess(response.data.message));
-          await localStorage.setItem("token", response.data.accessToken);
-          localStorage.setItem("admin_user", JSON.stringify(user)); // store user in localStorage
-          window.location = await '/';
-        } else {
-          dispatch(AuthFail(response.data.message));
-        }
-      })
-      .catch((err) => {
-        dispatch(AuthFail(err?.response?.data?.message || "Login failed"));
-      });
-  };
+          
+          console.log("User from API:", user);
+          console.log("Role from API:", user.role, "Type:", typeof user.role);
+          
+           
+          let roleNumber = user.role;
+          
+          if (typeof user.role === 'string') {
+            const roleMap = {
+              'company administrator': ROLES.Company_Administrator,
+              'fleet manager': ROLES.FLEET_MANAGER,
+              'driver': ROLES.DRIVER,
+              'broker': ROLES.Broker,
+              'company safety personal': ROLES.Company_Safety_Personal,
+            };
+            roleNumber = roleMap[user.role.toLowerCase()] || user.role;
+          }
+          
+          user.role = roleNumber;
+          console.log("Final role:", user.role);
+          
+          await dispatch(AuthSuccess({ message: response.data.message, user }));           
+          await localStorage.setItem("token", response.data.accessToken);           
+          localStorage.setItem("admin_user", JSON.stringify(user));           
+          window.location = '/';         
+        } else {           
+          dispatch(AuthFail(response.data.message));         
+        }       
+      })       
+      .catch((err) => {         
+        console.log("Login error:", err);
+        dispatch(AuthFail(err?.response?.data?.message || "Login failed"));       
+      });   
+  }; 
 };
 
 // Forgot password (send OTP)

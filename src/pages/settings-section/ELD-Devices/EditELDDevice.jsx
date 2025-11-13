@@ -14,6 +14,7 @@ import { getAssignableVehiclesForEld } from "../../../store/actions/vehicles";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import { VALIDATE_MAC_ADDRESS, SERIAL_NUMBER_REGEX } from "../../../constants";
 import { toast } from "react-toastify";
+import { ROLES } from '../../../constants';
 
 export const EditELDDevice = () => {
     const { companyId, id } = useParams(); // eld id from URL
@@ -21,6 +22,8 @@ export const EditELDDevice = () => {
     // const location = useLocation();
     // const { companyId } = location.state || {};
     const dispatch = useDispatch();
+    const { userDetails } = useSelector((state) => state.auth);
+    const userRole = userDetails?.role;
 
     const { eldDevice, loading } = useSelector((state) => state.eldDevices);
     const { assignableVehicles, loading: loadings } = useSelector((state) => state.vehicles);
@@ -230,9 +233,11 @@ export const EditELDDevice = () => {
                                 Activate
                             </Button>
                         )}
+                        {userRole !== ROLES.Company_Safety_Personal && (
                         <Button variant="danger" onClick={() => setShowDelete(true)}>
                             Delete Device
                         </Button>
+                        )}
                         <Button variant="primary" type="submit" form="edit-device-form">
                             Save Changes
                         </Button>
