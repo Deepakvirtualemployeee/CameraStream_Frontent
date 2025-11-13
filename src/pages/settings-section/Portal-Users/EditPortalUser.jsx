@@ -6,13 +6,15 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { getPortalUserById, updatePortalUser, deactivatePortalUser, activatePortalUser, deletePortalUser } from "../../../store/actions/portalUsers";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
+import { ROLES, ROLE_NAMES } from "../../../constants";
 
 export const EditPortalUser = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { companyId, id } = useParams(); // userId from URL
-    // const location = useLocation();
-    // const { companyId } = location.state || {}; // reading state
+    const { companyId, id } = useParams(); // 
+    const { userDetails } = useSelector((state) => state.auth);
+    const userRole = userDetails?.role;
+ 
 
     const { portalUser, loading } = useSelector((state) => state.portalUsers);
 
@@ -51,7 +53,7 @@ export const EditPortalUser = () => {
                 lastName: portalUser.lastName || "",
                 email: portalUser.email || "",
                 phoneNumber: portalUser.phoneNumber || "",
-                role: portalUser.role || "",
+                role: ROLE_NAMES[portalUser.role]?.toLowerCase() || "",
                 password: "",
                 confirmPassword: "",
             }));
@@ -96,26 +98,40 @@ export const EditPortalUser = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+const handleSubmit = (e) => {
+    e.preventDefault();
 
-        if (password && password !== confirmPassword) {
-            alert("Passwords do not match!");
-            return;
-        }
+    if (password && password !== confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+    }
 
-        const payload = {
-            firstName,
-            lastName,
-            email,
-            phoneNumber,
-            role,
-            companyId: companyId,
-            ...(password ? { password } : {}), // only send if provided
+    // Check if role is already a number or a string
+    let roleNumber = role;
+    
+    if (typeof role === 'string') {
+        const roleMap = {
+            'company administrator': ROLES.Company_Administrator,
+            'broker': ROLES.Broker,
+            'fleet manager': ROLES.FLEET_MANAGER,
+            // 'driver': ROLES.DRIVER,
+            'company safety personal': ROLES.Company_Safety_Personal,
         };
+        roleNumber = roleMap[role.toLowerCase()] || role;
+    }
 
-        dispatch(updatePortalUser(companyId, id, payload, navigate));
+    const payload = {
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        role: roleNumber,
+        companyId: companyId,
+        ...(password ? { password } : {}),
     };
+
+    dispatch(updatePortalUser(companyId, id, payload, navigate));
+};
 
     return (
         <div className="EditPortalUser-page py-3">
@@ -142,12 +158,14 @@ export const EditPortalUser = () => {
                                 Activate
                             </Button>
                         )}
+                        {userRole !== ROLES.Company_Safety_Personal && (
                         <Button
                             variant="danger"
                             onClick={() => setShowDelete(true)} // delete button
                         >
                             Delete User
                         </Button>
+                        )}
                         <Button variant="primary" type="submit" form="edit-user-form" disabled={loading}>
                             <i className="bi bi-plus-lg fs-16"></i> Edit User
                         </Button>
@@ -342,6 +360,7 @@ export const EditPortalUser = () => {
                                 </Col>
 
                                 {/* Role */}
+                              {/* Role */}
                                 <Col xs={12}>
                                     <Form.Group controlId="role">
                                         <Form.Label>
@@ -354,37 +373,19 @@ export const EditPortalUser = () => {
                                             <option value="company administrator">
                                                 Company Administrator
                                             </option>
-                                             
-                                            <option value="Broker">
-                                            Broker
+                                              <option value="company safety personal">
+                                                Company Safety Personal
                                             </option>
-                                            <option value="Fleet Manager">
-                                            Fleet Manager
+                                            <option value="broker">
+                                                Broker
                                             </option>
-                                            {/* <option value="system super-admin">
-                                                System Super-Admin
+                                            <option value="fleet manager">
+                                                Fleet Manager
                                             </option>
-                                            <option value="system administrator">
-                                                System Administrator
-                                            </option>
-                                            <option value="system technician">
-                                                System Technician
-                                            </option>
-                                            <option value="system sales">
-                                                System Sales
-                                            </option>
-                                            <option value="company support-user">
-                                                Company Support-User
-                                            </option>
-                                            <option value="company fleet-manager">
-                                                Company Fleet Manager
-                                            </option>
-                                            <option value="company portal-user">
-                                                Company Portal-User
-                                            </option>
-                                            <option value="driver">
+                                            {/* <option value="driver">
                                                 Driver
                                             </option> */}
+                                          
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>

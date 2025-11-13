@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ArrowLogoutIcon from '../assets/images/icons/arrow-bar-right.svg';
-
+import {ROLES } from "../constants"
 const Sidebar = ({ collapsed, openSidebar }) => {
     const location = useLocation();
     const { companyId } = useParams();
@@ -12,8 +12,19 @@ const Sidebar = ({ collapsed, openSidebar }) => {
     const userRole = userDetails?.role;
 
     const [openSettings, setOpenSettings] = useState(false);
+    const [openReports , setOpenReports] = useState(false);
     const toggleSettings = () => setOpenSettings(!openSettings);
+    const toggleReports = () => setOpenReports(!openReports);
 
+    // Group of routes under Reports
+    const reportsRoutes = [
+        '/reports/fmcsa-reports',
+        '/reports/ifta-reports'
+    ];
+
+    const isReportsActive = reportsRoutes.some(path =>
+        location.pathname.startsWith(path)
+    );
     // Group of routes under Settings
     const settingsRoutes = [
         '/settings',
@@ -23,10 +34,17 @@ const Sidebar = ({ collapsed, openSidebar }) => {
         '/settings/portal-users',
         '/settings/resources'
     ];
+ 
 
     const isSettingsActive = settingsRoutes.some(path =>
         location.pathname.startsWith(path)
     );
+    // Auto-close reports dropdown if not on a reports route
+    useEffect(() => {
+        if (!isReportsActive) {
+            setOpenReports(false);
+        }
+    }, [isReportsActive, location.pathname]);
 
     // Auto-close settings dropdown if not on a settings route
     useEffect(() => {
@@ -62,7 +80,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                 </li>
 
              
-                {userRole !== "Broker" && (
+                {userRole !==  ROLES.Broker && (
                     <>
                         <li className="nav-item">
                             <Link
@@ -86,20 +104,48 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                             </Link>
                         </li>
 
-                        <li className="nav-item">
-                            <Link
-                                to={`/fmcsa-records/${companyId}`}
-                                className={`${location.pathname === `/fmcsa-records/${companyId}` ? 'active' : ''} nav-link d-flex align-items-center gap-2`}
-                                onClick={openSidebar}
-                            >
-                                <i className="bi bi-clipboard-data"></i>
-                                {!collapsed && <span>FMCSA Records</span>}
-                            </Link>
-                        </li>
+                                                    {userRole !== ROLES.Broker && (
+                                <li className={`nav-item ${isReportsActive || openReports ? 'active' : ''}`}>
+                                    <a
+                                    className={`nav-link d-flex align-items-center gap-2 pointer ${isReportsActive ? 'active' : ''}`}
+                                    onClick={() => { toggleReports(); openSidebar(); }}
+                                    >
+                                    <i className="bi bi-bar-chart"></i>
+                                    {!collapsed && <span>Reports</span>}
+                                    {!collapsed && (
+                                        <i className={`bi fs-16 ms-auto ${openReports ? 'bi-chevron-up' : 'bi-chevron-down'}`}></i>
+                                    )}
+                                    </a>
+
+                                    {!collapsed && openReports && (
+                                    <ul className="sub-menu list-unstyled">
+                                    
+                                        <li className="nav-item">
+                                        <Link
+                                            to={`/reports/ifta-reports`}
+                                            className={`${location.pathname === `/reports/ifta-reports` ? 'active' : ''}`}
+                                        >
+                                            IFTA Reports
+                                        </Link>
+                                        </li>
+
+                                        <li className="nav-item">
+                                        <Link
+                                            to={`fmcsa-records/${companyId}`}
+                                            className={`${location.pathname === `fmcsa-records/${companyId}` ? 'active' : ''}`}
+                                        >
+                                            FMCSA Reports
+                                        </Link>
+                                        </li>
+                                    </ul>
+                                    )}
+                                </li>
+                                )}
+
                     </>
                 )}
 
-                {/* ✅ Settings Dropdown */}
+             
                 <li className={`nav-item ${isSettingsActive || openSettings ? 'active' : ''}`}>
                     <a
                         className={`nav-link d-flex align-items-center gap-2 pointer ${isSettingsActive ? 'active' : ''}`}
@@ -115,8 +161,8 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     {/* Dropdown submenu */}
                     {!collapsed && openSettings && (
                         <ul className="sub-menu list-unstyled">
-                            {/* ✅ If Broker → Only Vehicles visible */}
-                            {userRole === "Broker" ? (
+                         
+                            {userRole === ROLES.Broker ? (
                                 <li className="nav-item">
                                     <Link
                                         to={`/settings/vehicles-list/${companyId}`}
@@ -178,7 +224,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                 </li>
             </ul>
 
-            {/* ✅ Logout always visible */}
+           
             <ul className="sidebar-item-cover list-inline mt-auto mb-0">
                 <li className="nav-item">
                     <hr className="opacity-100 my-2" />

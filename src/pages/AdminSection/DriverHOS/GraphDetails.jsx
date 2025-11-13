@@ -18,6 +18,7 @@ import { getDriverData, getDriverLogs, getMobileSettings, getProcessedDriverData
 import moment from "moment-timezone";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import CircularTimer from "./CircularTimer";
+import {ROLES } from "../../../constants"
 
 export const GraphDetails = () => {
     
@@ -482,25 +483,26 @@ export const GraphDetails = () => {
             center: true,
         },
      {
-    name: userRole === "Fleet Manager" ? "" : "Actions",
+    name: userRole === ROLES.FLEET_MANAGER ? "" : "Actions",
     minWidth: '120px',
     center: true,
     cell: (row) => 
-        userRole === "Fleet Manager" ? null : (
+        userRole !== ROLES.FLEET_MANAGER  && (
             <div className='action-wrapper d-flex flex-wrap align-items-center gap-3'>
                 {!row.isFirstEvent && (
                     <>
                         <span className='pointer' title='Edit' onClick={() => navigate(`/driver-hos/graph-details/edit-event/${companyId}/${driverId}`, {
                             state: { selectedDate: selectedDate, eventId: row.eventId, driverLogs: driverLogs, timeZoneId: driverSettings?.timeZoneId || driverSettings?.timeZone || 'America/Los_Angeles' },
                         })}><img src={EditIcon} alt="Edit Icon" /></span>
-
-                        <span
-                            className='pointer p-0'
-                            title='Delete'
-                            onClick={() => handleDeleteLog(row.eventId)}
-                        >
-                            <img src={TrashIcon} alt="Trash Icon" />
-                        </span>
+                        {userRole !== ROLES.Company_Safety_Personal && (
+                                                <span
+                                                    className='pointer p-0'
+                                                    title='Delete'
+                                                    onClick={() => handleDeleteLog(row.eventId)}
+                                                >
+                                                    <img src={TrashIcon} alt="Trash Icon" />
+                                                </span>
+                            )}
                     </>
                 )}
             </div>
@@ -1025,7 +1027,7 @@ export const GraphDetails = () => {
                                     </div>
 
                                     {/* Buttons Row */}
-                                     {userRole !== "Fleet Manager" && (
+                                   {![ROLES.FLEET_MANAGER, ROLES.Company_Safety_Personal].includes(userRole) && (
                                     <div className="action-btn-wrapper d-flex flex-wrap justify-content-xl-end gap-1">
                                         {/* <Button variant='outline-danger'><i className="bi bi-sun fs-16"></i></Button> */}
                                         <Button

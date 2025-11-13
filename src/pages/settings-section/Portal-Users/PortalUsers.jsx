@@ -8,11 +8,14 @@ import { NoDataComponent } from "../../../components/NoDataComponent";
 import TableFilter from "../../../components/TableFilter";
 import EditIcon from "../../../assets/images/icons/edit.svg";
 import { getPortalUsers } from "../../../store/actions/portalUsers";
+import { ROLES, ROLE_NAMES } from "../../../constants";
 
 export const PortalUsers = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { companyId } = useParams(); // companyId from URL
+    const { companyId } = useParams();  
+    const { userDetails } = useSelector((state) => state.auth);
+    const userRole = userDetails?.role;
 
     const { portalUsers, loading } = useSelector((state) => state.portalUsers);
     console.log("Users:", portalUsers);
@@ -33,19 +36,18 @@ export const PortalUsers = () => {
             sortable: true,
             minWidth: "200px",
         },
-        {
-            name: "Role",
-            selector: (row) =>
-              row.role
-                ? row.role
-                    .toLowerCase()
-                    .split(/[-\s]+/) // split on dash OR space
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")
-                : "",
-            sortable: true,
-            minWidth: "200px",
-        },
+       {
+    name: "Role",
+    selector: (row) =>
+      row.role
+        ? ROLE_NAMES[row.role]?.toLowerCase()  
+            .split(/[-\s]+/)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ")
+        : "",
+    sortable: true,
+    minWidth: "200px",
+},
         {
             name: "Status",
             minWidth: "120px",
@@ -133,6 +135,7 @@ export const PortalUsers = () => {
                             onReset={resetFilters}
                         />
                         <div className="btn-wrapper d-flex flex-wrap gap-2">
+                        {userRole !== ROLES.Company_Safety_Personal && (
                             <Button
                                 variant="primary"
                                 onClick={() =>
@@ -141,6 +144,7 @@ export const PortalUsers = () => {
                             >
                                 <i className="bi bi-plus-lg fs-16"></i> Add User
                             </Button>
+                        )}
                         </div>
                     </div>
                     <div className="table-responsive table-custom-wrapper">

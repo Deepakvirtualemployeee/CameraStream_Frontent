@@ -9,13 +9,15 @@ import TableFilter from '../../../components/TableFilter';
 import IOSIcon from '../../../assets/images/icons/ios.svg';
 import EditIcon from '../../../assets/images/icons/edit.svg';
 import { fetchDrivers } from '../../../store/actions/drivers';
+import { ROLES } from '../../../constants';
 
 export const DriversListing = () => {
   const navigate = useNavigate();
   const { companyId } = useParams(); // Company id from url
   console.log(companyId);
   const dispatch = useDispatch();
-
+const { userDetails } = useSelector((state) => state.auth);
+const userRole = userDetails?.role;
   // Get data from redux
   const { loading, drivers, error } = useSelector((state) => state.drivers);
 
@@ -202,7 +204,7 @@ export const DriversListing = () => {
               filters={filters}
               onReset={resetFilters}
             />
-
+{userRole !== ROLES.Company_Safety_Personal && (
             <div className="btn-wrapper d-flex flex-wrap gap-2">
               <Button
                 variant="primary"
@@ -212,6 +214,7 @@ export const DriversListing = () => {
                 <i className="bi bi-plus-lg fs-16"></i> Add Driver
               </Button>
             </div>
+)}
           </div>
           <div className="table-responsive table-custom-wrapper">
             <DataTable

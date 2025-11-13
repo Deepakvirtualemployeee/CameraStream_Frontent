@@ -8,11 +8,14 @@ import { NoDataComponent } from "../../../components/NoDataComponent";
 import TableFilter from "../../../components/TableFilter";
 import EditIcon from "../../../assets/images/icons/edit.svg";
 import { fetchEldDevices } from "../../../store/actions/eldDevices";
+import { ROLES } from '../../../constants';
 
 export const ELDDevice = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { eldDevices, loading } = useSelector((state) => state.eldDevices);
+  const { userDetails } = useSelector((state) => state.auth);
+  const userRole = userDetails?.role;
 
   const { companyId } = useParams(); // Company id from url
 
@@ -95,9 +98,10 @@ export const ELDDevice = () => {
               filters={filters}
               onReset={resetFilters}
             />
+            {userRole !== ROLES.Company_Safety_Personal && (
             <Button variant="primary" onClick={() => navigate(`/settings/eld-devices/add-device/${companyId}`)}>
               <i className="bi bi-plus-lg fs-16"></i> Add ELD Device
-            </Button>
+            </Button>)}
           </div>
           <div className="table-responsive table-custom-wrapper">
             {loading ? (

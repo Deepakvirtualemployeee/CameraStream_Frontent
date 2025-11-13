@@ -39,7 +39,7 @@ import { DriversList } from './pages/drivers-list/DriversList';
 // Admin Section Layout Pages
 import { DriversHOSList } from './pages/AdminSection/DriverHOS/DriversHOSList';
 import { GraphDetails } from './pages/AdminSection/DriverHOS/GraphDetails';
-import { FMCSARecords } from './pages/AdminSection/FMCSA-Records/FMCSA-Records';
+import { FMCSARecords } from './pages/AdminSection/FMCSA-Reports/FMCSA-Reports';
 import { LogsList } from './pages/AdminSection/LogsSection/LogsList';
 import { Location } from './pages/AdminSection/Locations/Location';
 import { AddEvent } from './pages/AdminSection/DriverHOS/AddEvent';
@@ -63,6 +63,7 @@ import { EditPortalUser } from './pages/settings-section/Portal-Users/EditPortal
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProtectedRoute from "./components/ProtectedRoute";
+import {IFTAReports} from './pages/AdminSection/IFTA-Reports/IFTA-Reports';
 
 
 
@@ -139,6 +140,7 @@ function App() {
           <Route path="driver-hos/graph-details/edit-event/:companyId/:driverId" element={<EditEvent />} />
           <Route path="logs/:companyId" element={<LogsList />} />
           <Route path="fmcsa-records/:companyId" element={<FMCSARecords />} />
+          <Route path="/reports/ifta-reports" element={<IFTAReports />} />
           <Route path="location/:companyId" element={<Location />} />
           <Route path="settings/drivers-listing/:companyId" element={<DriversListing />} />
           <Route path="settings/drivers-listing/add-driver/:companyId" element={<AddDriver />} />

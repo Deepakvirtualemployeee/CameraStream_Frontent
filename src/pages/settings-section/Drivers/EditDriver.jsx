@@ -9,6 +9,7 @@ import { getAssignableVehicles } from "../../../store/actions/vehicles";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import { ALPHABATES_NUMERIC } from "../../../constants";
 import { getCompanyInfo } from "../../../store/actions/companies";
+import { ROLES } from '../../../constants';
 
 export const EditDriver = () => {
     const navigate = useNavigate();
@@ -16,7 +17,8 @@ export const EditDriver = () => {
     // const location = useLocation();
     // const { companyId } = location.state || {};
     const dispatch = useDispatch();
-
+const { userDetails } = useSelector((state) => state.auth);
+const userRole = userDetails?.role;
     //   const { driver, loading } = useSelector((state) => state.drivers);
     //   const { coDrivers, loading } = useSelector((state) => state.drivers);
 
@@ -344,12 +346,14 @@ export const EditDriver = () => {
                                 Activate
                             </Button>
                         )}
+                        {userRole !== ROLES.Company_Safety_Personal && (
                         <Button
                             variant="danger"
                             onClick={() => setShowDelete(true)} // delete button
                         >
                             Delete Driver
                         </Button>
+                        )}
                         <Button variant="primary" type="submit" form="edit-user-form">
                             Update Driver
                         </Button>
