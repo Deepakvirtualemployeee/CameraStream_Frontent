@@ -122,8 +122,8 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                                     
                                         <li className="nav-item">
                                         <Link
-                                            to={`/reports/ifta-reports`}
-                                            className={`${location.pathname === `/reports/ifta-reports` ? 'active' : ''}`}
+                                            to={`/reports/ifta-reports/${companyId}`}
+                                            className={`${location.pathname === `/reports/ifta-reports/${companyId}` ? 'active' : ''}`}
                                         >
                                             IFTA Reports
                                         </Link>
