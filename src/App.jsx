@@ -140,7 +140,7 @@ function App() {
           <Route path="driver-hos/graph-details/edit-event/:companyId/:driverId" element={<EditEvent />} />
           <Route path="logs/:companyId" element={<LogsList />} />
           <Route path="fmcsa-records/:companyId" element={<FMCSARecords />} />
-          <Route path="/reports/ifta-reports" element={<IFTAReports />} />
+          <Route path="reports/ifta-reports/:companyId" element={<IFTAReports />} />
           <Route path="location/:companyId" element={<Location />} />
           <Route path="settings/drivers-listing/:companyId" element={<DriversListing />} />
           <Route path="settings/drivers-listing/add-driver/:companyId" element={<AddDriver />} />
