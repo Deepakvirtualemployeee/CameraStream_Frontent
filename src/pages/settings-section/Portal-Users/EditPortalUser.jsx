@@ -14,6 +14,7 @@ export const EditPortalUser = () => {
     const { companyId, id } = useParams(); // 
     const { userDetails } = useSelector((state) => state.auth);
     const userRole = userDetails?.role;
+    const isRoleEditable = userRole === ROLES.Company_Administrator;
  
 
     const { portalUser, loading } = useSelector((state) => state.portalUsers);
@@ -106,24 +107,30 @@ const handleSubmit = (e) => {
         return;
     }
 
-    // Check if role is already a number or a string
-    let roleNumber = role;
-    
-    if (typeof role === 'string') {
-        const roleMap = {
-            'company administrator': ROLES.Company_Administrator,
-            'broker': ROLES.Broker,
-            'fleet manager': ROLES.FLEET_MANAGER,
-            // 'driver': ROLES.DRIVER,
-            'company safety personal': ROLES.Company_Safety_Personal,
-        };
-        roleNumber = roleMap[role.toLowerCase()] || role;
+    // Only company administrators can change role; everyone else keeps the existing role
+    let roleNumber = portalUser?.role;
+    if (isRoleEditable) {
+        if (typeof role === "string") {
+            const roleMap = {
+                "company administrator": ROLES.Company_Administrator,
+                "broker": ROLES.Broker,
+                "fleet manager": ROLES.FLEET_MANAGER,
+                // 'driver': ROLES.DRIVER,
+                "company safety personal": ROLES.Company_Safety_Personal,
+            };
+            roleNumber = roleMap[role.toLowerCase()] || role;
+        } else {
+            roleNumber = role;
+        }
+    } else if (!roleNumber) {
+        alert("Cannot determine user role. Please contact support.");
+        return;
     }
 
     const payload = {
         firstName,
         lastName,
-        email,
+        email: portalUser?.email || email, // email is not editable
         phoneNumber,
         role: roleNumber,
         companyId: companyId,
@@ -256,6 +263,9 @@ const handleSubmit = (e) => {
                                             onChange={handleChange}
                                             placeholder="Enter email"
                                             autoComplete="off"
+                                            disabled
+                                            readOnly
+                                            title="Email cannot be edited"
                                             required
                                         />
                                     </Form.Group>
@@ -366,7 +376,14 @@ const handleSubmit = (e) => {
                                         <Form.Label>
                                             Role<span className="text-danger">*</span>
                                         </Form.Label>
-                                        <Form.Select name="role" value={role} onChange={handleChange} required>
+                                        <Form.Select
+                                            name="role"
+                                            value={role}
+                                            onChange={handleChange}
+                                            disabled={!isRoleEditable}
+                                            title={!isRoleEditable ? "Only Company Administrators can change role" : undefined}
+                                            required
+                                        >
                                             <option value="" disabled>
                                                 Select role
                                             </option>
