@@ -286,3 +286,33 @@ export const getAssignableVehiclesForEld = (companyId) => async (dispatch) => {
     toast.error(err.response?.data?.message || "Failed to fetch vehicles");
   }
 };
+
+//getAllActiveVehicles
+export const getAllActiveVehicles = (companyId) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.START_ALL_ACTIVE_VEHICLES });
+
+    const res = await axios.get(
+      `/vehicles?companyId=${companyId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    console.log("All active vehicles:", res.data.data);
+
+    dispatch({
+      type: actionTypes.ALL_ACTIVE_VEHICLES_SUCCESS,
+      payload: res.data.data,
+    });
+  } catch (err) {
+    console.error("Error fetching all active vehicles:", err);
+
+    dispatch({
+      type: actionTypes.ALL_ACTIVE_VEHICLES_FAIL,
+      payload: err.response?.data?.message || err.message,
+    });
+
+    toast.error(err.response?.data?.message || "Failed to fetch active vehicles");
+  }
+};

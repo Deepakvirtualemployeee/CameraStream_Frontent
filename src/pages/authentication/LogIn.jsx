@@ -70,7 +70,7 @@ const LogIn = ({ login, openSnackbar }) => {
                             src={require('../../assets/images/sidebar-logo.png')}
                             alt="Logo"
                             className="img-fluid"
-                            style={{ width: '90px' }}
+                            style={{ width: '100px' }}
                         />
                     </div>
                     <div className="heading-wrapper text-dark mb-4 pb-md-2">

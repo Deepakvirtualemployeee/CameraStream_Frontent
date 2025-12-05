@@ -5,7 +5,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useDispatch, useSelector } from "react-redux";
 import { addDriver, getDriversIssuingState } from "../../../store/actions/drivers";
-import { getAssignableVehicles } from "../../../store/actions/vehicles";
+import { getAssignableVehicles , getAllActiveVehicles} from "../../../store/actions/vehicles";
 import { ALPHABATES_NUMERIC } from "../../../constants"; // Import regex
 import { getCompanyInfo } from "../../../store/actions/companies";
 
@@ -23,6 +23,9 @@ export const AddDriver = () => {
 
     const { loading, error, success } = useSelector((state) => state.driverAdd || {});
     const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
+const { allActiveVehicles } = useSelector((state) => state.vehicles);
+
+
     const { issuingState, loading: issuingStateLoading } = useSelector((state) => state.drivers);
     const { company } = useSelector((state) => state.companies);
 
@@ -137,7 +140,7 @@ export const AddDriver = () => {
     // Fetch Assignable Vehicles
     useEffect(() => {
         if (companyId) {
-            dispatch(getAssignableVehicles(companyId));
+            dispatch(getAllActiveVehicles(companyId));
         }
     }, [companyId, dispatch]);
 
@@ -429,29 +432,26 @@ export const AddDriver = () => {
                                 </Form.Group> */}
                                 <Form.Group className="mb-3" controlId="assignedVehicleId">
                                     <Form.Label>Assign Vehicles</Form.Label>
-                                    <Form.Select
-                                        name="assignedVehicleId"
-                                        value={formData.assignedVehicleId}
-                                        onChange={(e) => {
-                                            const selectedId = e.target.value;
-                                            const selectedVehicle = assignableVehicles.find(v => v._id === selectedId);
+                                  <Form.Select
+    name="assignedVehicleId"
+    value={formData.assignedVehicleId}
+    onChange={(e) => {
+        const selectedId = e.target.value;
+        setFormData((prev) => ({
+            ...prev,
+            assignedVehicleId: selectedId,
+        }));
+    }}
+>
+    <option value="">Select a vehicle</option>
+    {vehiclesLoading && <option>Loading...</option>}
+    {allActiveVehicles?.map((v) => (
+        <option key={v._id} value={v._id}>
+            {v.vehicleNumber}
+        </option>
+    ))}
+</Form.Select>
 
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                assignedVehicleId: selectedId,
-                                                // vehicleNumber: selectedVehicle ? selectedVehicle.vehicleNumber : ""
-                                            }));
-                                        }}
-                                    // required
-                                    >
-                                        <option value="">Select a vehicle</option>
-                                        {vehiclesLoading && <option>Loading...</option>}
-                                        {assignableVehicles?.map((v) => (
-                                            <option key={v._id} value={v._id}>
-                                                {v.vehicleNumber}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
                                 </Form.Group>
 
                             </div>

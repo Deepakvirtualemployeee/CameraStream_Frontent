@@ -5,7 +5,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useDispatch, useSelector } from "react-redux";
 import { getDriverById, updateDriver, getCoDrivers, getDriversIssuingState, deleteDriver, deactivateDriver, activateDriver } from "../../../store/actions/drivers";
-import { getAssignableVehicles } from "../../../store/actions/vehicles";
+import { getAllActiveVehicles } from "../../../store/actions/vehicles";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import { ALPHABATES_NUMERIC } from "../../../constants";
 import { getCompanyInfo } from "../../../store/actions/companies";
@@ -25,7 +25,7 @@ const userRole = userDetails?.role;
     const { driver, loading: driverLoading } = useSelector((state) => state.drivers);
     const { coDrivers, loading: coDriversLoading } = useSelector((state) => state.drivers);
     const { issuingState, loading: issuingStateLoading } = useSelector((state) => state.drivers);
-    const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
+    const { allActiveVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
     const { company, loading, error } = useSelector((state) => state.companies);
 
     // console.log("Address:", company);
@@ -37,7 +37,7 @@ const userRole = userDetails?.role;
     const [vehicleOptions, setVehicleOptions] = useState([]); // merged vehicle options
     const [coDriverOptions, setCoDriverOptions] = useState([]); // merged co-driver options
 
-    // Whenever driver or assignableVehicles change, merge them
+    // Whenever driver or vehicle list changes, merge them
     useEffect(() => {
         if (!driver) return;
 
@@ -50,16 +50,17 @@ const userRole = userDetails?.role;
             : null;
 
         // Make sure assigned vehicle is in dropdown
-        let merged = [...assignableVehicles];
+        const vehiclesList = allActiveVehicles || [];
+        let merged = [...vehiclesList];
         if (
             assignedVehicle &&
-            !assignableVehicles.some((v) => v._id === assignedVehicle._id)
+            !vehiclesList.some((v) => v._id === assignedVehicle._id)
         ) {
-            merged = [assignedVehicle, ...assignableVehicles];
+            merged = [assignedVehicle, ...vehiclesList];
         }
 
         setVehicleOptions(merged);
-    }, [driver, assignableVehicles]);
+    }, [driver, allActiveVehicles]);
 
     // Merge assigned co-driver with available co-drivers
     useEffect(() => {
@@ -122,12 +123,12 @@ const userRole = userDetails?.role;
         restrictDriverFromCreation: false,
     });
 
-    // Fetch Assignable Vehicles
+    // Fetch Active Vehicles
     useEffect(() => {
-        if (companyId && id) {
-            dispatch(getAssignableVehicles(companyId));
+        if (companyId) {
+            dispatch(getAllActiveVehicles(companyId));
         }
-    }, [companyId, id, dispatch]);
+    }, [companyId, dispatch]);
 
     // Fetch driver by ID on mount
     useEffect(() => {
