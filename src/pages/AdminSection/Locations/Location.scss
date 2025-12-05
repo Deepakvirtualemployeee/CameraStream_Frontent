@@ -1,33 +1,58 @@
 @import "../../../assets/style/custom-variables.scss";
 
 .Location-page {
-    .location-wrapper {
-
-        .left-section {
-            width: 100%;
-
-            @include media-breakpoint-up(lg) {
-                height: calc(100vh - 80px);
-                max-width: 310px;
-            }
-
-            .locations-list {
-                @include media-breakpoint-down(lg) {
-                    max-height: 300px;
-                }
-            }
-        }
-
-        .right-section {
-            width: 100%;
-
-            @include media-breakpoint-up(lg) {
-                max-width: calc(100% - 322px);
-            }
-
-            iframe {
-                min-height: 450px;
-            }
-        }
+  .location-wrapper {
+    display: flex;
+    flex-wrap: wrap;  /* Enable wrapping */
+    gap: 0;
+    justify-content: flex-start;  /* Align items to the left */
+    height: 100vh;
+    
+    /* Left Section */
+    .left-section {
+      width: 100%;
+      @include media-breakpoint-up(lg) {
+        height: calc(100vh - 80px);
+        max-width: 310px; /* Adjust width as needed */
+      }
     }
+
+    /* Right Section */
+    .right-section {
+      width: 100%;
+      @include media-breakpoint-up(lg) {
+        max-width: calc(100% - 260px);
+      }
+
+      iframe {
+        width: 100%;
+        min-height: 450px;
+        height: 100%;
+      }
+    }
+  }
+
+  /* Remove extra margin and padding on smaller screens */
+  @media (max-width: 767px) {
+    .location-wrapper {
+      flex-direction: column;  /* Stack items on mobile */
+    }
+
+    .left-section, .right-section {
+      width: 100%;  /* Full width for mobile */
+    }
+  }
+
+  /* Remove unwanted margins/padding for full-screen */
+  .location-wrapper,
+  .left-section,
+  .right-section {
+    margin: 0;
+    padding: 0;
+  }
 }
+
+
+
+
+

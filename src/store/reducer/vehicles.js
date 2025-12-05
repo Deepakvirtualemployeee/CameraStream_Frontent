@@ -3,6 +3,7 @@ import * as actionTypes from "../actions/actionTypes";
 const initialState = {
   vehicles: [],
   assignableVehicles: [],
+    allActiveVehicles: [],
   loading: false,
   error: null,
 };
@@ -76,6 +77,26 @@ const vehiclesReducer = (state = initialState, action) => {
         error: action.payload,
       };
 
+// GET ALL ACTIVE VEHICLES
+  
+    case actionTypes.START_ALL_ACTIVE_VEHICLES:
+      return { ...state, loading: true };
+
+    case actionTypes.ALL_ACTIVE_VEHICLES_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        allActiveVehicles: action.payload,
+      };
+
+    case actionTypes.ALL_ACTIVE_VEHICLES_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+  
     default:
       return state;
   }

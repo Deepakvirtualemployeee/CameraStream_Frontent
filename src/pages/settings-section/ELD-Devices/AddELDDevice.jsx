@@ -224,6 +224,7 @@ export const AddELDDevice = () => {
                   >
                     <option value="">Select ELD Model</option>
                     <option value="PT30">PT30</option>
+                    <option value="PT30">PT40</option>
                     {/* <option value="PT30U">PT30U</option> */}
                   </Form.Select>
                 </Form.Group>

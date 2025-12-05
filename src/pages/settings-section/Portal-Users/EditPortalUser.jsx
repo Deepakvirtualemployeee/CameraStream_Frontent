@@ -134,7 +134,12 @@ const handleSubmit = (e) => {
         phoneNumber,
         role: roleNumber,
         companyId: companyId,
-        ...(password ? { password } : {}),
+        ...(password
+            ? {
+                  password,
+                  confirmPassword, 
+              }
+            : {}),
     };
 
     dispatch(updatePortalUser(companyId, id, payload, navigate));
