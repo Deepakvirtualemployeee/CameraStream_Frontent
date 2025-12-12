@@ -2,7 +2,7 @@ import * as actionTypes from "../actions/actionTypes";
 import axios from "../../axios-config";
 
 
-export const createIFTAReport = (driverId, startDate, endDate) => async (dispatch) => {
+export const createIFTAReport = (vehicleId, startDate, endDate) => async (dispatch) => {
   const token = localStorage.getItem("token");
   try {
     dispatch({ type: actionTypes.CREATE_IFTA_REPORT_REQUEST });
@@ -11,7 +11,7 @@ export const createIFTAReport = (driverId, startDate, endDate) => async (dispatc
     const formatDate = (d) => d.toISOString().split("T")[0];
 
     const body = {
-      driverId,
+      vehicleId,
       startDate: formatDate(startDate),
       endDate: formatDate(endDate),
       tz: "America/Los_Angeles"

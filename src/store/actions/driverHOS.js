@@ -49,7 +49,7 @@ export const getDriverData = (driverId) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_DATA_REQUEST });
 
-    const { data } = await axios.get(`/fetchHome?driverId=${driverId}`, {
+    const { data } = await axios.get(`/fetchCircle?driverId=${driverId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -159,7 +159,7 @@ export const deleteEvent = (companyId, driverId, eventId, navigate) => async (di
   try {
     dispatch({ type: actionTypes.DELETE_DRIVER_EVENT_LOG_REQUEST });
 
-    await axios.delete(`/event?companyId=${companyId}&driverId=${driverId}&eventId=${eventId}`, {
+    await axios.delete(`/deleteEvent?companyId=${companyId}&driverId=${driverId}&eventId=${eventId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

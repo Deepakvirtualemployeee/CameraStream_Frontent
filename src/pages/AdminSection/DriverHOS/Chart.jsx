@@ -244,7 +244,7 @@ export default function ChartComponent({
         grid: {
             borderColor: "#e0e0e0",
             row: {
-                colors: ["#e6f0ff", "#e8ffe8", "#fff5e6", "#ffe6e6"],
+                colors: ["#EEF4FE", "#FEF8EE", "#F2FFF0", "#FCEDED"],
                 opacity: 0.7,
             },
         },
