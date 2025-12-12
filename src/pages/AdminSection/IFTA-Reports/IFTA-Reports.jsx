@@ -8,7 +8,7 @@ import {
   getIFTAReportDetails,
   downloadIFTAReport,
 } from "../../../store/actions/iftaReports";
-import { fetchDrivers } from "../../../store/actions/drivers";
+import { getVehicles } from "../../../store/actions/vehicles";
 import moment from "moment-timezone";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -20,24 +20,23 @@ export const IFTAReports = () => {
   const { timeZoneId } = location.state || {};
 
   const tzId = timeZoneId || "America/Los_Angeles";
-  console.log("Active Timezone:", tzId);
 
   const { loading, recordId, reportData } = useSelector((state) => state.ifta);
-  const { drivers } = useSelector((state) => state.drivers);
+  const { vehicles } = useSelector((state) => state.vehicles);
 
-  const [selectedDriver, setSelectedDriver] = useState("");
+  const [selectedVehicle, setSelectedVehicle] = useState("");
   const [dateRange, setDateRange] = useState([new Date(), new Date()]);
   const [showResults, setShowResults] = useState(false);
   const [mileageData, setMileageData] = useState(null);
 
-  // Fetch drivers on load
+  // Fetch vehicles on load
   useEffect(() => {
-    if (companyId) dispatch(fetchDrivers(companyId));
+    if (companyId) dispatch(getVehicles(companyId));
   }, [dispatch, companyId]);
 
   // Clear fields
   const handleClear = () => {
-    setSelectedDriver("");
+    setSelectedVehicle("");
     setDateRange([new Date(), new Date()]);
     setShowResults(false);
     setMileageData(null);
@@ -45,14 +44,14 @@ export const IFTAReports = () => {
 
   // Create & Fetch report
   const handleCalculate = async () => {
-    if (!selectedDriver) {
-      toast.warn("⚠️ Please select a driver first!");
+    if (!selectedVehicle) {
+      toast.warn("Please select a vehicle first!");
       return;
     }
 
     const [startDate, endDate] = dateRange;
     if (!startDate || !endDate) {
-      toast.error("❌ Please select a valid date range!");
+      toast.error("Please select a valid date range!");
       return;
     }
 
@@ -62,25 +61,25 @@ export const IFTAReports = () => {
 
     try {
       const createdReport = await dispatch(
-        createIFTAReport(selectedDriver, startDateUTC, endDateUTC)
+        createIFTAReport(selectedVehicle, startDateUTC, endDateUTC)
       );
       const reportId = createdReport;
 
       if (reportId) {
         await dispatch(getIFTAReportDetails(reportId));
-        toast.success("✅ Report generated successfully!");
+        toast.success("Report generated successfully!");
       }
     } catch (error) {
-      toast.error("❌ Error creating IFTA report!");
+      toast.error("Error creating IFTA report!");
       console.error(error);
     }
   };
 
-  // Reset data when driver changes
+  // Reset data when vehicle changes
   useEffect(() => {
     setMileageData(null);
     setShowResults(false);
-  }, [selectedDriver]);
+  }, [selectedVehicle]);
 
   // When report data updates, prepare formatted table
   useEffect(() => {
@@ -101,11 +100,11 @@ export const IFTAReports = () => {
   // Download report
   const handleDownload = async () => {
     if (!recordId) {
-      toast.info("ℹ️ Please generate a report first!");
+      toast.info("Please generate a report first!");
       return;
     }
     await dispatch(downloadIFTAReport(recordId));
-    toast.success("📄 Report downloaded successfully!");
+    toast.success("Report downloaded successfully!");
   };
 
   return (
@@ -132,24 +131,23 @@ export const IFTAReports = () => {
             </div>
           </div>
 
-          {/* Driver + Date Range */}
+          {/* Vehicle + Date Range */}
           <div className="d-flex flex-wrap align-items-end justify-content-start gap-3 mt-3">
             <div style={{ flex: "1 1 250px" }}>
-              <Form.Label className="fw-semibold">Driver</Form.Label>
+              <Form.Label className="fw-semibold">Vehicle</Form.Label>
               <Form.Select
-                value={selectedDriver}
-                onChange={(e) => setSelectedDriver(e.target.value)}
+                value={selectedVehicle}
+                onChange={(e) => setSelectedVehicle(e.target.value)}
               >
-                <option value="">Select Driver</option>
-                {drivers?.map((driver) => (
-                  <option key={driver._id} value={driver._id}>
-                    {driver.firstName} {driver.lastName}
+                <option value="">Select Vehicle</option>
+                {vehicles?.map((vehicle) => (
+                  <option key={vehicle._id} value={vehicle._id}>
+                    {vehicle.vehicleNumber || vehicle.licensePlate || "Vehicle"}
                   </option>
                 ))}
               </Form.Select>
             </div>
 
-            {/* ✅ Normal DatePicker (date range only) */}
             <div
               style={{
                 flex: "1 1 300px",
@@ -185,10 +183,6 @@ export const IFTAReports = () => {
                 dateFormat="MMM dd, yyyy"
                 placeholderText="Select Date Range"
               />
-              {/* <div className="mt-1 text-muted small">
-                Current time ({tzId}):{" "}
-                {moment().tz(tzId).format("MMMM D, YYYY")}
-              </div> */}
             </div>
           </div>
 

@@ -77,8 +77,8 @@ const Sidebar = ({ collapsed, openSidebar }) => {
             } nav-link d-flex align-items-center gap-2`}
             onClick={openSidebar}
           >
-            <i className="bi bi-house-door"></i>
-            {!collapsed && <span>Dashboard</span>}
+            <i className="bi bi-radar"></i>
+            {!collapsed && <span>Fleet Radar</span>}
           </Link>
         </li>
 

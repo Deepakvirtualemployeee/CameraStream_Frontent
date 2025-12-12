@@ -2,7 +2,7 @@ import React, { useEffect, useState , useRef} from 'react';
 import { Form, Spinner } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { getDashboardVehicles } from '../../../store/actions/dashboard';
+import { getDashboardVehicleList, getVehiclePathAction } from '../../../store/actions/dashboard';
 import SearchIcon from '../../../assets/images/icons/search.svg';
 import "./Location.scss";
 import moment from "moment-timezone";
@@ -15,7 +15,7 @@ export const Location = () => {
     const dispatch = useDispatch();
     const { companyId } = useParams();
 
-    const { vehicles, loading, error } = useSelector((state) => state.dashboard);
+    const { vehicles, loading, error, historyPoints: storeHistoryPoints } = useSelector((state) => state.dashboard);
 
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -26,54 +26,68 @@ export const Location = () => {
     const [historyPoints, setHistoryPoints] = useState([]);
 
     const [selectedVehicle, setSelectedVehicle] = useState(null);
-
-    let mapInstance = null;
+    const dateInputRef = useRef(null);
 
     /** ------------------ Load Vehicles ------------------ **/
     useEffect(() => {
-        if (companyId) dispatch(getDashboardVehicles(companyId));
-    }, [dispatch]);
+        if (companyId) dispatch(getDashboardVehicleList(companyId));
+    }, [dispatch, companyId]);
 
 
-   
+    // Load vehicle path whenever selection/date changes
     useEffect(() => {
-        if (!selectedVehicle) return;
+        if (!selectedVehicle || !selectedDate) return;
+        dispatch(getVehiclePathAction(selectedVehicle.vehicleId, selectedDate, companyId));
+    }, [dispatch, selectedVehicle, selectedDate, companyId]);
 
-        // Filter all entries for selected vehicle & selected date
-        const filtered = vehicles.filter(v =>
-            v.vehicleId === selectedVehicle.vehicleId &&
-            moment(v.timestamp).format("YYYY-MM-DD") === selectedDate
-        );
+    // Sync store path to local state; normalize lat/lon keys for map
+    useEffect(() => {
+        if (storeHistoryPoints?.length) {
+            setHistoryPoints(
+                storeHistoryPoints.map((p) => ({
+                    ...p,
+                    latitude: p.latitude ?? p.lat,
+                    longitude: p.longitude ?? p.lon,
+                }))
+            );
+        } else {
+            setHistoryPoints([]);
+        }
+    }, [storeHistoryPoints]);
 
-        console.log("Filtered History Points:", filtered);
 
-        setHistoryPoints(filtered);
-    }, [selectedVehicle, selectedDate, vehicles]);
 
- 
- 
 
 const mapRef = useRef(null);
 
 useEffect(() => {
     if (!selectedVehicle) return;
 
-    // Destroy old map safely
+    const toCoord = (p) => {
+        const lat = Number(p.latitude ?? p.lat);
+        const lon = Number(p.longitude ?? p.lon ?? p.lng ?? p.long);
+        if (Number.isFinite(lat) && Number.isFinite(lon)) return [lat, lon];
+        return null;
+    };
+
+    const defaultCenter = [39.5, -98.35];  
+    const fromHistory = (historyPoints || []).map(toCoord).filter(Boolean);
+    const fallbackCoord = toCoord(selectedVehicle);
+    const points = fromHistory.length ? fromHistory : fallbackCoord ? [fallbackCoord] : [];
+    const coordsForMap = points.length ? points : [defaultCenter];
+
+    
     if (mapRef.current) {
-        mapRef.current.off();      // Remove event listeners
-        mapRef.current.remove();   // Removes map & DOM safely
+        mapRef.current.off();       
+        mapRef.current.remove();   
         mapRef.current = null;
     }
-
-    const points = historyPoints?.length
-        ? historyPoints.map(p => [p.latitude, p.longitude])
-        : [[selectedVehicle.latitude, selectedVehicle.longitude]];
 
     // Create new map
     mapRef.current = L.map("map", {
         zoomAnimation: false,    
         fadeAnimation: false,
-    }).setView(points[0], 14);
+    }).setView(coordsForMap[0], points.length ? 14 : 3);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
@@ -90,9 +104,11 @@ useEffect(() => {
     });
 
     // Add markers
-    points.forEach(coord => {
-        L.marker(coord, { icon: goldIcon }).addTo(mapRef.current);
-    });
+    if (points.length) {
+        points.forEach(coord => {
+            L.marker(coord, { icon: goldIcon }).addTo(mapRef.current);
+        });
+    }
 
     // Auto fit
     if (points.length > 1) {
@@ -102,7 +118,37 @@ useEffect(() => {
 }, [selectedVehicle, historyPoints]);
 
 
+    const openDatePicker = () => {
+        // showPicker must be triggered by a user gesture; fall back to focus if unavailable
+        try {
+            if (dateInputRef.current?.showPicker) {
+                dateInputRef.current.showPicker();
+                return;
+            }
+        } catch (err) {
+            // Ignore and fall back to focus
+        }
+        dateInputRef.current?.focus();
+    };
 
+
+    const getStatusCode = (vehicle) => {
+        const raw = vehicle?.driverStatus || vehicle?.eventCode || "";
+        return typeof raw === "string" ? raw.toUpperCase() : "";
+    };
+
+    const getLastUpdatedMoment = (vehicle) => {
+        const candidate = vehicle?.updatedAt || vehicle?.timestamp;
+        const m = candidate ? moment.utc(candidate).local() : null;
+        return m && m.isValid() ? m : null;
+    };
+
+    const getLastUpdatedText = (vehicle) => {
+        const m = getLastUpdatedMoment(vehicle);
+        return m ? m.fromNow() : "N/A";
+    };
+
+ 
 
     /** ------------------ FILTER Logic ------------------ **/
     const filteredVehicles = vehicles
@@ -111,16 +157,17 @@ useEffect(() => {
             v.driverName?.toLowerCase().includes(search.toLowerCase())
         )
         .filter(v => {
+            const status = getStatusCode(v);
             if (statusFilter === "all") return true;
             if (statusFilter === "motion") return v.speed > 5;
-            if (statusFilter === "off") return v.driverStatus === "DS_OFF";
-            if (statusFilter === "on") return v.driverStatus === "DS_ON";
-            if (statusFilter === "sleep") return v.driverStatus === "DS_SB";
+            if (statusFilter === "off") return status === "DS_OFF";
+            if (statusFilter === "on") return status === "DS_ON";
+            if (statusFilter === "sleep") return status === "DS_SB";
             return true;
         })
         .sort((a, b) => {
-            const A = new Date(a.updatedAt).getTime();
-            const B = new Date(b.updatedAt).getTime();
+            const A = getLastUpdatedMoment(a)?.valueOf() ?? 0;
+            const B = getLastUpdatedMoment(b)?.valueOf() ?? 0;
             return sort === "ascending" ? A - B : B - A;
         });
 
@@ -172,6 +219,8 @@ useEffect(() => {
                                     type="date"
                                     value={selectedDate}
                                     onChange={(e) => setSelectedDate(e.target.value)}
+                                    onClick={openDatePicker}
+                                    ref={dateInputRef}
                                     style={{ width: "180px", marginLeft: "auto" }}
                                 />
                             </div>
@@ -224,16 +273,26 @@ useEffect(() => {
                                         <div className="p-3 text-muted">No vehicles found</div>
                                     ) : (
                                         filteredVehicles.map((vehicle, index) => {
-                                            const lastUpdate = moment(vehicle.updatedAt);
+                                            const statusCode = getStatusCode(vehicle);
+                                            const statusText = statusCode.replace("DS_", "") || "UNKNOWN";
+                                            const lastUpdate = getLastUpdatedMoment(vehicle);
                                             const now = moment();
-                                            const minutesDiff = now.diff(lastUpdate, "minutes");
+                                            const minutesDiff = lastUpdate ? now.diff(lastUpdate, "minutes") : Infinity;
                                             const isOffline = minutesDiff > 10;
+                                            const bgColor =
+                                                statusCode === "DS_OFF" ? "#6c757d" :
+                                                statusCode === "DS_ON" || statusCode === "DS_D" ? "#128c12" :
+                                                statusCode === "DS_SB" ? "#ffcc00" :
+                                                "#6c757d";
 
                                             return (
                                                 <div
                                                     key={vehicle._id}
                                                     className={`info-card fs-12 ${index !== filteredVehicles.length - 1 ? "border-bottom" : ""} p-3 cursor-pointer`}
-                                                    onClick={() => setSelectedVehicle(vehicle)}
+                                                    onClick={() => {
+                                                        setSelectedVehicle(vehicle);
+                                                        setSelectedDate(moment().format("YYYY-MM-DD"));
+                                                    }}
                                                 >
                                                     {/* Status Icon */}
                                                     <div className="d-flex align-items-center gap-2 mb-1">
@@ -260,7 +319,7 @@ useEffect(() => {
                                                         <i className="bi bi-geo-alt"></i>
                                                         <span className="text-truncate">{vehicle.location || "Unknown"}</span>
                                                         <span className="text-secondary text-opacity-75 fw-medium ms-auto">
-                                                            {moment(vehicle.updatedAt).fromNow()}
+                                                            {getLastUpdatedText(vehicle)}
                                                         </span>
                                                     </div>
 
@@ -270,14 +329,10 @@ useEffect(() => {
                                                             className="driving-status fw-medium text-white text-uppercase rounded-1 lh-1 px-2 py-
                                                             1"
                                                             style={{
-                                                                backgroundColor:
-                                                                    vehicle.driverStatus === "DS_OFF" ? "#6c757d" :
-                                                                    vehicle.driverStatus === "DS_ON" || vehicle.driverStatus === "DS_D" ? "#128c12" :
-                                                                    vehicle.driverStatus === "DS_SB" ? "#ffcc00" :
-                                                                    "#6c757d"
+                                                                backgroundColor: bgColor
                                                             }}
                                                         >
-                                                            {vehicle.driverStatus.replace("DS_", "")}
+                                                            {statusText}
                                                         </span>
 
                                                         <span className="driver-name text-body fw-bold text-capitalize text-truncate">

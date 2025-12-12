@@ -786,6 +786,7 @@ setEventDateForDb(new Date(event.eventDateTime));
                       <option value="DS_D">Driving</option>
                       <option value="DR_IND_YM">Yard Move</option>
                       <option value="DR_IND_PC">Personal Conveyance</option>
+                      <option value="INTER_NORMAL_PRECISION">Inter Normal Precision</option>
                     </Form.Select>
                   </div>
 
