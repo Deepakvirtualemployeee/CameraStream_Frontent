@@ -112,6 +112,21 @@ const Sidebar = ({ collapsed, openSidebar }) => {
               </Link>
             </li>
 
+            <li className="nav-item">
+              <Link
+                to={`/unidentified-events/${companyId}`}
+                className={`${
+                  location.pathname === `/unidentified-events/${companyId}`
+                    ? "active"
+                    : ""
+                } nav-link d-flex align-items-center gap-2`}
+                onClick={openSidebar}
+              >
+                <i className="bi bi-exclamation-circle"></i>
+                {!collapsed && <span>Unidentified Events</span>}
+              </Link>
+            </li>
+
             {userRole !== ROLES.Broker && (
               <li
                 className={`nav-item ${

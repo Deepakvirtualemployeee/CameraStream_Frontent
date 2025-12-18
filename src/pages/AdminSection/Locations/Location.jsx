@@ -202,29 +202,29 @@ useEffect(() => {
                     <div className="left-section d-flex flex-column gap-3" style={{ width: "250px" }}>
 
                         {/* Vehicle Selected → Show header */}
-                        {selectedVehicle && (
-                            <div className="d-flex align-items-center gap-2 p-2 border-bottom bg-white">
+                                        {selectedVehicle && (
+                    <div className="d-flex flex-column align-items-start p-2 border-bottom bg-white">
+                        <span
+                        className="cursor-pointer fs-4"
+                        onClick={() => setSelectedVehicle(null)}
+                        style={{ fontWeight: "bold", cursor: "pointer" }}
+                        >
+                        ←
+                        </span>
 
-                                <span
-                                    className="cursor-pointer fs-4"
-                                    onClick={() => setSelectedVehicle(null)}
-                                    style={{ fontWeight: "bold", cursor: "pointer" }}
-                                >
-                                    ←
-                                </span>
+                        <h6 className="m-0 fw-bold">{selectedVehicle.vehicleNumber}</h6>
+                        
+                        <Form.Control
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        onClick={openDatePicker}
+                        ref={dateInputRef}
+                        style={{ width: "180px", marginTop: "10px" }} // Added marginTop for spacing
+                        />
+                    </div>
+                    )}
 
-                                <h6 className="m-0 fw-bold">{selectedVehicle.vehicleNumber}</h6>
-
-                                <Form.Control
-                                    type="date"
-                                    value={selectedDate}
-                                    onChange={(e) => setSelectedDate(e.target.value)}
-                                    onClick={openDatePicker}
-                                    ref={dateInputRef}
-                                    style={{ width: "180px", marginLeft: "auto" }}
-                                />
-                            </div>
-                        )}
 
 
                         {/* ORIGINAL LIST WHEN NO VEHICLE SELECTED */}

@@ -1,0 +1,182 @@
+.UnidentifiedEvents-page {
+  .main-heading {
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .table-content-wrapper {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  /* ================= FILTER SECTION ================= */
+
+  .ue-filters {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  .ue-filters-left {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .ue-filters-row {
+    display: grid;
+    gap: 16px;
+    align-items: center;
+  }
+
+  /* Top row: Date, Date, Vehicle, Assumed */
+  .ue-filters-row1 {
+    grid-template-columns: repeat(4, 240px);
+  }
+
+  /* Second row: Sort */
+  .ue-filters-row2 {
+    margin-top: 12px;
+    grid-template-columns: 240px;
+  }
+
+  /* ================= CONTROLS ================= */
+
+  .filter-control {
+    height: 44px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  /* ================= DATE PICKER ================= */
+
+  .date-picker-wrapper {
+    width: 100%;
+  }
+
+  .react-datepicker-wrapper,
+  .react-datepicker__input-container {
+    width: 100%;
+    display: block;
+  }
+
+  .date-input-wrapper {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    position: relative;
+    text-align: left;
+  }
+
+  .date-input {
+    height: 44px;
+    padding: 10px 40px 10px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .date-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .date-input-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #111827;
+    pointer-events: none;
+  }
+
+  /* ================= SORT DROPDOWN ================= */
+
+  .sort-control {
+    background-color: #f3e2cf;
+    border-color: #e7d1b7;
+  }
+
+  /* ================= RIGHT ACTION BUTTONS ================= */
+
+  .ue-filters-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 220px;
+  }
+
+  .ue-action-btn {
+    height: 44px;
+    border-radius: 10px;
+    font-size: 15px;
+    padding: 10px 14px;
+    white-space: nowrap;
+  }
+
+  .ue-action-bulk {
+    background-color: #c89a4a;
+    border-color: #c89a4a;
+    color: #ffffff;
+    font-weight: 500;
+  }
+
+  .ue-action-bulk:hover,
+  .ue-action-bulk:focus {
+    background-color: #b8893e;
+    border-color: #b8893e;
+    color: #ffffff;
+  }
+
+  /* ================= SEARCH BAR ================= */
+
+  .search-row {
+    margin-top: 10px;
+  }
+
+  .search-control {
+    height: 44px;
+    border-radius: 10px;
+    max-width: 100%;
+  }
+
+  /* ================= TABLE ================= */
+
+  .table-custom-wrapper {
+    margin-top: 10px;
+  }
+
+  /* ================= RESPONSIVE ================= */
+
+  @media (min-width: 1200px) {
+    .ue-filters-row1 {
+      grid-template-columns: repeat(4, 260px);
+    }
+
+    .ue-filters-row2 {
+      grid-template-columns: 260px;
+    }
+  }
+
+  @media (max-width: 992px) {
+    .ue-filters {
+      grid-template-columns: 1fr;
+    }
+
+    .ue-filters-row1 {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .ue-filters-row2 {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .ue-filters-actions {
+      width: 100%;
+      max-width: 360px;
+    }
+  }
+}
