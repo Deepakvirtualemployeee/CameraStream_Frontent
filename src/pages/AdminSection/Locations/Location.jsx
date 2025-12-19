@@ -1,8 +1,9 @@
-import React, { useEffect, useState , useRef} from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Form, Spinner } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { useParams  , useLocation} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getDashboardVehicleList, getVehiclePathAction } from '../../../store/actions/dashboard';
+import { getCompanyInfo } from "../../../store/actions/companies";
 import SearchIcon from '../../../assets/images/icons/search.svg';
 import "./Location.scss";
 import moment from "moment-timezone";
@@ -16,6 +17,7 @@ export const Location = () => {
     const { companyId } = useParams();
 
     const { vehicles, loading, error, historyPoints: storeHistoryPoints } = useSelector((state) => state.dashboard);
+    const { company } = useSelector((state) => state.companies || {});
 
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -27,10 +29,39 @@ export const Location = () => {
 
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const dateInputRef = useRef(null);
+     const location = useLocation();
+
+    const timeZoneId = location.state?.timeZoneId || null;
+    console.log("Location page timezone ID:", timeZoneId);
+
+    const getCompanyTimezone = useCallback(() => {
+        // Mirror conversion approach from EditEvent: prefer company timezone, then vehicle, then provided state, then guess
+        return (
+            company?.timeZoneId ||
+            company?.timeZone ||
+            timeZoneId ||
+          
+            "America/Los_Angeles"
+        );
+    }, [company, selectedVehicle, timeZoneId]);
+
+    const formatTimestampInCompanyTz = useCallback(
+        (timestamp) => {
+            if (!timestamp) return "-";
+            const tz = getCompanyTimezone();
+ 
+            const m = moment.utc(timestamp).tz(tz);
+            return m.isValid() ? m.format("DD MMM YYYY hh:mm:ss A") : "-";
+        },
+        [getCompanyTimezone]
+    );
 
     /** ------------------ Load Vehicles ------------------ **/
     useEffect(() => {
-        if (companyId) dispatch(getDashboardVehicleList(companyId));
+        if (companyId) {
+            dispatch(getDashboardVehicleList(companyId));
+            dispatch(getCompanyInfo(companyId));
+        }
     }, [dispatch, companyId]);
 
 
@@ -76,37 +107,53 @@ useEffect(() => {
     const points = fromHistory.length ? fromHistory : fallbackCoord ? [fallbackCoord] : [];
     const coordsForMap = points.length ? points : [defaultCenter];
 
-    
     if (mapRef.current) {
         mapRef.current.off();       
         mapRef.current.remove();   
         mapRef.current = null;
     }
 
-    // Create new map
+    // Create new map without zoom controls
     mapRef.current = L.map("map", {
-        zoomAnimation: false,    
+        zoomAnimation: false,
         fadeAnimation: false,
+        zoomControl: false,  // Disable zoom controls (the + and - buttons)
     }).setView(coordsForMap[0], points.length ? 14 : 3);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
+        maxZoom: 15,
     }).addTo(mapRef.current);
 
     const goldIcon = L.divIcon({
-        html: `<div style="
-            background:#DAA520;
-            width:14px;
-            height:14px;
-            border-radius:50%;
-            border:2px solid black;
-        "></div>`
+        html: `<div style="background:#DAA520;width:14px;height:14px;border-radius:50%;border:2px solid black;"></div>`
     });
 
-    // Add markers
+    // Add markers with tooltip
     if (points.length) {
-        points.forEach(coord => {
-            L.marker(coord, { icon: goldIcon }).addTo(mapRef.current);
+        points.forEach((coord, index) => {
+            const vehicleData = storeHistoryPoints[index]; // assuming the data matches the points
+
+            const lat = coord[0];
+            const lon = coord[1];
+            const location = vehicleData?.location || "Unknown Location";
+            const timestamp = vehicleData?.timestamp;
+            const timestampLabel = formatTimestampInCompanyTz(timestamp);
+
+            // Create marker
+            const marker = L.marker(coord, { icon: goldIcon }).addTo(mapRef.current);
+
+            // Bind tooltip to the marker
+            marker.bindTooltip(`
+                <strong>Latitude:</strong> ${lat}<br>
+                <strong>Longitude:</strong> ${lon}<br>
+                <strong>Location:</strong> ${location}<br>
+                <strong>Time:</strong> ${timestampLabel}
+
+            `, {
+                permanent: false,
+                direction: 'top',
+                offset: [0, -10],
+            });
         });
     }
 
@@ -115,7 +162,9 @@ useEffect(() => {
         mapRef.current.fitBounds(points);
     }
 
-}, [selectedVehicle, historyPoints]);
+}, [selectedVehicle, historyPoints, formatTimestampInCompanyTz]);
+
+
 
 
     const openDatePicker = () => {

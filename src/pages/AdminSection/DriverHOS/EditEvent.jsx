@@ -270,14 +270,14 @@ export const EditEvent = () => {
       eventDateFormatted = moment
         .utc(event.eventDateTime)
         .tz(tz)
-        .format("dd MMM YYYY hh:mm:ss"); // Human-readable formatted date
+        .format("dd MMM YYYY hh:mm:ss A "); // Human-readable formatted date
         // store original UTC for backend if picker not changed
 setEventDateForDb(new Date(event.eventDateTime));
 
     } else {
       // Fallback to current date in company timezone
       eventDateForPicker = moment().tz(tz).toDate();
-      eventDateFormatted = moment().tz(tz).format("YYYY-MM-DD hh:mm:ss");
+      eventDateFormatted = moment().tz(tz).format("YYYY-MM-DD hh:mm:ss A");
          setEventDateForDb(moment().tz(tz).toDate());
     }
 
@@ -661,7 +661,7 @@ setEventDateForDb(new Date(event.eventDateTime));
                           </label>
                           <RsuiteDatePicker
                             className="form-control"
-                            format="dd MMM yyyy hh:mm:ss"
+                            format="dd MMM yyyy hh:mm:ss a"
                             showMeridiem
                             caretAs={FaCalendar}
                             value={
