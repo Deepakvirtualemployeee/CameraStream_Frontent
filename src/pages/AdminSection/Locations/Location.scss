@@ -3,11 +3,11 @@
 .Location-page {
   .location-wrapper {
     display: flex;
-    flex-wrap: wrap;  /* Enable wrapping */
+    flex-wrap: wrap;
     gap: 0;
     justify-content: flex-start;  /* Align items to the left */
     height: 100vh;
-    
+
     /* Left Section */
     .left-section {
       width: 100%;
@@ -21,27 +21,52 @@
     .right-section {
       width: 100%;
       @include media-breakpoint-up(lg) {
-        max-width: calc(100% - 260px);
-      }
-
-      iframe {
-        width: 100%;
-        min-height: 450px;
-        height: 100%;
+        max-width: calc(100% - 310px); /* Adjust this for proper spacing */
       }
     }
   }
 
-  /* Remove extra margin and padding on smaller screens */
+  /* Adjust map placement and prevent overflow */
+  #map {
+    width: 100%;
+    min-height: 600px;
+    height: 100%;
+    position: relative;
+  }
+
+  /* Add margin and padding adjustments */
+  .location-wrapper,
+  .left-section,
+  .right-section {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Ensure the right section doesn't overlap the map */
+  .right-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px;
+  }
+
+  /* Date picker and phone number */
+  .date-picker,
+  .phone-number {
+    margin-bottom: 10px; /* Add spacing between elements */
+  }
+
+  /* For mobile screens */
   @media (max-width: 767px) {
     .location-wrapper {
-      flex-direction: column;  /* Stack items on mobile */
+      flex-direction: column;
     }
 
     .left-section, .right-section {
-      width: 100%;  /* Full width for mobile */
+      width: 100%; /* Full width on smaller screens */
     }
   }
+}
 
   /* Remove unwanted margins/padding for full-screen */
   .location-wrapper,
@@ -50,7 +75,6 @@
     margin: 0;
     padding: 0;
   }
-}
 
 
 

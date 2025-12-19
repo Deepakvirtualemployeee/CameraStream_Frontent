@@ -1097,6 +1097,7 @@ export const GraphDetails = () => {
                                 columns={columns}
                                 data={tableData || []}
                                 pagination
+                                paginationPerPage={30}
                                 highlightOnHover
                                 responsive
                                 customStyles={dataTableCustomStyles}
