@@ -6,7 +6,7 @@ import DataTable from "react-data-table-component";
 import dataTableCustomStyles from "../../../assets/style/dataTableCustomStyles";
 import { NoDataComponent } from "../../../components/NoDataComponent";
 import { getUnidentifiedEvents } from "../../../store/actions/unidentifiedEvents";
-import { getVehicles } from "../../../store/actions/vehicles";
+import { getVehicles , getAllActiveVehicles } from "../../../store/actions/vehicles";
 import { fetchDrivers } from "../../../store/actions/drivers";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -210,7 +210,7 @@ export const UnidentifiedEvents = () => {
   const { events, meta, loading, error } = useSelector(
     (state) => state.unidentifiedEvents
   );
-  const { vehicles } = useSelector((state) => state.vehicles);
+  const { vehicles, allActiveVehicles } = useSelector((state) => state.vehicles);
   const { drivers: driverList = [], loading: driversLoading } = useSelector(
     (state) => state.drivers
   );
@@ -228,13 +228,15 @@ export const UnidentifiedEvents = () => {
 
   useEffect(() => {
     if (companyId) {
-      dispatch(getVehicles(companyId));
+      dispatch(getAllActiveVehicles(companyId));
       dispatch(fetchDrivers(companyId));
     }
   }, [dispatch, companyId]);
 
   const vehicleOptions = useMemo(() => {
-    const list = Array.isArray(vehicles) ? vehicles : [];
+    const list = Array.isArray(allActiveVehicles) && allActiveVehicles.length
+      ? allActiveVehicles
+      : Array.isArray(vehicles) ? vehicles : [];
     return [
       { value: "all", label: "All Vehicles" },
       ...list
@@ -244,7 +246,7 @@ export const UnidentifiedEvents = () => {
           label: v.vehicleNumber || v.vehicleNo || v.vin || v._id,
         })),
     ];
-  }, [vehicles]);
+  }, [vehicles, allActiveVehicles]);
 
   const fetchEvents = useCallback(
     (nextPage = 1, append = false) => {

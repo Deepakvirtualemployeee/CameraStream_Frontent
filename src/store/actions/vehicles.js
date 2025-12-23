@@ -293,7 +293,7 @@ export const getAllActiveVehicles = (companyId) => async (dispatch) => {
     dispatch({ type: actionTypes.START_ALL_ACTIVE_VEHICLES });
 
     const res = await axios.get(
-      `/vehicles?companyId=${companyId}`,
+      `/vehicles/getAllActivevehicles?companyId=${companyId}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }

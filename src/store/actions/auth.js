@@ -141,6 +141,22 @@ export const resetPasswordAfterOtp = (email, otp, password, confirmPassword) => 
   };
 };
 
+// Verify email (from verification link)
+export const verifyEmail = (token) => {
+  return async (dispatch) => {
+    dispatch(startAuth());
+    try {
+      const res = await axios.get(`/auth/verify-email/${token}`);
+      dispatch(AuthSuccess({ message: res.data?.message || "Email verified", user: null }));
+      return { success: true, message: res.data?.message };
+    } catch (error) {
+      const errMsg = error?.response?.data?.message || "Invalid or expired verification link";
+      dispatch(AuthFail(errMsg));
+      return { success: false, message: errMsg };
+    }
+  };
+};
+
 export const register = (data, navigate) => {
   return dispatch => {
     dispatch(startAuth());

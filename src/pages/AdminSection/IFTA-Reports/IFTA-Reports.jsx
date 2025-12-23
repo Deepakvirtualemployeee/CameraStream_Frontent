@@ -8,7 +8,7 @@ import {
   getIFTAReportDetails,
   downloadIFTAReport,
 } from "../../../store/actions/iftaReports";
-import { getVehicles } from "../../../store/actions/vehicles";
+import {getAllActiveVehicles } from "../../../store/actions/vehicles";
 import moment from "moment-timezone";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -17,12 +17,12 @@ export const IFTAReports = () => {
   const dispatch = useDispatch();
   const { companyId } = useParams();
   const location = useLocation();
-  const { timeZoneId } = location.state || {};
+  const { timeZoneId } = location.state || "America/Los_Angeles";
 
   const tzId = timeZoneId || "America/Los_Angeles";
-
+  console.log("Using timezone ID for IFTA Reports:", tzId);
   const { loading, recordId, reportData } = useSelector((state) => state.ifta);
-  const { vehicles } = useSelector((state) => state.vehicles);
+  const { vehicles, allActiveVehicles } = useSelector((state) => state.vehicles);
 
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [dateRange, setDateRange] = useState([new Date(), new Date()]);
@@ -31,7 +31,7 @@ export const IFTAReports = () => {
 
   // Fetch vehicles on load
   useEffect(() => {
-    if (companyId) dispatch(getVehicles(companyId));
+    if (companyId) dispatch(getAllActiveVehicles(companyId));
   }, [dispatch, companyId]);
 
   // Clear fields
@@ -140,7 +140,10 @@ export const IFTAReports = () => {
                 onChange={(e) => setSelectedVehicle(e.target.value)}
               >
                 <option value="">Select Vehicle</option>
-                {vehicles?.map((vehicle) => (
+                {(allActiveVehicles && allActiveVehicles.length > 0
+                  ? allActiveVehicles
+                  : vehicles || []
+                ).map((vehicle) => (
                   <option key={vehicle._id} value={vehicle._id}>
                     {vehicle.vehicleNumber || vehicle.licensePlate || "Vehicle"}
                   </option>

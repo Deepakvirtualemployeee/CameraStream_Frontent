@@ -49,7 +49,7 @@ export const Location = () => {
         (timestamp) => {
             if (!timestamp) return "-";
             const tz = getCompanyTimezone();
- 
+          
             const m = moment.utc(timestamp).tz(tz);
             return m.isValid() ? m.format("DD MMM YYYY hh:mm:ss A") : "-";
         },

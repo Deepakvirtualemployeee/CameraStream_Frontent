@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useDispatch } from "react-redux";
 import { Spinner, Alert, Button } from 'react-bootstrap';
+import { verifyEmail } from "../../store/actions/auth";
 
 const VerifyEmail = () => {
   const { token } = useParams();
+  console.log("Verification token:", token);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(true);
   const [verified, setVerified] = useState(null); // null, true, or false
 
   useEffect(() => {
-    const verifyEmail = async () => {
+    const runVerifyEmail = async () => {
       try {
-        await axios.get(`http://a56af6c3afc3c40dbac0bcdefcb0981c-2a093a3ce85fd9ff.elb.us-east-1.amazonaws.com/api/auth/verify-email/${token}`);
-        setVerified(true);
+        const res = await dispatch(verifyEmail(token));
+        setVerified(res?.success);
       } catch (error) {
         setVerified(false);
       } finally {
@@ -22,8 +25,8 @@ const VerifyEmail = () => {
       }
     };
 
-    verifyEmail();
-  }, [token]);
+    runVerifyEmail();
+  }, [dispatch, token]);
 
   return (
     <div className="d-flex flex-column justify-content-center align-items-center min-vh-100 bg-light px-3">
