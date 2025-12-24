@@ -5,6 +5,7 @@ const initialState = {
   meta: null,
   loading: false,
   error: null,
+  assignLoading: false,
 };
 
 const unidentifiedEventsReducer = (state = initialState, action) => {
@@ -22,6 +23,12 @@ const unidentifiedEventsReducer = (state = initialState, action) => {
       };
     case actionTypes.GET_UNIDENTIFIED_EVENTS_FAIL:
       return { ...state, loading: false, error: action.payload };
+    case actionTypes.ASSIGN_UNIDENTIFIED_EVENT_REQUEST:
+      return { ...state, assignLoading: true, error: null };
+    case actionTypes.ASSIGN_UNIDENTIFIED_EVENT_SUCCESS:
+      return { ...state, assignLoading: false };
+    case actionTypes.ASSIGN_UNIDENTIFIED_EVENT_FAIL:
+      return { ...state, assignLoading: false, error: action.payload };
     default:
       return state;
   }
