@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { Button, Alert, Spinner, Form } from "react-bootstrap";
+import { Button, Alert, Spinner, Form, Modal } from "react-bootstrap";
 import DataTable from "react-data-table-component";
 import dataTableCustomStyles from "../../../assets/style/dataTableCustomStyles";
 import { NoDataComponent } from "../../../components/NoDataComponent";
-import { getUnidentifiedEvents } from "../../../store/actions/unidentifiedEvents";
-import { getVehicles , getAllActiveVehicles } from "../../../store/actions/vehicles";
+import { getUnidentifiedEvents, assignDriverToUnidentifiedEvent } from "../../../store/actions/unidentifiedEvents";
+import {getAllActiveVehicles } from "../../../store/actions/vehicles";
 import { fetchDrivers } from "../../../store/actions/drivers";
+import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./UnidentifiedEvents.scss";
@@ -52,157 +53,6 @@ const DateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
   </button>
 ));
 
-// Driver Dropdown Menu using Portal for proper positioning
-const DriverDropdownMenu = ({
-  buttonRef,
-  activeDrivers,
-  driversLoading,
-  onSelectDriver,
-  eventId,
-}) => {
-  const [position, setPosition] = useState({ top: 0, left: 0 });
-  const dropdownRef = useRef(null);
-  const listStyle = useMemo(
-    () => ({
-      maxHeight: "320px",
-      overflowY: "auto",
-      overflowX: "hidden",
-    }),
-    []
-  );
-  const itemStyle = useMemo(
-    () => ({
-      padding: "14px 16px",
-      minHeight: "46px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "flex-start",
-      lineHeight: "1.4",
-    }),
-    []
-  );
-  const dropdownStyle = useMemo(
-    () => ({
-      position: "fixed",
-      width: "200px",
-      minWidth: "180px",
-      maxWidth: "210px",
-    }),
-    []
-  );
-
-  useEffect(() => {
-    if (buttonRef?.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setPosition({
-        top: rect.top + window.scrollY - 320, // Position above button (320px is max height + gap)
-        left: rect.left + window.scrollX - 120, // Shift left by 120px to center it better
-      });
-    }
-  }, [buttonRef]);
-
-  return (
-    <div
-      ref={dropdownRef}
-      className="driver-select-dropdown"
-      style={{
-        ...dropdownStyle,
-        top: `${position.top}px`,
-        left: `${position.left}px`,
-      }}
-    >
-      <div className="driver-select-header">Select Driver</div>
-      <div className="driver-select-list" style={listStyle}>
-        {driversLoading ? (
-          <div className="driver-select-item disabled" style={itemStyle}>
-            Loading drivers...
-          </div>
-        ) : activeDrivers && activeDrivers.length > 0 ? (
-          activeDrivers.map((driver, index) => (
-            <button
-              type="button"
-              key={driver?._id || driver?.id}
-              className={`driver-select-item ${index % 2 === 0 ? "even" : "odd"}`}
-              onClick={() =>
-                onSelectDriver(eventId, driver?._id || driver?.id)
-              }
-              style={itemStyle}
-            >
-              {[driver?.firstName, driver?.lastName]
-                .filter(Boolean)
-                .join(" ") ||
-                driver?.userName ||
-                driver?.email ||
-                "Driver"}
-            </button>
-          ))
-        ) : (
-          <div className="driver-select-item disabled" style={itemStyle}>
-            No active drivers
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Separate Assign Cell Component to handle dropdown properly
-const AssignCell = ({
-  row,
-  openAssignId,
-  selectedDriverMap,
-  activeDrivers,
-  driversLoading,
-  onToggleDropdown,
-  onSelectDriver,
-}) => {
-  const eventId = row?._id || row?.id || "";
-  const open = openAssignId === eventId;
-  const buttonRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (buttonRef.current && !buttonRef.current.contains(event.target)) {
-        if (open && !event.target.closest(".driver-select-dropdown")) {
-          onToggleDropdown(eventId);
-        }
-      }
-    };
-
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
-  }, [open, eventId, onToggleDropdown]);
-
-  return (
-    <>
-      <div className="assign-dropdown-wrapper">
-        <button
-          ref={buttonRef}
-          type="button"
-          className="assign-driver-btn"
-          onClick={() => onToggleDropdown(eventId)}
-          title="Select active driver"
-        >
-          <i className="bi bi-person-plus fs-5 text-primary"></i>
-        </button>
-      </div>
-      {open && (
-        <DriverDropdownMenu
-          buttonRef={buttonRef}
-          activeDrivers={activeDrivers}
-          driversLoading={driversLoading}
-          onSelectDriver={onSelectDriver}
-          eventId={eventId}
-        />
-      )}
-    </>
-  );
-};
-
 export const UnidentifiedEvents = () => {
   const dispatch = useDispatch();
   const { companyId } = useParams();
@@ -222,8 +72,10 @@ export const UnidentifiedEvents = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [page, setPage] = useState(1);
-  const [selectedDriverMap, setSelectedDriverMap] = useState({});
-  const [openAssignId, setOpenAssignId] = useState(null);
+  const [selectedDriverId, setSelectedDriverId] = useState("");
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const limit = 20;
 
   useEffect(() => {
@@ -243,7 +95,7 @@ export const UnidentifiedEvents = () => {
         .filter((v) => v?._id)
         .map((v) => ({
           value: v._id,
-          label: v.vehicleNumber || v.vehicleNo || v.vin || v._id,
+          label: v.vehicleNumber  || v.vin || v._id,
         })),
     ];
   }, [vehicles, allActiveVehicles]);
@@ -302,17 +154,34 @@ export const UnidentifiedEvents = () => {
     return (driverList || []).filter((driver) => driver?.isActive);
   }, [driverList]);
 
-  const handleAssignChange = (eventId, driverId) => {
-    setSelectedDriverMap((prev) => ({ ...prev, [eventId]: driverId }));
+  const handleAssignIconClick = (row) => {
+    const eventId = row?._id || row?.id;
+    setSelectedEvent(row);
+    setSelectedDriverId("");
+    setShowAssignModal(true);
   };
 
-  const handleSelectDriver = (eventId, driverId) => {
-    handleAssignChange(eventId, driverId);
-    setOpenAssignId(null);
+  const handleAssignSubmit = () => {
+    if (!selectedDriverId) {
+      toast.warn("Please select a driver");
+      return;
+    }
+    setShowConfirmModal(true);
   };
 
-  const toggleAssignDropdown = (eventId) => {
-    setOpenAssignId((prev) => (prev === eventId ? null : eventId));
+  const handleConfirmAssign = async () => {
+    if (!selectedEvent || !selectedDriverId) return;
+    const eventId = selectedEvent?._id || selectedEvent?.id;
+    await dispatch(assignDriverToUnidentifiedEvent({ eventId, driverId: selectedDriverId }));
+    setShowConfirmModal(false);
+    setShowAssignModal(false);
+  };
+
+  const handleCancelAssign = () => {
+    setShowAssignModal(false);
+    setShowConfirmModal(false);
+    setSelectedDriverId("");
+    setSelectedEvent(null);
   };
 
   const columns = [
@@ -347,24 +216,14 @@ export const UnidentifiedEvents = () => {
     {
       name: "Assign",
       cell: (row) => (
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: "100%",
-          height: "100%",
-          padding: "8px 0"
-        }}>
-          <AssignCell
-            row={row}
-            openAssignId={openAssignId}
-            selectedDriverMap={selectedDriverMap}
-            activeDrivers={activeDrivers}
-            driversLoading={driversLoading}
-            onToggleDropdown={toggleAssignDropdown}
-            onSelectDriver={handleSelectDriver}
-          />
-        </div>
+        <button
+          type="button"
+          className="assign-driver-btn"
+          title="Assign to driver"
+          onClick={() => handleAssignIconClick(row)}
+        >
+          <i className="bi bi-person-plus fs-5 text-primary"></i>
+        </button>
       ),
       width: "100px",
       center: true,
@@ -389,6 +248,7 @@ export const UnidentifiedEvents = () => {
   };
 
   return (
+    <>
     <div className="UnidentifiedEvents-page py-3">
       <div className="container-fluid">
         <div className="main-heading mb-3">Unidentified Events</div>
@@ -514,6 +374,72 @@ export const UnidentifiedEvents = () => {
         </div>
       </div>
     </div>
+
+    <Modal show={showAssignModal} onHide={handleCancelAssign} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Assign to Driver</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form.Group controlId="assignDriverSelect">
+          <Form.Label className="fw-semibold">Driver</Form.Label>
+          <Form.Select
+            value={selectedDriverId}
+            onChange={(e) => setSelectedDriverId(e.target.value)}
+            disabled={driversLoading}
+          >
+            <option value="">Select driver</option>
+            {driversLoading ? (
+              <option value="">Loading...</option>
+            ) : (
+              activeDrivers.map((driver) => (
+                <option key={driver?._id || driver?.id} value={driver?._id || driver?.id}>
+                  {[driver?.firstName, driver?.lastName].filter(Boolean).join(" ") ||
+                    driver?.userName ||
+                    driver?.email ||
+                    "Driver"}
+                </option>
+              ))
+            )}
+          </Form.Select>
+        </Form.Group>
+      </Modal.Body>
+      <Modal.Footer className="d-flex justify-content-between">
+        <div>
+          <div className="fw-semibold small text-muted">
+            Event Time: {formatDateTime(selectedEvent?.eventDateTime)}
+          </div>
+          <div className="small text-muted">
+            Vehicle: {selectedEvent?.vehicle?.vehicleNumber || "-"}
+          </div>
+        </div>
+        <div className="d-flex gap-2">
+          <Button variant="secondary" onClick={handleCancelAssign}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleAssignSubmit}>
+            Assign
+          </Button>
+        </div>
+      </Modal.Footer>
+    </Modal>
+
+    <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Confirm Assignment</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        Assign this event to the selected driver?
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleConfirmAssign}>
+          Yes, Assign
+        </Button>
+      </Modal.Footer>
+    </Modal>
+    </>
   );
 };
 

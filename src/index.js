@@ -4,6 +4,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { legacy_createStore as createStore } from "redux";
 import { thunk } from "redux-thunk";
+import DataTable from "react-data-table-component";
 import auth from './store/reducer/auth';
 import companiesReducer from './store/reducer/companies';
 import vehiclesReducer from './store/reducer/vehicles';
@@ -20,6 +21,12 @@ import unidentifiedEventsReducer from './store/reducer/unidentifiedEvents';
 import "bootstrap";
 import { combineReducers, compose, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
+
+// Set a global default page size for all DataTable instances
+DataTable.defaultProps = {
+  ...DataTable.defaultProps,
+  paginationPerPage: 30,
+};
 
 // const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const composeEnhancers = window?.__REDUX_DEVTOOLS_EXTENSION__?.() || compose;

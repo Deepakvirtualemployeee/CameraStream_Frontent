@@ -1,5 +1,6 @@
 import * as actionTypes from "../actions/actionTypes";
 import axios from "../../axios-config";
+import { toast } from "react-toastify";
 
 const token = localStorage.getItem("token");
 
@@ -49,3 +50,32 @@ export const getUnidentifiedEvents =
     }
   };
 
+export const assignDriverToUnidentifiedEvent = ({ eventId, driverId }) => async (dispatch) => {
+  try {
+    dispatch({ type: actionTypes.ASSIGN_UNIDENTIFIED_EVENT_REQUEST });
+
+    const res = await axios.post(
+      "/unidentified-events/assign-driver",
+      { eventId, driverId },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    dispatch({
+      type: actionTypes.ASSIGN_UNIDENTIFIED_EVENT_SUCCESS,
+      payload: res.data?.data,
+    });
+
+    toast.success(res.data?.message || "Driver assigned to event");
+    return { success: true, data: res.data?.data, message: res.data?.message };
+  } catch (error) {
+    const message = error?.response?.data?.message || "Failed to assign driver";
+    dispatch({
+      type: actionTypes.ASSIGN_UNIDENTIFIED_EVENT_FAIL,
+      payload: message,
+    });
+    toast.error(message);
+    return { success: false, message };
+  }
+};
