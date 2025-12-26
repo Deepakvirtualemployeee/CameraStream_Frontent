@@ -263,22 +263,35 @@ export const EditEvent = () => {
 
     // If the event has a valid eventDateTime, convert it from UTC to company timezone
     if (event.eventDateTime) {
-        
-      // Convert UTC event date to the company’s timezone
+      // Build a Date using local clock so the picker shows the same wall-clock time as company TZ
       console.log("Original Event Date in DB (UTC):", event.eventDateTime);
-      eventDateForPicker = moment.utc(event.eventDateTime).tz(tz).toDate(); // Date in company timezone
-      eventDateFormatted = moment
-        .utc(event.eventDateTime)
-        .tz(tz)
-        .format("dd MMM YYYY hh:mm:ss A "); // Human-readable formatted date
-        // store original UTC for backend if picker not changed
-setEventDateForDb(new Date(event.eventDateTime));
-
+      const eventMoment = moment.utc(event.eventDateTime).tz(tz);
+      eventDateForPicker = new Date(
+        eventMoment.year(),
+        eventMoment.month(),
+        eventMoment.date(),
+        eventMoment.hour(),
+        eventMoment.minute(),
+        eventMoment.second(),
+        eventMoment.millisecond()
+      );
+      eventDateFormatted = eventMoment.format("dd MMM YYYY hh:mm:ss A "); // Human-readable formatted date
+      // store original UTC for backend if picker not changed
+      setEventDateForDb(new Date(event.eventDateTime));
     } else {
       // Fallback to current date in company timezone
-      eventDateForPicker = moment().tz(tz).toDate();
-      eventDateFormatted = moment().tz(tz).format("YYYY-MM-DD hh:mm:ss A");
-         setEventDateForDb(moment().tz(tz).toDate());
+      const nowInCompany = moment().tz(tz);
+      eventDateForPicker = new Date(
+        nowInCompany.year(),
+        nowInCompany.month(),
+        nowInCompany.date(),
+        nowInCompany.hour(),
+        nowInCompany.minute(),
+        nowInCompany.second(),
+        nowInCompany.millisecond()
+      );
+      eventDateFormatted = nowInCompany.format("YYYY-MM-DD hh:mm:ss A");
+      setEventDateForDb(nowInCompany.toDate());
     }
 
     console.log("Stored Event Date in DB (UTC):", event.eventDateTime);
@@ -312,7 +325,7 @@ setEventDateForDb(new Date(event.eventDateTime));
     });
 
     // Set the event date in the company timezone
-    setEventDate(eventDateFormatted); // Store the event date for use in the picker
+    setEventDate(eventDateForPicker); // Store the event date for use in the picker
   }, [driverLogs, eventId, timeZoneId]); // Runs when these change
 
   const handleSubmit = (e) => {
@@ -351,7 +364,9 @@ setEventDateForDb(new Date(event.eventDateTime));
     const activeStatus =
       form.isActive?.toLowerCase() === "active" ? true : false;
 
-    const eventDateUTC = new Date(eventDate).toISOString();
+    const eventDateUTC = eventDateForDb
+      ? new Date(eventDateForDb).toISOString()
+      : null;
     console.log("event", eventDateUTC);
     const odometerVal = Number(form.odometer);
     const engineHoursVal = form.engineHours
@@ -367,8 +382,11 @@ setEventDateForDb(new Date(event.eventDateTime));
 
     // Validation against company timezone current time
     const companyNow = moment.tz(timeZoneId);
+    const selectedEventMoment = eventDateForDb
+      ? moment(eventDateForDb).tz(timeZoneId)
+      : null;
 
-    if (moment(eventDate).isAfter(companyNow)) {
+    if (selectedEventMoment && selectedEventMoment.isAfter(companyNow)) {
       setErrors((prev) => ({
         ...prev,
         eventDate: "You cannot select a future time based on company timezone.",
@@ -685,6 +703,7 @@ setEventDateForDb(new Date(event.eventDateTime));
                               const dateString = moment(date).format(
                                 "YYYY-MM-DD HH:mm:ss"
                               );
+                              // Interpret the picked clock time as company timezone, regardless of browser tz
                               const dateInCompanyTZ = moment.tz(
                                 dateString,
                                 "YYYY-MM-DD HH:mm:ss",
@@ -715,8 +734,8 @@ setEventDateForDb(new Date(event.eventDateTime));
                                   eventDate: "",
                                 }));
 
-                                // Store the UTC date (what you send to backend)
-                                setEventDate(dateString);
+                                // Keep picker showing what was selected while storing UTC for backend
+                                setEventDate(date);
                                 setEventDateForDb(
                                   dateInCompanyTZ.utc().toDate()
                                 );
