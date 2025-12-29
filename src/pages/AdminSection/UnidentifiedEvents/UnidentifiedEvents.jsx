@@ -124,14 +124,24 @@ export const UnidentifiedEvents = () => {
     fetchEvents(1, false);
   }, [companyId, startDate, endDate, vehicleId, assumed, sortOrder, fetchEvents]);
 
+  const eventsByAssumed = useMemo(() => {
+    if (assumed === "assumed") {
+      return (events || []).filter((evt) => evt?.isActive === false);
+    }
+    if (assumed === "not_assumed") {
+      return (events || []).filter((evt) => evt?.isActive !== false);
+    }
+    return events || [];
+  }, [events, assumed]);
+
   const filteredEvents = useMemo(() => {
-    return (events || []).filter((evt) => {
+    return eventsByAssumed.filter((evt) => {
       const textMatch = Object.values(evt || {}).some((val) =>
         val?.toString().toLowerCase().includes(searchText.toLowerCase())
       );
       return textMatch;
     });
-  }, [events, searchText]);
+  }, [eventsByAssumed, searchText]);
 
   const sortedEvents = useMemo(() => {
     return [...filteredEvents].sort((a, b) => {
@@ -141,8 +151,12 @@ export const UnidentifiedEvents = () => {
     });
   }, [filteredEvents, sortOrder]);
 
-  const getAssumedLabel = (row) =>
-    row?.linkedEventId ? "Assumed" : "Not Assumed";
+  const getStatusLabel = (row) => {
+    if (row?.isActive === false || assumed === "assumed") {
+      return "Inactive - Changed";
+    }
+    return "Active";
+  };
 
   const getNotesText = (row) => {
     const notes = row?.notes;
@@ -154,12 +168,12 @@ export const UnidentifiedEvents = () => {
     return (driverList || []).filter((driver) => driver?.isActive);
   }, [driverList]);
 
-  const handleAssignIconClick = (row) => {
+  const handleAssignIconClick = useCallback((row) => {
     const eventId = row?._id || row?.id;
     setSelectedEvent(row);
     setSelectedDriverId("");
     setShowAssignModal(true);
-  };
+  }, []);
 
   const handleAssignSubmit = () => {
     if (!selectedDriverId) {
@@ -184,54 +198,64 @@ export const UnidentifiedEvents = () => {
     setSelectedEvent(null);
   };
 
-  const columns = [
-    {
-      name: "Time",
-      selector: (row) => formatDateTime(row.eventDateTime),
-      sortable: true,
-      minWidth: "180px",
-    },
-    {
-      name: "Vehicle",
-      selector: (row) => row.vehicle?.vehicleNumber || "-",
-      sortable: true,
-      minWidth: "110px",
-    },
-    { name: "Event", selector: (row) => row.eventCode || "-", sortable: true },
-    { name: "Status", selector: (row) => getAssumedLabel(row), sortable: true },
-    { name: "Location", selector: (row) => row.location || "-", sortable: true },
-    {
-      name: "Odometer (MI)",
-      selector: (row) => row.odometer ?? "-",
-      sortable: true,
-      right: true,
-    },
-    {
-      name: "Engine Hours",
-      selector: (row) => row.engineHours ?? "-",
-      sortable: true,
-      right: true,
-    },
-    { name: "Notes", selector: (row) => getNotesText(row), minWidth: "160px" },
-    {
-      name: "Assign",
-      cell: (row) => (
-        <button
-          type="button"
-          className="assign-driver-btn"
-          title="Assign to driver"
-          onClick={() => handleAssignIconClick(row)}
-        >
-          <i className="bi bi-person-plus fs-5 text-primary"></i>
-        </button>
-      ),
-      width: "100px",
-      center: true,
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-  ];
+  const columns = useMemo(() => {
+    const base = [
+      {
+        name: "Time",
+        selector: (row) => formatDateTime(row.eventDateTime),
+        sortable: true,
+        minWidth: "180px",
+      },
+      {
+        name: "Vehicle",
+        selector: (row) => row.vehicle?.vehicleNumber || "-",
+        sortable: true,
+        minWidth: "110px",
+      },
+      { name: "Event", selector: (row) => row.eventCode || "-", sortable: true },
+      { name: "Status", selector: (row) => getStatusLabel(row), sortable: true },
+      {
+        name: "Location",
+        selector: (row) => row.location || "-",
+        sortable: true,
+      },
+      {
+        name: "Odometer (MI)",
+        selector: (row) => row.odometer ?? "-",
+        sortable: true,
+        right: true,
+      },
+      {
+        name: "Engine Hours",
+        selector: (row) => row.engineHours ?? "-",
+        sortable: true,
+        right: true,
+      },
+    ];
+
+    if (assumed !== "assumed") {
+      base.push({
+        name: "Assign",
+        cell: (row) => (
+          <button
+            type="button"
+            className="assign-driver-btn"
+            title="Assign to driver"
+            onClick={() => handleAssignIconClick(row)}
+          >
+            <i className="bi bi-person-plus fs-5 text-primary"></i>
+          </button>
+        ),
+        width: "100px",
+        center: true,
+        ignoreRowClick: true,
+        allowOverflow: true,
+        button: true,
+      });
+    }
+
+    return base;
+  }, [assumed, handleAssignIconClick]);
 
   const handleRefresh = () => {
     if (!companyId) return;
@@ -288,7 +312,6 @@ export const UnidentifiedEvents = () => {
                 >
                   <option value="not_assumed">Not Assumed</option>
                   <option value="assumed">Assumed</option>
-                  <option value="all">All</option>
                 </Form.Select>
               </div>
 

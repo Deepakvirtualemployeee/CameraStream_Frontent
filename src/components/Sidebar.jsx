@@ -195,6 +195,13 @@ const Sidebar = ({ collapsed, openSidebar }) => {
           </>
         )}
 
+          <li className="nav-item">
+          <hr
+            className="opacity-100 my-2"
+            style={{ borderColor: "rgba(0, 0, 0, 0.2)" }}
+          />
+        </li>
+
         <li
           className={`nav-item ${
             isSettingsActive || openSettings ? "active" : ""
@@ -209,8 +216,9 @@ const Sidebar = ({ collapsed, openSidebar }) => {
               openSidebar();
             }}
           >
+          <hr></hr>
             <i className="bi bi-gear"></i>
-            {!collapsed && <span>Settings</span>}
+            {!collapsed && <span> Manage / Settings</span>}
             {!collapsed && (
               <i
                 className={`bi fs-16 ms-auto ${
