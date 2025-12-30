@@ -588,6 +588,7 @@ export const GraphDetails = () => {
         const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
         const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
         const seconds = String(totalSeconds % 60).padStart(2, "0");
+        // HHh:MMm:SSs format (e.g., 02h:57m:04s)
         return `${hours}h:${minutes}m:${seconds}s`;
     };
 
@@ -611,33 +612,37 @@ export const GraphDetails = () => {
                 const tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles";
 
                 if (allowedEventCodes.includes(event?.eventCode)) {
-                    const eventTime = event?.eventDateTime
-                        ? moment.tz(event.eventDateTime, tz)
+                    const startMoment = event?.startTime || event?.eventDateTime
+                        ? moment.tz(event.startTime || event.eventDateTime, tz)
                         : null;
 
-                    if (eventTime) {
-                        // Find the *next allowed* event (not just index+1)
+                    let endMoment = null;
+
+                    // Prefer explicit endTime from backend when available
+                    if (event?.endTime) {
+                        endMoment = moment.tz(event.endTime, tz);
+                    } else {
+                        // Otherwise fall back to the next allowed event's start
                         const nextAllowed = log.hosEvents
                             .slice(index + 1)
                             .find((e) => allowedEventCodes.includes(e?.eventCode));
 
-                        if (index === 0 && nextAllowed) {
-                            // First event → duration = nextAllowed.startTime - midnight
-                            const midnight = moment.tz(log.date || eventTime, tz).startOf("day");
-                            const nextTime = moment.tz(nextAllowed.eventDateTime, tz);
-                            const diff = nextTime.diff(midnight);
-                            duration = formatDuration(diff >= 0 ? diff : 0);
-                        } else if (nextAllowed) {
-                            // Normal case → duration = nextAllowed - currentEvent
-                            const nextTime = moment.tz(nextAllowed.eventDateTime, tz);
-                            const diff = nextTime.diff(eventTime);
-                            duration = formatDuration(diff >= 0 ? diff : 0);
-                        } else {
-                            // Last event → duration = current time - currentEvent
+                        if (nextAllowed?.startTime || nextAllowed?.eventDateTime) {
+                            endMoment = moment.tz(
+                                nextAllowed.startTime || nextAllowed.eventDateTime,
+                                tz
+                            );
+                        } else if (startMoment) {
+                            // If no next event, use end of day (or current time if same day)
                             const now = moment().tz(tz);
-                            const diff = now.diff(eventTime);
-                            duration = formatDuration(diff >= 0 ? diff : 0);
+                            const endOfDay = moment.tz(log.date || startMoment, tz).endOf("day");
+                            endMoment = startMoment.isSame(now, "day") ? now : endOfDay;
                         }
+                    }
+
+                    if (startMoment && endMoment) {
+                        const diff = Math.max(0, endMoment.diff(startMoment));
+                        duration = formatDuration(diff);
                     }
                 }
 

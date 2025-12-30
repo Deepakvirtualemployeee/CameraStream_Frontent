@@ -138,9 +138,14 @@ export const addEditEvent = (companyId, driverId, eventId = null, eventData, sel
     } else {
       toast.success("Event added successfully!");
     }
-    if (navigate) navigate(`/driver-hos/graph-details/${companyId}/${driverId}`, {
-      state: { selectedDate }, // pass back the date
-    }); // redirect after success
+    // Prefer the event's own date (if provided) so we return to the exact edited day
+    const redirectDate =
+      (Array.isArray(eventData) && eventData[0]?.eventDateTime) || selectedDate || new Date();
+
+    if (navigate)
+      navigate(`/driver-hos/graph-details/${companyId}/${driverId}`, {
+        state: { selectedDate: redirectDate },
+      }); // redirect after success
 
     return true;
   } catch (err) {

@@ -284,6 +284,12 @@
     background-color: #ffffff;
   }
 
+  /* Bulk checkbox visibility */
+  .ue-checkbox {
+    border: 2px solid #000 !important;
+    box-shadow: none;
+  }
+
   /* ================= RESPONSIVE ================= */
 
   @media (min-width: 1200px) {
