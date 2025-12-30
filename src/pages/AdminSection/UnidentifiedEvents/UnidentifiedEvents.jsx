@@ -75,6 +75,10 @@ export const UnidentifiedEvents = () => {
   const [selectedDriverId, setSelectedDriverId] = useState("");
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selectedEventIds, setSelectedEventIds] = useState([]);
+  const [showBulkAssignModal, setShowBulkAssignModal] = useState(false);
+  const [bulkAssigning, setBulkAssigning] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const limit = 20;
 
@@ -175,6 +179,64 @@ export const UnidentifiedEvents = () => {
     setShowAssignModal(true);
   }, []);
 
+  const toggleBulkMode = () => {
+    setBulkMode((prev) => {
+      const next = !prev;
+      if (!next) setSelectedEventIds([]);
+      return next;
+    });
+  };
+
+  const handleRowCheckbox = (row) => {
+    const id = row?._id || row?.id;
+    if (!id) return;
+    setSelectedEventIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleHeaderCheckbox = (checked, rows) => {
+    if (checked) {
+      const allIds = rows
+        .map((r) => r?._id || r?.id)
+        .filter(Boolean);
+      setSelectedEventIds(allIds);
+    } else {
+      setSelectedEventIds([]);
+    }
+  };
+
+  const handleOpenBulkAssign = () => {
+    if (!selectedEventIds.length) return;
+    setSelectedDriverId("");
+    setShowBulkAssignModal(true);
+  };
+
+  const handleBulkAssignSubmit = async () => {
+    if (!selectedDriverId || !selectedEventIds.length) {
+      toast.warn("Select a driver and at least one event");
+      return;
+    }
+    setBulkAssigning(true);
+    try {
+      for (const eventId of selectedEventIds) {
+        await dispatch(
+          assignDriverToUnidentifiedEvent({ eventId, driverId: selectedDriverId })
+        );
+      }
+      toast.success("Events assigned successfully");
+      setShowBulkAssignModal(false);
+      setBulkMode(false);
+      setSelectedEventIds([]);
+      handleRefresh();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to assign some events");
+    } finally {
+      setBulkAssigning(false);
+    }
+  };
+
   const handleAssignSubmit = () => {
     if (!selectedDriverId) {
       toast.warn("Please select a driver");
@@ -200,6 +262,38 @@ export const UnidentifiedEvents = () => {
 
   const columns = useMemo(() => {
     const base = [
+      ...(bulkMode && assumed !== "assumed"
+        ? [
+            {
+              name: (
+                <Form.Check
+                  type="checkbox"
+                  inputClassName="ue-checkbox"
+                  checked={
+                    sortedEvents.length > 0 &&
+                    sortedEvents.every((r) =>
+                      selectedEventIds.includes(r?._id || r?.id)
+                    )
+                  }
+                  onChange={(e) =>
+                    handleHeaderCheckbox(e.target.checked, sortedEvents)
+                  }
+                />
+              ),
+              width: "60px",
+              center: true,
+              cell: (row) => (
+                <Form.Check
+                  type="checkbox"
+                  inputClassName="ue-checkbox"
+                  checked={selectedEventIds.includes(row?._id || row?.id)}
+                  onChange={() => handleRowCheckbox(row)}
+                />
+              ),
+              ignoreRowClick: true,
+            },
+          ]
+        : []),
       {
         name: "Time",
         selector: (row) => formatDateTime(row.eventDateTime),
@@ -233,7 +327,7 @@ export const UnidentifiedEvents = () => {
       },
     ];
 
-    if (assumed !== "assumed") {
+    if (assumed !== "assumed" && !bulkMode) {
       base.push({
         name: "Assign",
         cell: (row) => (
@@ -255,7 +349,7 @@ export const UnidentifiedEvents = () => {
     }
 
     return base;
-  }, [assumed, handleAssignIconClick]);
+  }, [assumed, bulkMode, handleAssignIconClick, selectedEventIds, sortedEvents]);
 
   const handleRefresh = () => {
     if (!companyId) return;
@@ -343,11 +437,14 @@ export const UnidentifiedEvents = () => {
                 Refresh
               </Button>
 
-              <Button
-                style={{ backgroundColor: "#c89a4a", borderColor: "#c89a4a" }}
-              >
-                Bulk Assign Events
-              </Button>
+              {assumed !== "assumed" && (
+                <Button
+                  style={{ backgroundColor: "#c89a4a", borderColor: "#c89a4a" }}
+                  onClick={toggleBulkMode}
+                >
+                  {bulkMode ? "Cancel Bulk" : "Bulk Assign Events"}
+                </Button>
+              )}
             </div>
           </div>
 
@@ -385,11 +482,11 @@ export const UnidentifiedEvents = () => {
           )}
 
           <div className="text-center mt-3">
-            <Button
-              variant="light"
-              className="border"
-              disabled={!hasMore || loading}
-              onClick={handleLoadMore}
+              <Button
+                variant="light"
+                className="border"
+                disabled={!hasMore || loading}
+                onClick={handleLoadMore}
             >
               {hasMore ? "Load More" : "No More Data"}
             </Button>
@@ -397,6 +494,24 @@ export const UnidentifiedEvents = () => {
         </div>
       </div>
     </div>
+
+    {bulkMode && selectedEventIds.length > 0 && (
+      <div
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          zIndex: 1000,
+        }}
+      >
+        <Button
+          style={{ backgroundColor: "#00bcd4", borderColor: "#00bcd4" }}
+          onClick={handleOpenBulkAssign}
+        >
+          Bulk Assign
+        </Button>
+      </div>
+    )}
 
     <Modal show={showAssignModal} onHide={handleCancelAssign} centered>
       <Modal.Header closeButton>
@@ -459,6 +574,47 @@ export const UnidentifiedEvents = () => {
         </Button>
         <Button variant="primary" onClick={handleConfirmAssign}>
           Yes, Assign
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
+    <Modal show={showBulkAssignModal} onHide={() => setShowBulkAssignModal(false)} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Bulk Assign to Driver</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form.Group controlId="bulkAssignDriverSelect">
+          <Form.Label className="fw-semibold">Driver</Form.Label>
+          <Form.Select
+            value={selectedDriverId}
+            onChange={(e) => setSelectedDriverId(e.target.value)}
+            disabled={driversLoading}
+          >
+            <option value="">Select driver</option>
+            {driversLoading ? (
+              <option value="">Loading...</option>
+            ) : (
+              activeDrivers.map((driver) => (
+                <option key={driver?._id || driver?.id} value={driver?._id || driver?.id}>
+                  {[driver?.firstName, driver?.lastName].filter(Boolean).join(" ") ||
+                    driver?.userName ||
+                    driver?.email ||
+                    "Driver"}
+                </option>
+              ))
+            )}
+          </Form.Select>
+        </Form.Group>
+        <div className="mt-2 text-muted small">
+          Selected events: {selectedEventIds.length}
+        </div>
+      </Modal.Body>
+      <Modal.Footer className="d-flex justify-content-between">
+        <Button variant="secondary" onClick={() => setShowBulkAssignModal(false)}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleBulkAssignSubmit} disabled={bulkAssigning}>
+          {bulkAssigning ? "Assigning..." : "Assign"}
         </Button>
       </Modal.Footer>
     </Modal>

@@ -198,7 +198,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
           <li className="nav-item">
           <hr
             className="opacity-100 my-2"
-            style={{ borderColor: "rgba(0, 0, 0, 0.2)" }}
+            style={{ borderColor: "rgba(241, 233, 233, 0.8)" }}
           />
         </li>
 
