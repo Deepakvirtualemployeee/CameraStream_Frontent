@@ -432,25 +432,26 @@ const { allActiveVehicles } = useSelector((state) => state.vehicles);
                                 </Form.Group> */}
                                 <Form.Group className="mb-3" controlId="assignedVehicleId">
                                     <Form.Label>Assign Vehicles</Form.Label>
-                                  <Form.Select
-    name="assignedVehicleId"
-    value={formData.assignedVehicleId}
-    onChange={(e) => {
-        const selectedId = e.target.value;
-        setFormData((prev) => ({
-            ...prev,
-            assignedVehicleId: selectedId,
-        }));
-    }}
+<Form.Select
+  name="assignedVehicleId"
+  value={formData.assignedVehicleId ?? ""}
+  onChange={(e) => {
+    const selectedId = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      assignedVehicleId: selectedId === "" ? null : selectedId,
+    }));
+  }}
 >
-    <option value="">Select a vehicle</option>
-    {vehiclesLoading && <option>Loading...</option>}
-    {allActiveVehicles?.map((v) => (
-        <option key={v._id} value={v._id}>
-            {v.vehicleNumber}
-        </option>
-    ))}
+  <option value="">Select a vehicle</option>
+  {vehiclesLoading && <option disabled>Loading...</option>}
+  {allActiveVehicles?.map((v) => (
+    <option key={v._id} value={v._id}>
+      {v.vehicleNumber}
+    </option>
+  ))}
 </Form.Select>
+
 
                                 </Form.Group>
 
