@@ -87,12 +87,12 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp, open
                             <div className="btn-wrapper">
                                 <Row className="g-2 gx-md-3">
                                     <Col>
-                                        <Button type="button" variant="outline-primary" className="w-100" onClick={() => navigate('/login')}>
+                                        <Button type="button" variant="outline-primary" className="w-100 d-flex align-items-center justify-content-center" onClick={() => navigate('/login')}>
                                             <i className="bi bi-arrow-left-short fs-3 lh-1"></i> Back to login
                                         </Button>
                                     </Col>
                                     <Col>
-                                        <Button type="submit" variant="primary" className="w-100">
+                                        <Button type="submit" variant="primary" className="w-100 d-flex align-items-center justify-content-center">
                                             Send OTP <i className="bi bi-arrow-right-short fs-3 lh-1"></i>
                                         </Button>
                                     </Col>
