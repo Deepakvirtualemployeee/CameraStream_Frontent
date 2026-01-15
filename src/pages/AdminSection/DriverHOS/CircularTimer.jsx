@@ -15,8 +15,8 @@ export default function CircularTimer({
     limit = 0,
     accumulated = 0,
     color = "#4C8EF3",
-    size = 64,
-    strokeWidth = 6,
+    size = 130,
+    strokeWidth = 12,
 }) {
     const radius = size / 2 - strokeWidth / 2;
     const circumference = 2 * Math.PI * radius;
@@ -68,10 +68,10 @@ export default function CircularTimer({
             </svg>
 
             {/* center text */}
-            <div style={{ position: "absolute", textAlign: "center", pointerEvents: "none" }}>
-                <div style={{ fontWeight: 700, fontSize: 12 }}>{formatSecondsToHHMM(remaining)}</div>
+            <div className="position-absolute text-center" style={{ pointerEvents: "none" }}>
+                <div className="fs-4 fw-bold text-dark lh-sm">{formatSecondsToHHMM(remaining)}</div>
                 {/* <div style={{ fontSize: 10, color: "#808080", textTransform: "uppercase" }}>{label}</div> */}
-                <div className="fs-10 fw-bold text-muted text-uppercase">{label}</div>
+                <div className="fs-6 fw-bold text-uppercase" style={{color: color}}>{label}</div>
             </div>
         </div>
     );
