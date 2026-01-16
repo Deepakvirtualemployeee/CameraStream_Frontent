@@ -87,8 +87,8 @@ const Sidebar = ({ collapsed, openSidebar }) => {
               <Link
                 to={`/driver-hos/${companyId}`}
                 className={`${location.pathname === `/driver-hos/${companyId}`
-                    ? "active"
-                    : ""
+                  ? "active"
+                  : ""
                   } nav-link d-flex align-items-center gap-2`}
                 onClick={openSidebar}
               >
@@ -113,13 +113,20 @@ const Sidebar = ({ collapsed, openSidebar }) => {
               <Link
                 to={`/unidentified-events/${companyId}`}
                 className={`${location.pathname === `/unidentified-events/${companyId}`
-                    ? "active"
-                    : ""
+                  ? "active"
+                  : ""
                   } nav-link d-flex align-items-center gap-2`}
                 onClick={openSidebar}
               >
                 <i className="bi bi-exclamation-circle"></i>
                 {!collapsed && <span>Unidentified Events</span>}
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link to={'/dvirs-list'} className={`${location.pathname === '/dvirs' ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
+                <i className="bi bi-list-check"></i>
+                {!collapsed && <span>DVIRs</span>}
               </Link>
             </li>
 
@@ -152,9 +159,9 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                       <Link
                         to={`/reports/ifta-reports/${companyId}`}
                         className={`${location.pathname ===
-                            `/reports/ifta-reports/${companyId}`
-                            ? "active"
-                            : ""
+                          `/reports/ifta-reports/${companyId}`
+                          ? "active"
+                          : ""
                           }`}
                       >
                         IFTA Reports
@@ -165,8 +172,8 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                       <Link
                         to={`/fmcsa-records/${companyId}`}
                         className={`${location.pathname === `/fmcsa-records/${companyId}`
-                            ? "active"
-                            : ""
+                          ? "active"
+                          : ""
                           }`}
                       >
                         FMCSA Reports
@@ -214,9 +221,9 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                   <Link
                     to={`/settings/vehicles-list/${companyId}`}
                     className={`${location.pathname ===
-                        `/settings/vehicles-list/${companyId}`
-                        ? "active"
-                        : ""
+                      `/settings/vehicles-list/${companyId}`
+                      ? "active"
+                      : ""
                       }`}
                   >
                     Vehicles
@@ -228,9 +235,9 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     <Link
                       to={`/settings/drivers-listing/${companyId}`}
                       className={`${location.pathname ===
-                          `/settings/drivers-listing/${companyId}`
-                          ? "active"
-                          : ""
+                        `/settings/drivers-listing/${companyId}`
+                        ? "active"
+                        : ""
                         }`}
                     >
                       Drivers
@@ -241,9 +248,9 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     <Link
                       to={`/settings/vehicles-list/${companyId}`}
                       className={`${location.pathname ===
-                          `/settings/vehicles-list/${companyId}`
-                          ? "active"
-                          : ""
+                        `/settings/vehicles-list/${companyId}`
+                        ? "active"
+                        : ""
                         }`}
                     >
                       Vehicles
@@ -254,9 +261,9 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     <Link
                       to={`/settings/eld-devices/${companyId}`}
                       className={`${location.pathname ===
-                          `/settings/eld-devices/${companyId}`
-                          ? "active"
-                          : ""
+                        `/settings/eld-devices/${companyId}`
+                        ? "active"
+                        : ""
                         }`}
                     >
                       ELD Devices
@@ -267,9 +274,9 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     <Link
                       to={`/settings/portal-users/${companyId}`}
                       className={`${location.pathname ===
-                          `/settings/portal-users/${companyId}`
-                          ? "active"
-                          : ""
+                        `/settings/portal-users/${companyId}`
+                        ? "active"
+                        : ""
                         }`}
                     >
                       Portal Users
@@ -280,9 +287,9 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                     <Link
                       to={`/settings/company-info/${companyId}`}
                       className={`${location.pathname ===
-                          `/settings/company-info/${companyId}`
-                          ? "active"
-                          : ""
+                        `/settings/company-info/${companyId}`
+                        ? "active"
+                        : ""
                         }`}
                     >
                       Company
