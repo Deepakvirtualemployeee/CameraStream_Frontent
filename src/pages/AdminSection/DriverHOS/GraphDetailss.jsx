@@ -770,200 +770,11 @@ export const GraphDetails = () => {
                 )}
                 <div className="container-fluid">
                     <div className="top-section mb-3">
-                        <div className="row gx-2 gy-3">
-                            <div className="col-lg-6 col-xl-4">
-                                <div className="info-wrapper">
-                                    <div className="info-box d-flex gap-1 mb-1">
-                                        <span className="label-name text-muted text-truncate">Carrier:</span>
-                                        <span className="text-body fw-semibold text-truncate">{driverSettings?.companyName}</span>
-                                    </div>
-                                    {/* <div className="info-box d-flex gap-1 mb-1">
-                                    <span className="label-name text-muted text-truncate">Driver:</span>
-                                    <span className="text-body fw-semibold text-truncate">{driverSettings?.driverName} <i className="bi bi-telephone text-theme6 ms-1"></i></span>
-                                </div> */}
-
-                                    {/* <div className="info-box d-flex gap-1 mb-1">
-                                    <span className="label-name text-muted text-truncate">Driver:</span>
-                                    <span className="text-body fw-semibold text-truncate">
-                                        {driverSettings?.driverName}
-                                        <i
-                                            className="bi bi-telephone text-theme6 ms-1 pointer"
-                                            style={{ cursor: "pointer" }}
-                                            onClick={() => setShowPhone(!showPhone)}
-                                        ></i>
-                                        {showPhone && (
-                                            <span className="ms-2 text-muted">
-                                                {driverSettings?.phoneNumber || "No Number"}
-                                            </span>
-                                        )}
-                                    </span>
-                                </div> */}
-                                    <div className="info-box d-flex gap-1 mb-1">
-                                        <span className="label-name text-muted">Driver:</span>
-
-                                        <span className="text-body fw-semibold">
-                                            {driverSettings?.driverName}
-                                            <i
-                                                className="bi bi-telephone text-theme6 ms-1 pointer"
-                                                style={{ cursor: "pointer" }}
-                                                onClick={() => setShowPhone(!showPhone)}
-                                            ></i>
-                                        </span>
-
-                                        {showPhone && (
-                                            <span className="ms-2 fw-semibold text-primary">
-                                                {driverSettings?.phoneNumber || "No Number"}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {(driverSettings?.coDriverName) && (
-                                        <div className="info-box d-flex gap-1 mb-1">
-                                            <span className="label-name text-muted text-truncate">Co-Driver:</span>
-                                            <span className="text-body fw-semibold text-truncate">{driverSettings?.coDriverName}</span>
-                                        </div>
-                                    )}
-
-                                    <div className="info-box d-flex gap-1 mb-1">
-                                        <span className="label-name text-muted text-truncate">Vehicle:</span>
-                                        <span className="text-body fw-semibold text-truncate">{driverSettings?.vehicleNumber}</span>
-                                    </div>
-
-                                    <div className="info-box d-flex gap-1 mb-1">
-                                        <span className="label-name text-muted text-truncate">Trailers:</span>
-                                        <span
-                                            className={`fw-semibold text-truncate ${trailersText === "Missing" ? "text-danger" : "text-success"
-                                                }`}
-                                        >
-                                            {trailersText}
-                                        </span>
-                                    </div>
-
-                                    <div className="info-box d-flex gap-1 mb-1">
-                                        <span className="label-name text-muted text-truncate">Shipping Docs:</span>
-                                        <span
-                                            className={`fw-semibold text-truncate ${shippingDocsText === "Missing" ? "text-danger" : "text-success"
-                                                }`}
-                                        >
-                                            {shippingDocsText}
-                                        </span>
-                                    </div>
-
-                                    <div className="info-box d-flex gap-1 mb-1">
-                                        <span className="label-name text-muted text-truncate">Certification:</span>
-                                        {/* <span
-                                        className={`fw-semibold text-truncate ${driverLogs.isCertified ? "text-success" : "text-danger"
-                                            }`}
-                                    >
-                                        {driverLogs.isCertified ? "Certified" : "Uncertified"}
-                                    </span> */}
-                                        <span
-                                            className={`fw-semibold text-truncate ${driverLogs[0]?.isCertified ? "text-success" : "text-danger"
-                                                }`}
-                                        >
-                                            {driverLogs[0]?.isCertified ? "Certified" : "Uncertified"}
-                                        </span>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-6 col-xl-4">
-                                <div className="wrapper text-lg-center">
-                                    <div className="fs-14 text-muted mb-1">Worked Hours: <span className="text-body fs-12 fw-bold">00:00</span></div>
-                                    {/* <div className="d-flex flex-wrap justify-content-lg-center gap-3">
-                                        <CircularTimer
-                                            label="Break"
-                                            limit={driverProcessedData?.breakTime?.limitTime || driverData?.breakTime?.limitTime || 0}
-                                            accumulated={driverProcessedData?.breakTime?.accumulatedTime || driverData?.breakTime?.accumulatedTime || 0}
-                                            color="#A67C52" // brown
-                                        />
-                                        <CircularTimer
-                                            label="Drive"
-                                            limit={driverProcessedData?.driveTime?.limitTime || 0}
-                                            accumulated={driverProcessedData?.driveTime?.accumulatedTime || 0}
-                                            color="#4C8EF3" // blue
-                                        />
-                                        <CircularTimer
-                                            label="Shift"
-                                            limit={driverProcessedData?.shiftTime?.limitTime || 0}
-                                            accumulated={driverProcessedData?.shiftTime?.accumulatedTime || 0}
-                                            color="#54B571" // green
-                                        />
-                                        <CircularTimer
-                                            label="Cycle"
-                                            limit={driverProcessedData?.cycleTime?.limitTime || 0}
-                                            accumulated={driverProcessedData?.cycleTime?.accumulatedTime || 0}
-                                            color="#808080" // grey
-                                        />
-                                    </div> */}
-                                    <div className="d-flex flex-wrap justify-content-lg-center gap-3">
-                                        <CircularTimer
-                                            label="Break"
-                                            limit={
-                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
-                                                    ? driverProcessedData.breakTime?.limitTime
-                                                    : driverData.breakTime?.limitTime) || 0
-                                            }
-                                            accumulated={
-                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
-                                                    ? driverProcessedData.breakTime?.accumulatedTime
-                                                    : driverData.breakTime?.accumulatedTime) || 0
-                                            }
-                                            color="#A67C52" // brown
-                                        />
-
-                                        <CircularTimer
-                                            label="Drive"
-                                            limit={
-                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
-                                                    ? driverProcessedData.driveTime?.limitTime
-                                                    : driverData.driveTime?.limitTime)
-                                            }
-                                            accumulated={
-                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
-                                                    ? driverProcessedData.driveTime?.accumulatedTime
-                                                    : driverData.driveTime?.accumulatedTime)
-                                            }
-                                            color="#4C8EF3" // blue
-                                        />
-
-                                        <CircularTimer
-                                            label="Shift"
-                                            limit={
-                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
-                                                    ? driverProcessedData.shiftTime?.limitTime
-                                                    : driverData.shiftTime?.limitTime)
-                                            }
-                                            accumulated={
-                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
-                                                    ? driverProcessedData.shiftTime?.accumulatedTime
-                                                    : driverData.shiftTime?.accumulatedTime)
-                                            }
-                                            color="#54B571" // green
-                                        />
-
-                                        <CircularTimer
-                                            label="Cycle"
-                                            limit={
-                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
-                                                    ? driverProcessedData.cycleTime?.limitTime
-                                                    : driverData.cycleTime?.limitTime)
-                                            }
-                                            accumulated={
-                                                (driverProcessedData && Object.keys(driverProcessedData).length > 0
-                                                    ? driverProcessedData.cycleTime?.accumulatedTime
-                                                    : driverData.cycleTime?.accumulatedTime)
-                                            }
-                                            color="#808080" // grey
-                                        />
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div className="col-xl-4">
-                                <div className="content-wrapper d-flex flex-column gap-2">
+                        <div className="row g-4">
+                            <div className="col-lg-8 flex-fill">
+                                <div className="content-wrapper d-flex flex-column gap-2 mb-4">
                                     {/* Calendar Row */}
-                                    <div className="d-flex justify-content-xl-end">
+                                    <div className="d-flex">
                                         <div className="date-picker-element d-flex gap-1">
                                             <span className="event-btn border border-secondary border-opacity-50 rounded" onClick={handlePrevDay}>
                                                 <i className="bi bi-chevron-left"></i>
@@ -1010,9 +821,8 @@ export const GraphDetails = () => {
                                             <i className="bi bi-chevron-right"></i>
                                         </span> */}
 
-                                            <span
-                                                className={`event-btn border border-secondary border-opacity-50 rounded ${isSameDay(selectedDate, today) ? "disabled text-muted" : "cursor-pointer"
-                                                    }`}
+                                            <span className={`event-btn border border-secondary border-opacity-50 rounded ${isSameDay(selectedDate, today) ? "disabled text-muted" : "cursor-pointer"
+                                                }`}
                                                 onClick={() => {
                                                     if (!isSameDay(selectedDate, today)) {
                                                         // move one day forward
@@ -1066,6 +876,181 @@ export const GraphDetails = () => {
                                                 <span className="ms-1 d-sm-none">Refresh</span>
                                             </Button>
                                         </div>)}
+                                </div>
+                                <div className="info-wrapper row row-cols-1 row-cols-sm-2 g-3 g-lg-4">
+                                    <div className="info-box d-flex flex-column gap-1">
+                                        <div className="label-name text-muted text-truncate">Carrier:</div>
+                                        <div className="text-body fw-semibold text-truncate">{driverSettings?.companyName}</div>
+                                    </div>
+                                    {/* <div className="info-box d-flex flex-column gap-1">
+                                        <div className="label-name text-muted text-truncate">Driver:</div>
+                                        <div className="text-body fw-semibold text-truncate">{driverSettings?.driverName} <i className="bi bi-telephone text-theme6 ms-1"></i></div>
+                                    </div> */}
+
+                                    {/* <div className="info-box d-flex flex-column gap-1">
+                                        <div className="label-name text-muted text-truncate">Driver:</div>
+                                        <div className="text-body fw-semibold text-truncate">
+                                            {driverSettings?.driverName}
+                                            <i
+                                                className="bi bi-telephone text-theme6 ms-1 pointer"
+                                                style={{ cursor: "pointer" }}
+                                                onClick={() => setShowPhone(!showPhone)}
+                                            ></i>
+                                            {showPhone && (
+                                                <span className="ms-2 text-muted">
+                                                    {driverSettings?.phoneNumber || "No Number"}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div> */}
+                                    <div className="info-box d-flex flex-column gap-1">
+                                        <div className="label-name text-muted">Driver:</div>
+                                        <div className="text-body fw-semibold d-flex flex-wrap align-items-center row-gap-1 column-gap-3">
+                                            <span>{driverSettings?.driverName}</span>
+                                            <span className="d-flex align-items-center gap-2">
+                                            <i className="bi bi-telephone-fill text-primary pointer" onClick={() => setShowPhone(!showPhone)} ></i>
+                                            {/* {showPhone && ( */}
+                                                <span className="fw-semibold text-primary">
+                                                    {driverSettings?.phoneNumber || "No Number"}
+                                                </span>
+                                            {/* )} */}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {(driverSettings?.coDriverName) && (
+                                        <div className="info-box d-flex flex-column gap-1">
+                                            <div className="label-name text-muted text-truncate">Co-Driver:</div>
+                                            <div className="text-body fw-semibold text-truncate">{driverSettings?.coDriverName}</div>
+                                        </div>
+                                    )}
+
+                                    <div className="info-box d-flex flex-column gap-1">
+                                        <div className="label-name text-muted text-truncate">Vehicle:</div>
+                                        <div className="text-body fw-semibold text-truncate">{driverSettings?.vehicleNumber}</div>
+                                    </div>
+
+                                    <div className="info-box d-flex flex-column gap-1">
+                                        <div className="label-name text-muted text-truncate">Trailers:</div>
+                                        <div className={`fw-semibold text-truncate ${trailersText === "Missing" ? "text-danger" : "text-success"}`}>
+                                            {trailersText}
+                                        </div>
+                                    </div>
+
+                                    <div className="info-box d-flex flex-column gap-1">
+                                        <div className="label-name text-muted text-truncate">Shipping Docs:</div>
+                                        <div className={`fw-semibold text-truncate ${shippingDocsText === "Missing" ? "text-danger" : "text-success"}`}>
+                                            {shippingDocsText}
+                                        </div>
+                                    </div>
+
+                                    <div className="info-box d-flex flex-column gap-1">
+                                        <div className="label-name text-muted text-truncate">Certification:</div>
+                                        {/* <div className={`fw-semibold text-truncate ${driverLogs.isCertified ? "text-success" : "text-danger"}`} >
+                                            {driverLogs.isCertified ? "Certified" : "Uncertified"}
+                                        </div> */}
+                                        <div className={`fw-semibold text-truncate ${driverLogs[0]?.isCertified ? "text-success" : "text-danger"}`}>
+                                            {driverLogs[0]?.isCertified ? "Certified" : "Uncertified"}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-lg-4" style={{maxWidth:'380px'}}>
+                                <div className="wrapper text-lg-center">
+                                    <div className="fs-16 text-muted mb-3">Worked Hours: <span className="text-body fw-bold">00:00</span></div>
+                                    {/* <div className="d-flex flex-wrap justify-content-lg-center gap-3">
+                                        <CircularTimer
+                                            label="Break"
+                                            limit={driverProcessedData?.breakTime?.limitTime || driverData?.breakTime?.limitTime || 0}
+                                            accumulated={driverProcessedData?.breakTime?.accumulatedTime || driverData?.breakTime?.accumulatedTime || 0}
+                                            color="#A67C52" // brown
+                                        />
+                                        <CircularTimer
+                                            label="Drive"
+                                            limit={driverProcessedData?.driveTime?.limitTime || 0}
+                                            accumulated={driverProcessedData?.driveTime?.accumulatedTime || 0}
+                                            color="#4C8EF3" // blue
+                                        />
+                                        <CircularTimer
+                                            label="Shift"
+                                            limit={driverProcessedData?.shiftTime?.limitTime || 0}
+                                            accumulated={driverProcessedData?.shiftTime?.accumulatedTime || 0}
+                                            color="#54B571" // green
+                                        />
+                                        <CircularTimer
+                                            label="Cycle"
+                                            limit={driverProcessedData?.cycleTime?.limitTime || 0}
+                                            accumulated={driverProcessedData?.cycleTime?.accumulatedTime || 0}
+                                            color="#808080" // grey
+                                        />
+                                    </div> */}
+                                    <div className="row row-cols-2 g-3">
+                                        <div className="circle-item">
+                                            <CircularTimer
+                                                label="Break"
+                                                limit={
+                                                    (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                        ? driverProcessedData.breakTime?.limitTime
+                                                        : driverData.breakTime?.limitTime) || 0
+                                                }
+                                                accumulated={
+                                                    (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                        ? driverProcessedData.breakTime?.accumulatedTime
+                                                        : driverData.breakTime?.accumulatedTime) || 0
+                                                }
+                                                color="#d69200" // brown
+                                            />
+                                        </div>
+                                        <div className="circle-item">
+                                            <CircularTimer
+                                                label="Drive"
+                                                limit={
+                                                    (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                        ? driverProcessedData.driveTime?.limitTime
+                                                        : driverData.driveTime?.limitTime)
+                                                }
+                                                accumulated={
+                                                    (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                        ? driverProcessedData.driveTime?.accumulatedTime
+                                                        : driverData.driveTime?.accumulatedTime)
+                                                }
+                                                color="#41b631" // green
+                                            />
+                                        </div>
+                                        <div className="circle-item">
+                                            <CircularTimer
+                                                label="Shift"
+                                                limit={
+                                                    (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                        ? driverProcessedData.shiftTime?.limitTime
+                                                        : driverData.shiftTime?.limitTime)
+                                                }
+                                                accumulated={
+                                                    (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                        ? driverProcessedData.shiftTime?.accumulatedTime
+                                                        : driverData.shiftTime?.accumulatedTime)
+                                                }
+                                                color="#1472d2" // blue
+                                            />
+                                        </div>
+                                        <div className="circle-item">
+                                            <CircularTimer
+                                                label="Cycle"
+                                                limit={
+                                                    (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                        ? driverProcessedData.cycleTime?.limitTime
+                                                        : driverData.cycleTime?.limitTime)
+                                                }
+                                                accumulated={
+                                                    (driverProcessedData && Object.keys(driverProcessedData).length > 0
+                                                        ? driverProcessedData.cycleTime?.accumulatedTime
+                                                        : driverData.cycleTime?.accumulatedTime)
+                                                }
+                                                color="#8352e5" // indigo
+                                            />
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

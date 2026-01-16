@@ -5,23 +5,35 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0;
-    justify-content: flex-start;  /* Align items to the left */
-    height: 100vh;
+    justify-content: flex-start;
+
+    /* Align items to the left */
+    @include media-breakpoint-up(lg) {
+      height: calc(100svh - 80px);
+    }
 
     /* Left Section */
     .left-section {
       width: 100%;
+
       @include media-breakpoint-up(lg) {
         height: calc(100vh - 80px);
-        max-width: 310px; /* Adjust width as needed */
+        max-width: 270px;
+        /* Adjust width as needed */
       }
     }
 
     /* Right Section */
     .right-section {
       width: 100%;
+
       @include media-breakpoint-up(lg) {
-        max-width: calc(100% - 310px); /* Adjust this for proper spacing */
+        max-width: calc(100% - 282px);
+        /* Adjust this for proper spacing */
+      }
+
+      .location-map iframe {
+        min-height: 80vh;
       }
     }
   }
@@ -47,13 +59,14 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 15px;
+    // padding: 15px;
   }
 
   /* Date picker and phone number */
   .date-picker,
   .phone-number {
-    margin-bottom: 10px; /* Add spacing between elements */
+    margin-bottom: 10px;
+    /* Add spacing between elements */
   }
 
   /* For mobile screens */
@@ -62,21 +75,18 @@
       flex-direction: column;
     }
 
-    .left-section, .right-section {
-      width: 100%; /* Full width on smaller screens */
+    .left-section,
+    .right-section {
+      width: 100%;
+      /* Full width on smaller screens */
     }
   }
 }
 
-  /* Remove unwanted margins/padding for full-screen */
-  .location-wrapper,
-  .left-section,
-  .right-section {
-    margin: 0;
-    padding: 0;
-  }
-
-
-
-
-
+/* Remove unwanted margins/padding for full-screen */
+.location-wrapper,
+.left-section,
+.right-section {
+  margin: 0;
+  padding: 0;
+}

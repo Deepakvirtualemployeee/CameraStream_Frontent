@@ -50,20 +50,20 @@ const Sidebar = ({ collapsed, openSidebar }) => {
 
   return (
     <aside
-      className={`sidebar d-flex flex-column ${
-        collapsed ? "collapsed" : ""
-      } py-2`}
+      className={`sidebar d-flex flex-column ${collapsed ? "collapsed" : ""
+        } pb-2`}
     >
-      <div className="logo-wrapper d-flex align-items-center gap-1 p-2">
+      <div className={`logo-wrapper d-flex align-items-center gap-1 ${collapsed ? "px-2 py-3" : "p-3"
+        }`}>
         <Link
           to={`/location/${companyId}`}
-          className="sidebar-logo text-decoration-none ms-1"
+          className="sidebar-logo text-decoration-none"
         >
           <img
             className="img-fluid"
             src={require("../assets/images/sidebar-logo.png")}
             alt="Logo"
-            style={{ width: "55px" }}
+            style={{ width: collapsed ? "55px" : "100px" }}
           />
         </Link>
       </div>
@@ -72,9 +72,8 @@ const Sidebar = ({ collapsed, openSidebar }) => {
         <li className="nav-item">
           <Link
             to={`/location/${companyId}`}
-            className={`${
-              location.pathname === `/location/${companyId}` ? "active" : ""
-            } nav-link d-flex align-items-center gap-2`}
+            className={`${location.pathname === `/location/${companyId}` ? "active" : ""
+              } nav-link d-flex align-items-center gap-2`}
             onClick={openSidebar}
           >
             <i className="bi bi-radar"></i>
@@ -87,11 +86,10 @@ const Sidebar = ({ collapsed, openSidebar }) => {
             <li className="nav-item">
               <Link
                 to={`/driver-hos/${companyId}`}
-                className={`${
-                  location.pathname === `/driver-hos/${companyId}`
+                className={`${location.pathname === `/driver-hos/${companyId}`
                     ? "active"
                     : ""
-                } nav-link d-flex align-items-center gap-2`}
+                  } nav-link d-flex align-items-center gap-2`}
                 onClick={openSidebar}
               >
                 <i className="bi bi-clock"></i>
@@ -102,9 +100,8 @@ const Sidebar = ({ collapsed, openSidebar }) => {
             <li className="nav-item">
               <Link
                 to={`/logs/${companyId}`}
-                className={`${
-                  location.pathname === `/logs/${companyId}` ? "active" : ""
-                } nav-link d-flex align-items-center gap-2`}
+                className={`${location.pathname === `/logs/${companyId}` ? "active" : ""
+                  } nav-link d-flex align-items-center gap-2`}
                 onClick={openSidebar}
               >
                 <i className="bi bi-activity"></i>
@@ -115,11 +112,10 @@ const Sidebar = ({ collapsed, openSidebar }) => {
             <li className="nav-item">
               <Link
                 to={`/unidentified-events/${companyId}`}
-                className={`${
-                  location.pathname === `/unidentified-events/${companyId}`
+                className={`${location.pathname === `/unidentified-events/${companyId}`
                     ? "active"
                     : ""
-                } nav-link d-flex align-items-center gap-2`}
+                  } nav-link d-flex align-items-center gap-2`}
                 onClick={openSidebar}
               >
                 <i className="bi bi-exclamation-circle"></i>
@@ -129,14 +125,12 @@ const Sidebar = ({ collapsed, openSidebar }) => {
 
             {userRole !== ROLES.Broker && (
               <li
-                className={`nav-item ${
-                  isReportsActive || openReports ? "active" : ""
-                }`}
+                className={`nav-item ${isReportsActive || openReports ? "active" : ""
+                  }`}
               >
                 <a
-                  className={`nav-link d-flex align-items-center gap-2 pointer ${
-                    isReportsActive ? "active" : ""
-                  }`}
+                  className={`nav-link d-flex align-items-center gap-2 pointer ${isReportsActive ? "active" : ""
+                    }`}
                   onClick={() => {
                     toggleReports();
                     openSidebar();
@@ -146,31 +140,22 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                   {!collapsed && <span>Reports</span>}
                   {!collapsed && (
                     <i
-                      className={`bi fs-16 ms-auto ${
-                        openReports ? "bi-chevron-up" : "bi-chevron-down"
-                      }`}
+                      className={`bi fs-16 ms-auto ${openReports ? "bi-chevron-up" : "bi-chevron-down"
+                        }`}
                     ></i>
                   )}
                 </a>
 
                 {!collapsed && openReports && (
-                  <ul
-                    className="sub-menu list-unstyled"
-                    style={{
-                      paddingLeft: "20px",
-                      marginLeft: "20px",
-                      marginTop: "0px",
-                    }}
-                  >
+                  <ul className="sub-menu list-unstyled">
                     <li className="nav-item">
                       <Link
                         to={`/reports/ifta-reports/${companyId}`}
-                        className={`${
-                          location.pathname ===
-                          `/reports/ifta-reports/${companyId}`
+                        className={`${location.pathname ===
+                            `/reports/ifta-reports/${companyId}`
                             ? "active"
                             : ""
-                        }`}
+                          }`}
                       >
                         IFTA Reports
                       </Link>
@@ -178,12 +163,11 @@ const Sidebar = ({ collapsed, openSidebar }) => {
 
                     <li className="nav-item">
                       <Link
-                        to={`fmcsa-records/${companyId}`}
-                        className={`${
-                          location.pathname === `fmcsa-records/${companyId}`
+                        to={`/fmcsa-records/${companyId}`}
+                        className={`${location.pathname === `/fmcsa-records/${companyId}`
                             ? "active"
                             : ""
-                        }`}
+                          }`}
                       >
                         FMCSA Reports
                       </Link>
@@ -195,35 +179,28 @@ const Sidebar = ({ collapsed, openSidebar }) => {
           </>
         )}
 
-          <li className="nav-item">
-          <hr
-            className="opacity-100 my-2"
-            style={{ borderColor: "rgba(241, 233, 233, 0.8)" }}
-          />
+        <li className="nav-item">
+          <hr className="opacity-100 my-2" />
         </li>
 
         <li
-          className={`nav-item ${
-            isSettingsActive || openSettings ? "active" : ""
-          }`}
+          className={`nav-item ${isSettingsActive || openSettings ? "active" : ""
+            }`}
         >
           <a
-            className={`nav-link d-flex align-items-center gap-2 pointer ${
-              isSettingsActive ? "active" : ""
-            }`}
+            className={`nav-link d-flex align-items-center gap-2 pointer ${isSettingsActive ? "active" : ""
+              }`}
             onClick={() => {
               toggleSettings();
               openSidebar();
             }}
           >
-          <hr></hr>
             <i className="bi bi-gear"></i>
             {!collapsed && <span> Manage / Settings</span>}
             {!collapsed && (
               <i
-                className={`bi fs-16 ms-auto ${
-                  openSettings ? "bi-chevron-up" : "bi-chevron-down"
-                }`}
+                className={`bi fs-16 ms-auto ${openSettings ? "bi-chevron-up" : "bi-chevron-down"
+                  }`}
               ></i>
             )}
           </a>
@@ -231,19 +208,16 @@ const Sidebar = ({ collapsed, openSidebar }) => {
           {/* Dropdown submenu */}
           {!collapsed && openSettings && (
             <ul
-              className="sub-menu list-unstyled"
-              style={{ paddingLeft: "20px", marginLeft: "20px" }}
-            >
+              className="sub-menu list-unstyled">
               {userRole === ROLES.Broker ? (
                 <li className="nav-item">
                   <Link
                     to={`/settings/vehicles-list/${companyId}`}
-                    className={`${
-                      location.pathname ===
-                      `/settings/vehicles-list/${companyId}`
+                    className={`${location.pathname ===
+                        `/settings/vehicles-list/${companyId}`
                         ? "active"
                         : ""
-                    }`}
+                      }`}
                   >
                     Vehicles
                   </Link>
@@ -253,12 +227,11 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                   <li className="nav-item">
                     <Link
                       to={`/settings/drivers-listing/${companyId}`}
-                      className={`${
-                        location.pathname ===
-                        `/settings/drivers-listing/${companyId}`
+                      className={`${location.pathname ===
+                          `/settings/drivers-listing/${companyId}`
                           ? "active"
                           : ""
-                      }`}
+                        }`}
                     >
                       Drivers
                     </Link>
@@ -267,12 +240,11 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                   <li className="nav-item">
                     <Link
                       to={`/settings/vehicles-list/${companyId}`}
-                      className={`${
-                        location.pathname ===
-                        `/settings/vehicles-list/${companyId}`
+                      className={`${location.pathname ===
+                          `/settings/vehicles-list/${companyId}`
                           ? "active"
                           : ""
-                      }`}
+                        }`}
                     >
                       Vehicles
                     </Link>
@@ -281,12 +253,11 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                   <li className="nav-item">
                     <Link
                       to={`/settings/eld-devices/${companyId}`}
-                      className={`${
-                        location.pathname ===
-                        `/settings/eld-devices/${companyId}`
+                      className={`${location.pathname ===
+                          `/settings/eld-devices/${companyId}`
                           ? "active"
                           : ""
-                      }`}
+                        }`}
                     >
                       ELD Devices
                     </Link>
@@ -295,12 +266,11 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                   <li className="nav-item">
                     <Link
                       to={`/settings/portal-users/${companyId}`}
-                      className={`${
-                        location.pathname ===
-                        `/settings/portal-users/${companyId}`
+                      className={`${location.pathname ===
+                          `/settings/portal-users/${companyId}`
                           ? "active"
                           : ""
-                      }`}
+                        }`}
                     >
                       Portal Users
                     </Link>
@@ -309,12 +279,11 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                   <li className="nav-item">
                     <Link
                       to={`/settings/company-info/${companyId}`}
-                      className={`${
-                        location.pathname ===
-                        `/settings/company-info/${companyId}`
+                      className={`${location.pathname ===
+                          `/settings/company-info/${companyId}`
                           ? "active"
                           : ""
-                      }`}
+                        }`}
                     >
                       Company
                     </Link>

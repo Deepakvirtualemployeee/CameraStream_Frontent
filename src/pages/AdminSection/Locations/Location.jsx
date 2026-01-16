@@ -248,7 +248,7 @@ useEffect(() => {
 
 
                     {/* ------------------ LEFT SECTION ------------------ */}
-                    <div className="left-section d-flex flex-column gap-3" style={{ width: "250px" }}>
+                    <div className="left-section d-flex flex-column gap-3">
 
                         {/* Vehicle Selected → Show header */}
                                         {selectedVehicle && (
@@ -281,7 +281,7 @@ useEffect(() => {
                             <>
                                 {/* Filters */}
                                 <div className="filter-wrapper">
-                                    <div className="searchfield-wrapper" style={{ width: "250px" }}>
+                                    <div className="searchfield-wrapper">
                                         <Form.Control
                                             type="search"
                                             value={search}
@@ -291,7 +291,7 @@ useEffect(() => {
                                     </div>
 
                                     <div className="gap-2">
-                                        <Form.Group style={{ width: "250px" }}>
+                                        <Form.Group>
                                             <Form.Label className="fs-12 fw-medium">Display trucks by status</Form.Label>
                                             <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                                                 <option value="all">All</option>
@@ -302,7 +302,7 @@ useEffect(() => {
                                             </Form.Select>
                                         </Form.Group>
 
-                                        <Form.Group style={{ width: "250px" }}>
+                                        <Form.Group>
                                             <Form.Label className="fs-12 fw-medium">Arrange By</Form.Label>
                                             <Form.Select value={sort} onChange={(e) => setSort(e.target.value)}>
                                                 <option value="ascending">Ascending</option>
