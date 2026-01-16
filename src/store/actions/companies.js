@@ -156,7 +156,7 @@ export const createCompany = (data, callback) => {
 
     const token = localStorage.getItem("token");
 
-    axios.post(`/companies`, data, {
+    axios.post(`/companies/create`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"
@@ -183,7 +183,7 @@ export const createCompany = (data, callback) => {
 export const updateCompany = (id, data, callback) => {
   return (dispatch) => {
     dispatch(startCompanies());
-    axios.put(`/companies/${id}`, data,{
+    axios.put(`/companies/update/${id}`, data,{
           headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json"
@@ -206,7 +206,7 @@ export const deleteCompany = (id) => {
     try {
       dispatch(startCompanies());
       const token = localStorage.getItem("token");
-      const res = await axios.delete(`/companies/${id}`, {
+      const res = await axios.delete(`/companies/delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

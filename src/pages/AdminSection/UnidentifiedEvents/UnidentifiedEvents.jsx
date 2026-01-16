@@ -108,6 +108,7 @@ export const UnidentifiedEvents = () => {
     (nextPage = 1, append = false) => {
       dispatch(
         getUnidentifiedEvents({
+          companyId,
           startDate: formatDateForApi(startDate),
           endDate: formatDateForApi(endDate),
           vehicleId,
@@ -119,7 +120,7 @@ export const UnidentifiedEvents = () => {
         })
       );
     },
-    [dispatch, startDate, endDate, vehicleId, assumed, sortOrder]
+    [dispatch, companyId, startDate, endDate, vehicleId, assumed, sortOrder]
   );
 
   useEffect(() => {

@@ -2,37 +2,51 @@ import * as actionTypes from "../actions/actionTypes";
 import axios from "../../axios-config";
 
 
-export const createIFTAReport = (vehicleId, startDate, endDate) => async (dispatch) => {
+export const createIFTAReport = (companyId, vehicleId, startDate, endDate) => async (dispatch) => {
   const token = localStorage.getItem("token");
   try {
     dispatch({ type: actionTypes.CREATE_IFTA_REPORT_REQUEST });
 
-    // Convert JS Date → YYYY-MM-DD
-    const formatDate = (d) => d.toISOString().split("T")[0];
+    if (!companyId) {
+      throw new Error("Missing companyId");
+    }
+    if (!vehicleId) {
+      throw new Error("Missing vehicleId");
+    }
+
+    // Convert input to YYYY-MM-DD if it's a Date; otherwise pass through.
+    const toYMD = (d) => {
+      if (!d) return undefined;
+      if (typeof d === "string") return d;
+      if (d instanceof Date && !isNaN(d)) return d.toISOString().split("T")[0];
+      throw new Error("Invalid date value");
+    };
 
     const body = {
       vehicleId,
-      startDate: formatDate(startDate),
-      endDate: formatDate(endDate),
-      tz: "America/Los_Angeles"
+      startDate: toYMD(startDate),
+      endDate: toYMD(endDate),
+      tz: "America/Los_Angeles",
     };
 
-  
-
-    const { data } = await axios.post("/createReport", body, {
-      headers: { Authorization: `Bearer ${token}` },
+    const { data } = await axios.post(`/createReport/${companyId}`, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
+
     dispatch({
       type: actionTypes.CREATE_IFTA_REPORT_SUCCESS,
       payload: data, // recordId
     });
     return data.data;
-
   } catch (error) {
     dispatch({
       type: actionTypes.CREATE_IFTA_REPORT_FAIL,
       payload: error.response?.data?.message || error.message,
     });
+    return null;
   }
 };
 

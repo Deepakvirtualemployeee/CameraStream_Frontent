@@ -55,13 +55,9 @@ export const IFTAReports = () => {
       return;
     }
 
-    // convert to UTC for backend
-    const startDateUTC = moment(startDate).utc().toDate();
-    const endDateUTC = moment(endDate).utc().toDate();
-
     try {
       const createdReport = await dispatch(
-        createIFTAReport(selectedVehicle, startDateUTC, endDateUTC)
+        createIFTAReport(companyId, selectedVehicle, startDate, endDate)
       );
       const reportId = createdReport;
 
