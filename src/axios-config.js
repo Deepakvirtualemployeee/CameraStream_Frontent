@@ -3,18 +3,11 @@ import { toast } from "react-toastify"; // make sure you have react-toastify ins
 
 const baseURL =
   process.env.NODE_ENV === "production"
-    // ? process.env.REACT_APP_API_BASE_URL
-    ? "https://prod.i80tech.net"
-    : "https://prod.i80tech.net";
-
-// const instance = axios.create({
-//   baseURL,
-// });
+    ? process.env.REACT_APP_API_BASE_URL
+    : "http://localhost:3001/api/";
 
 const instance = axios.create({
-  // baseURL: "https://prod.i80tech.net",
-  baseURL: "http://localhost:3001/api/",
- 
+  baseURL,
 });
 
 // Add request interceptor to attach token automatically

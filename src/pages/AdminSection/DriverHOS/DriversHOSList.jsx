@@ -103,6 +103,40 @@ export const DriversHOSList = () => {
         return `${seconds} second${seconds !== 1 ? "s" : ""} ago`;
     };
 
+    const timeBadgeColors = {
+        break: "#A67C52",
+        drive: "#4C8EF3",
+        shift: "#54B571",
+        cycle: "#808080",
+    };
+
+    const getRemainingSeconds = (timeObj) => {
+        if (!timeObj) return 0;
+        return Math.max(0, (timeObj.limitTime || 0) - (timeObj.accumulatedTime || 0));
+    };
+
+    const renderTimeBadge = (timeObj, colorKey, keep24h = true) => {
+        const remaining = getRemainingSeconds(timeObj);
+        const label = timeObj ? formatSecondsToHHMM(remaining, keep24h) : "—";
+
+        return (
+            <span
+                className="fw-semibold d-inline-flex align-items-center justify-content-center"
+                style={{
+                    minWidth: "72px",
+                    padding: "8px 14px",
+                    borderRadius: "12px",
+                    backgroundColor: timeBadgeColors[colorKey] || "#dee2e6",
+                    color: "#111",
+                    fontSize: "14px",
+                    lineHeight: "1",
+                }}
+            >
+                {label}
+            </span>
+        );
+    };
+
     const columns = [
         // {
         //     name: 'Driver',
@@ -174,46 +208,26 @@ export const DriversHOSList = () => {
         },
         {
             name: "Break",
-            selector: (row) =>
-                row.break
-                    ? formatSecondsToHHMM(
-                        (row.break.limitTime || 0) - (row.break.accumulatedTime || 0),
-                        true
-                    )
-                    : "—",
+            selector: (row) => getRemainingSeconds(row.break),
+            cell: (row) => renderTimeBadge(row.break, "break", true),
             sortable: true,
         },
         {
             name: "Drive",
-            selector: (row) =>
-                row.drive
-                    ? formatSecondsToHHMM(
-                        (row.drive.limitTime || 0) - (row.drive.accumulatedTime || 0),
-                        true
-                    )
-                    : "—",
+            selector: (row) => getRemainingSeconds(row.drive),
+            cell: (row) => renderTimeBadge(row.drive, "drive", true),
             sortable: true,
         },
         {
             name: "Shift",
-            selector: (row) =>
-                row.shift
-                    ? formatSecondsToHHMM(
-                        (row.shift.limitTime || 0) - (row.shift.accumulatedTime || 0),
-                        true
-                    )
-                    : "—",
+            selector: (row) => getRemainingSeconds(row.shift),
+            cell: (row) => renderTimeBadge(row.shift, "shift", true),
             sortable: true,
         },
         {
             name: "Cycle",
-            selector: (row) =>
-                row.cycle
-                    ? formatSecondsToHHMM(
-                        (row.cycle.limitTime || 0) - (row.cycle.accumulatedTime || 0),
-                        false // keep full hours like 70:00
-                    )
-                    : "—",
+            selector: (row) => getRemainingSeconds(row.cycle),
+            cell: (row) => renderTimeBadge(row.cycle, "cycle", false), // keep full hours like 70:00
             sortable: true,
         },
         {
@@ -248,15 +262,15 @@ export const DriversHOSList = () => {
             ),
         },
         { name: 'Contacts', selector: (row) => row.contacts, minWidth: '110px' },
-        {
-            name: 'Device',
-            minWidth: '80px',
-            cell: (row) => (
-                <div className="d-flex align-items-center gap-2 ms-2 ps-1">
-                    <i className="bi bi-pc-display fs-5 text-muted"></i>
-                </div>
-            ),
-        },
+        // {
+        //     name: 'Device',
+        //     minWidth: '80px',
+        //     cell: (row) => (
+        //         <div className="d-flex align-items-center gap-2 ms-2 ps-1">
+        //             <i className="bi bi-pc-display fs-5 text-muted"></i>
+        //         </div>
+        //     ),
+        // },
     ];
 
     // Filters
