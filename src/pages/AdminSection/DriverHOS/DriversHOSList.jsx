@@ -125,7 +125,7 @@ export const DriversHOSList = () => {
             name: 'Driver',
             selector: (row) => (
                 <span
-                    className="text-primary pointer client-name fw-medium text-capitalize text-primary text-decoration-underline"
+                    className="text-primary pointer client-name fw-medium text-capitalize"
                     onClick={() =>
                         window.open(
                             // `/driver-hos/graph-details/${row.driverId}?companyId=${row.companyId || id}`,
@@ -334,7 +334,11 @@ export const DriversHOSList = () => {
                             columns={columns}
                             data={filteredData}
                             // onRowClicked={() => navigate(`/driver-hos/graph-details`)}
-                            // pointerOnHover
+                            onRowClicked={(row) => {
+                                const url = `/driver-hos/graph-details/${row.companyId || companyId}/${row.driverId}`;
+                                window.open(url, "_blank", "noopener,noreferrer");
+                            }}
+                            pointerOnHover
                             highlightOnHover
                             pagination
                             responsive

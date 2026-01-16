@@ -394,7 +394,7 @@ const SignUp = (props) => {
                   <Button
                     type="submit"
                     variant="primary"
-                    className="w-100 fs-12 fw-semibold font-roboto rounded-pill shadow px-3"
+                    className="w-100 fs-12 fw-semibold font-roboto rounded-pill shadow-sm px-3"
                     onClick={handleNext}
                   >
                     {step === 2 ? (
@@ -424,9 +424,9 @@ const SignUp = (props) => {
             </div>
           </Form>
         </div>
-        <div className="info fs-16 text-gray text-center">
+        <div className="info fs-14 text-gray text-center">
           <div className="version-no mt-4">Version: 1.0.0</div>
-          <div className="version-no mt-3">Ⓒ 2025 FMC. All Rights Reserved</div>
+          <div className="version-no mt-1">Ⓒ 2025 FMC. All Rights Reserved</div>
         </div>
       </div>
     </div>

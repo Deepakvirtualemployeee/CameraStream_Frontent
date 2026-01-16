@@ -9,7 +9,7 @@
 5. Custom Variables and colors
 ---------------------------------- */
 @import "./assets/style/custom-variables.scss";
- 
+
 
 /* ----------------------------------
 3. Custom Components (after utilities)
@@ -398,8 +398,8 @@ input[type="time"]:invalid:before {
 }
 
 .sidebar.collapsed~.main-content {
-  width: calc(100% - 80px);
-  margin-left: 80px;
+  width: calc(100% - 70px);
+  margin-left: 70px;
 }
 
 // End: Top Header CSS
@@ -418,34 +418,43 @@ input[type="time"]:invalid:before {
 
   .sidebar-logo {
     img {
-      max-width: 55px;
+      max-width: 100px;
       object-fit: contain;
     }
   }
 
   &.collapsed {
-    width: 80px;
+    width: 70px;
 
     li a {
-      width: 50px;
+      // width: 50px;
       justify-content: center;
+      // border-radius: 6px;
       margin: 0 auto;
+      padding: 0.65rem 0.5rem !important;
     }
   }
 
 
   .sidebar-item-cover {
-    >li {
-      margin: 0 8px;
+    >li.active > a {
+      color: #5F6368 !important;
+      background-color: $theme2;
     }
 
-    >li>a {
-      font-size: 15px;
+    >li.active > a:hover {
+      color: #5F6368 !important;
+      background-color: $theme2 !important;
+    }
+
+    li a {
       color: $white;
-      border-radius: 6px;
-      padding: 10px 12px;
+      display: block;
+      font-size: 16px;
+      padding: .5rem 1rem;
       text-align: left;
       text-transform: capitalize;
+      text-decoration: none;
       transition: .35s ease-out;
       white-space: nowrap;
 
@@ -457,7 +466,10 @@ input[type="time"]:invalid:before {
         }
       }
 
-      &:hover,
+      &:hover:not(.active) {
+        background-color: rgba($theme2, 0.25);
+      }
+
       &:focus,
       &:hover img,
       &.active img,
@@ -467,10 +479,8 @@ input[type="time"]:invalid:before {
       }
 
       &.active {
-        color: #5F6368;
+        color: #5F6368 !important;
         background-color: $theme2;
-        font-weight: 600;
-        padding: 10px 12px;
       }
 
       img {
@@ -483,25 +493,28 @@ input[type="time"]:invalid:before {
   }
 
   .sub-menu {
-    margin: 10px 0 0 20px;
 
     li {
-      &:not(:last-child) {
-        margin-bottom: 5px;
-      }
-
       a {
-        color: $white;
-        display: block;
         font-size: 15px;
-        text-decoration: none;
-        white-space: nowrap;
-
-        &:hover,
-        &.active {
-          color: $theme2;
-        }
+        padding-left: 1.75rem;
       }
+
+      // a {
+      //   font-size: 15px;
+      //   color: $white;
+      //   padding: .5rem 1rem;
+      //   text-align: left;
+      //   text-transform: capitalize;
+      //   text-decoration: none;
+      //   transition: .35s ease-out;
+      //   white-space: nowrap;
+
+      //   &:hover,
+      //   &.active {
+      //     color: $theme2;
+      //   }
+      // }
     }
   }
 }
@@ -609,5 +622,6 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 input[type=number] {
-  -moz-appearance: textfield; /* Firefox */
+  -moz-appearance: textfield;
+  /* Firefox */
 }

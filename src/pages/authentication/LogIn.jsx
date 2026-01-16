@@ -65,7 +65,7 @@ const LogIn = ({ login, openSnackbar }) => {
         <div className="auth-page login-page d-flex justify-content-center align-items-center min-vh-100 py-4">
             <div className="container-xl" style={{ maxWidth: '525px' }}>
                 <div className="content-wrapper bg-theme1 rounded-3 shadow">
-                    <div className="logo-wrapper text-center mb-4 pb-3 pb-xl-4">
+                    <div className="logo-wrapper text-center mb-4 pb-2">
                         <img
                             src={require('../../assets/images/sidebar-logo.png')}
                             alt="Logo"
@@ -143,7 +143,7 @@ const LogIn = ({ login, openSnackbar }) => {
                             <Button
                                 variant="primary"
                                 type="submit"
-                                className="w-100 btn-custom font-roboto rounded-pill shadow py-2"
+                                className="w-100 btn-custom font-roboto rounded-pill shadow-sm py-2"
                             >
                                 Login
                             </Button>
@@ -157,9 +157,9 @@ const LogIn = ({ login, openSnackbar }) => {
                         </div>
                     </Form>
                 </div>
-                <div className="info fs-16 text-gray text-center">
+                <div className="info fs-14 text-gray text-center">
                     <div className="version-no mt-4">Version: 1.0.0</div>
-                    <div className="version-no mt-3">Ⓒ 2025 FMC. All Rights Reserved</div>
+                    <div className="version-no mt-1">Ⓒ 2025 FMC. All Rights Reserved</div>
                 </div>
             </div>
         </div>

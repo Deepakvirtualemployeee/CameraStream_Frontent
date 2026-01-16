@@ -52,7 +52,7 @@ export const LogsList = () => {
             // selector: (row) => row.driverName || 'N/A',
             selector: (row) => (
                 <span
-                    className="text-primary pointer client-name fw-medium text-capitalize text-primary text-decoration-underline"
+                    className="text-primary pointer client-name fw-medium text-capitalize"
                     onClick={() =>
                         window.open(
                             `/driver-hos/graph-details/${companyId}/${row.driverId}`,
