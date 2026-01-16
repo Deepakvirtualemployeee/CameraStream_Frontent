@@ -6,6 +6,7 @@ const token = localStorage.getItem("token");
 
 export const getUnidentifiedEvents =
   ({
+    companyId,
     startDate,
     endDate,
     vehicleId = "all",
@@ -19,7 +20,11 @@ export const getUnidentifiedEvents =
     try {
       dispatch({ type: actionTypes.GET_UNIDENTIFIED_EVENTS_REQUEST });
 
-      const res = await axios.get("/unidentified-events", {
+      if (!companyId) {
+        throw new Error("Missing companyId for unidentified events request");
+      }
+
+      const res = await axios.get(`/unidentified-events/${companyId}`, {
         params: {
           startDate,
           endDate,

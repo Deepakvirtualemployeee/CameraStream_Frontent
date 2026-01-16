@@ -12,12 +12,23 @@ const LogIn = ({ login, openSnackbar }) => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
 
+    // Safely extract companyId from a JWT token
+    const extractCompanyId = (token) => {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1] || ''));
+            return payload?.companyId || null;
+        } catch (err) {
+            console.error('Failed to parse token for companyId', err);
+            return null;
+        }
+    };
+
     useEffect(() => {
         // Check if token exists
         const token = localStorage.getItem('token');
-        const companyId = '68abf63b4339ffbf3ec7c695'; // Using as default company id for all users
+        const companyId = token ? extractCompanyId(token) : null;
 
-        if (token) {
+        if (token && companyId) {
             navigate(`/location/${companyId}`);
         }
 
@@ -100,7 +111,7 @@ const LogIn = ({ login, openSnackbar }) => {
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="pe-5"
                                     placeholder="Enter password"
-                                    minLength="8"
+                                    
                                     // pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
                                     // title="Must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character."
                                     autoComplete="new-password"

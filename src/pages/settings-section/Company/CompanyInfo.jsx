@@ -52,21 +52,32 @@ export const CompanyInfo = () => {
         {/* Header */}
         <div className="heading-wrapper d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
           <div className="main-heading">{company.companyName || "-"}</div>
-          <Button
-            variant="primary"
-            className="d-flex align-items-center gap-2"
-            onClick={() => navigate(`/settings/company-info/edit-company-info/${company._id}`, {
-                state: { companyId: companyId },
-            })}
-          >
-            <img
-              src={EditIcon}
-              alt="Edit Icon"
-              className="img-fluid"
-              style={{ width: "1rem", height: "1rem", filter: "brightness(10)" }}
-            />{" "}
-            Edit
-          </Button>
+          <div className="d-flex flex-wrap gap-2">
+            <Button
+              variant="outline-secondary"
+              className="d-flex align-items-center gap-2"
+              onClick={() => navigate("/companies-list")}
+            >
+              Company List
+            </Button>
+            <Button
+              variant="primary"
+              className="d-flex align-items-center gap-2"
+              onClick={() =>
+                navigate(`/settings/company-info/edit-company-info/${company._id}`, {
+                  state: { companyId: companyId },
+                })
+              }
+            >
+              <img
+                src={EditIcon}
+                alt="Edit Icon"
+                className="img-fluid"
+                style={{ width: "1rem", height: "1rem", filter: "brightness(10)" }}
+              />{" "}
+              Edit
+            </Button>
+          </div>
         </div>
 
         {/* General Info */}
