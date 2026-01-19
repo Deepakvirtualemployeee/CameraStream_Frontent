@@ -65,6 +65,10 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProtectedRoute from "./components/ProtectedRoute";
 import {IFTAReports} from './pages/AdminSection/IFTA-Reports/IFTA-Reports';
+import { DVIRSList } from './pages/AdminSection/DVIRs/DVIRSList';
+import { AddNewDVIR } from './pages/AdminSection/DVIRs/AddNewDVIR';
+import { DVIRDetails } from './pages/AdminSection/DVIRs/DVIRDetails';
+import { EditDVIR } from './pages/AdminSection/DVIRs/EditDVIR';
 
 
 
@@ -141,6 +145,10 @@ function App() {
           <Route path="driver-hos/graph-details/edit-event/:companyId/:driverId" element={<EditEvent />} />
           <Route path="logs/:companyId" element={<LogsList />} />
           <Route path="unidentified-events/:companyId" element={<UnidentifiedEvents />} />
+          <Route path="dvirs-list" element={<DVIRSList />} />
+          <Route path="dvirs-list/add-dvir" element={<AddNewDVIR />} />
+          <Route path="dvirs-list/dvir-details" element={<DVIRDetails />} />
+          <Route path="dvirs-list/edit-dvir" element={<EditDVIR />} />
           <Route path="fmcsa-records/:companyId" element={<FMCSARecords />} />
           <Route path="reports/ifta-reports/:companyId" element={<IFTAReports />} />
           <Route path="location/:companyId" element={<Location />} />
