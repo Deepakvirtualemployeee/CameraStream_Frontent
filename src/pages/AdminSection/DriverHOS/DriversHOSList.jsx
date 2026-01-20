@@ -103,12 +103,12 @@ export const DriversHOSList = () => {
         return `${seconds} second${seconds !== 1 ? "s" : ""} ago`;
     };
 
-    const timeBadgeColors = {
-        break: "#A67C52",
-        drive: "#4C8EF3",
-        shift: "#54B571",
-        cycle: "#808080",
-    };
+    // const timeBadgeColors = {
+    //     break: "#A67C52",
+    //     drive: "#4C8EF3",
+    //     shift: "#54B571",
+    //     cycle: "#808080",
+    // };
 
     const getRemainingSeconds = (timeObj) => {
         if (!timeObj) return 0;
@@ -126,7 +126,7 @@ export const DriversHOSList = () => {
                     minWidth: "72px",
                     padding: "8px 14px",
                     borderRadius: "12px",
-                    backgroundColor: timeBadgeColors[colorKey] || "#dee2e6",
+                    // backgroundColor: timeBadgeColors[colorKey] || "#dee2e6",
                     color: "#111",
                     fontSize: "14px",
                     lineHeight: "1",

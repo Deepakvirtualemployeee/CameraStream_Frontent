@@ -160,12 +160,12 @@ const LogIn = ({ login, openSnackbar }) => {
                             </Button>
                         </div>
 
-                        <div className="text-center fs-12 text-gray mt-4">
+                        {/* <div className="text-center fs-12 text-gray mt-4">
                             Don't have an account?{' '}
                             <Link to={'/signup'} className="btn-link fw-medium text-decoration-none">
                                 Signup
                             </Link>
-                        </div>
+                        </div> */}
                     </Form>
                 </div>
                 <div className="info fs-14 text-gray text-center">

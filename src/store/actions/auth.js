@@ -88,17 +88,21 @@ export const login = (data, navigate) => {
 export const forgotPassword = (email) => {
   return dispatch => {
     dispatch(startAuth());
-    axios.post("/auth/send-otp", { email })
+    const cleanEmail = email?.trim().toLowerCase();
+    return axios.post("/auth/send-otp", { email: cleanEmail })
       .then(response => {
         if (response.status === 200) {
-          dispatch(AuthSuccess(response.data.message));
+          dispatch(AuthSuccess({ message: response.data.message }));
+          return response.data;
         } else {
           dispatch(AuthFail(response.data.message));
+          throw new Error(response.data.message);
         }
       })
       .catch(error => {
         const errMsg = error?.response?.data?.message || "Something went wrong";
         dispatch(AuthFail(errMsg));
+        throw error;
       });
   };
 };
@@ -107,36 +111,44 @@ export const forgotPassword = (email) => {
 export const verifyOtp = (email, otp) => {
   return dispatch => {
     dispatch(startAuth());
-    axios.post("/auth/verify-otp", { email, otp })
+    const cleanEmail = email?.trim().toLowerCase();
+    return axios.post("/auth/verify-otp", { email: cleanEmail, otp })
       .then(response => {
         if (response.status === 200) {
-          dispatch(AuthSuccess(response.data.message));
+          dispatch(AuthSuccess({ message: response.data.message }));
+          return response.data;
         } else {
           dispatch(AuthFail(response.data.message));
+          throw new Error(response.data.message);
         }
       })
       .catch(error => {
         const errMsg = error?.response?.data?.message || "Invalid OTP";
         dispatch(AuthFail(errMsg));
+        throw error;
       });
   };
 };
 
 // Reset password after OTP
-export const resetPasswordAfterOtp = (email, otp, password, confirmPassword) => {
+export const resetPasswordAfterOtp = (email, password, confirmPassword) => {
   return dispatch => {
     dispatch(startAuth());
-    axios.post("/auth/reset-password/"+email, { newPassword:password, confirmPassword })
+    const cleanEmail = email?.trim().toLowerCase();
+    return axios.post(`/auth/reset-password/${cleanEmail}`, { newPassword: password, confirmPassword })
       .then(response => {
         if (response.status === 200) {
-          dispatch(AuthSuccess(response.data.message));
+          dispatch(AuthSuccess({ message: response.data.message }));
+          return response.data;
         } else {
           dispatch(AuthFail(response.data.message));
+          throw new Error(response.data.message);
         }
       })
       .catch(error => {
         const errMsg = error?.response?.data?.message || "Password reset failed";
         dispatch(AuthFail(errMsg));
+        throw error;
       });
   };
 };
