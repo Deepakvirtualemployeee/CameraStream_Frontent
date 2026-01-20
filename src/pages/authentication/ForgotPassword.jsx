@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { withSnackbar } from 'react-simple-snackbar';
 import * as actions from '../../store/actions/index'; // Adjust path as needed
 
-const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp, openSnackbar }) => {
+const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp }) => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
@@ -21,28 +20,21 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp, open
 
     const handleEmailSubmit = (e) => {
         e.preventDefault();
-        forgotPassword(email)
-            .then(() => {
-                // openSnackbar("OTP sent to your email");
-                setStep(2);
-            })
-            .catch(() => {
-                setStep(2);
-                // openSnackbar("Failed to send OTP");
+        const cleanEmail = email.trim().toLowerCase();
+        forgotPassword(cleanEmail)
+            .then(() => setStep(2))
+            .catch((err) => {
+                console.warn(err?.response?.data?.message || "Failed to send OTP");
             });
     };
 
     const handleOtpSubmit = (e) => {
         e.preventDefault();
-        verifyOtp(email, otp)
-            .then(() => {
-                // openSnackbar("OTP verified");
-                setStep(3);
-            })
-            .catch(() => {
-                // openSnackbar("Invalid or expired OTP");
-                                setStep(3);
-
+        const cleanEmail = email.trim().toLowerCase();
+        verifyOtp(cleanEmail, otp)
+            .then(() => setStep(3))
+            .catch((err) => {
+                console.warn(err?.response?.data?.message || "Invalid or expired OTP");
             });
     };
 
@@ -50,19 +42,18 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp, open
         e.preventDefault();
 
         if (newPassword !== confirmPassword) {
-            // openSnackbar("Passwords do not match");
+            console.warn("Passwords do not match");
             return;
         }
 
-        resetPasswordAfterOtp(email, otp, newPassword, confirmPassword)
+        const cleanEmail = email.trim().toLowerCase();
+        resetPasswordAfterOtp(cleanEmail, newPassword, confirmPassword)
             .then(() => {
-                // openSnackbar("Password has been reset!");
+                console.warn("Password has been reset!");
                 navigate('/login');
             })
-            .catch(() => {
-                // openSnackbar("Failed to reset password");
-                navigate('/login');
-
+            .catch((err) => {
+                console.warn(err?.response?.data?.message || "Failed to reset password");
             });
     };
 
@@ -166,21 +157,21 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp, open
 
 // Connect Redux actions
 const mapDispatchToProps = (dispatch) => ({
-    forgotPassword: (email) => new Promise((resolve, reject) =>
-        dispatch(actions.forgotPassword(email))
-            .then(resolve)
-            .catch(reject)
-    ),
-    verifyOtp: (email, otp) => new Promise((resolve, reject) =>
-        dispatch(actions.verifyOtp(email, otp))
-            .then(resolve)
-            .catch(reject)
-    ),
-    resetPasswordAfterOtp: (email, otp, password, confirmPassword) => new Promise((resolve, reject) =>
-        dispatch(actions.resetPasswordAfterOtp(email, otp, password, confirmPassword))
-            .then(resolve)
-            .catch(reject)
-    )
+    forgotPassword: (email) =>
+        new Promise((resolve, reject) =>
+            dispatch(actions.forgotPassword(email)).then(resolve).catch(reject)
+        ),
+    verifyOtp: (email, otp) =>
+        new Promise((resolve, reject) =>
+            dispatch(actions.verifyOtp(email, otp)).then(resolve).catch(reject)
+        ),
+    resetPasswordAfterOtp: (email, password, confirmPassword) =>
+        new Promise((resolve, reject) =>
+            dispatch(actions.resetPasswordAfterOtp(email, password, confirmPassword))
+                .then(resolve)
+                .catch(reject)
+        ),
 });
 
-export default connect(null, mapDispatchToProps)(withSnackbar(ForgotPassword));
+export default connect(null, mapDispatchToProps)(ForgotPassword);
+
