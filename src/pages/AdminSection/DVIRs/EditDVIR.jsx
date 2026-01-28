@@ -1,48 +1,140 @@
-import React from "react";
-import { Form, Row, Col, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { Form, Row, Col, Button, Spinner } from "react-bootstrap";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
-import makeAnimated from 'react-select/animated';
+import makeAnimated from "react-select/animated";
+import {
+  getVehicles,
+  getUnitDefects,
+  getTrailerDefects,
+  getDvirById,
+  updateDvir,
+} from "../../../store/actions";
+import { fetchDrivers } from "../../../store/actions/drivers";
+
+const animatedComponents = makeAnimated();
 
 export const EditDVIR = () => {
   const navigate = useNavigate();
-  const animatedComponents = makeAnimated();
+  const dispatch = useDispatch();
+  const { companyId, id: dvirId } = useParams();
 
-  const unitDefects = [
-    { value: 'Air Compressor', label: 'Air Compressor' },
-    { value: 'Air Lines', label: 'Air Lines' },
-    { value: 'Clutch', label: 'Clutch' },
-    { value: 'Drive Line', label: 'Drive Line' },
-    { value: 'Engine', label: 'Engine' },
-    { value: 'Exhaust', label: 'Exhaust' },
-    { value: 'Muffler', label: 'Muffler' },
-    { value: 'Oil Level', label: 'Oil Level' },
-    { value: 'Radiator Level', label: 'Radiator Level' },
-    { value: 'Others', label: 'Others' },
-  ];
+  const { loading, unitDefects = [], trailerDefects = [], current: dvir } = useSelector(
+    (state) => state.dvir || {}
+  );
+  const vehicles = useSelector((state) => state.vehicles?.vehicles || []);
+  const drivers = useSelector((state) => state.drivers?.drivers || []);
+  const [fixing, setFixing] = useState(false);
 
-  const trailerDefects = [
-    { value: 'Brake Connections', label: 'Brake Connections' },
-    { value: 'Coupling Devices', label: 'Coupling Devices' },
-    { value: 'Coupling Pin', label: 'Coupling Pin' },
-    { value: 'Hitch', label: 'Hitch' },
-    { value: 'Doors', label: 'Doors' },
-    { value: 'Landing Gear', label: 'Landing Gear' },
-    { value: 'Condition of Floor', label: 'Condition of Floor' },
-    { value: 'Wheelchair Lift', label: 'Wheelchair Lift' },
-    { value: 'Entrance Steps', label: 'Entrance Steps' },
-    { value: 'Others', label: 'Others' },
-  ];
+  const [form, setForm] = useState({
+    vehicleId: "",
+    driverId: "",
+    trailers: "",
+    location: "",
+    dateTime: "",
+    odometer: "",
+    unitDefects: [],
+    trailerDefects: [],
+    status: "",
+    safetyStatus: "",
+    notes: "",
+  });
 
-  const staticUnitDefects = [
-    { value: 'Engine', label: 'Engine' },
-    { value: 'Oil Level', label: 'Oil Level' },
-  ];
+  useEffect(() => {
+    if (companyId) {
+      dispatch(getVehicles(companyId));
+      dispatch(fetchDrivers(companyId));
+    }
+    dispatch(getUnitDefects());
+    dispatch(getTrailerDefects());
+    if (dvirId) {
+      dispatch(getDvirById(dvirId));
+    }
+  }, [companyId, dvirId, dispatch]);
 
-  const staticTrailerDefects = [
-    { value: 'Doors', label: 'Doors' },
-    { value: 'Landing Gear', label: 'Landing Gear' },
-  ];
+  useEffect(() => {
+    if (dvir && dvir._id === dvirId) {
+      setForm({
+        vehicleId: dvir.vehicleId?._id || "",
+        driverId: dvir.driverId?._id || "",
+        trailers: dvir.trailers || "",
+        location: dvir.location || "",
+        dateTime: dvir.dateTime ? dvir.dateTime.slice(0, 16) : "",
+        odometer: dvir.odometer || "",
+        unitDefects: (dvir.unitDefects || []).map((d) => ({
+          value: d.id || d._id || d.name || d,
+          label: d.name || d.label || d.id || d._id || d,
+        })),
+        trailerDefects: (dvir.trailerDefects || []).map((d) => ({
+          value: d.id || d._id || d.name || d,
+          label: d.name || d.label || d.id || d._id || d,
+        })),
+        status: dvir.status || "",
+        safetyStatus: dvir.safetyStatus || "",
+        notes: dvir.notes || "",
+      });
+    }
+  }, [dvir, dvirId]);
+
+  const vehicleOptions = useMemo(
+    () => vehicles.map((v) => ({ value: v._id, label: v.vehicleNumber || v.name || v.licensePlate || v._id })),
+    [vehicles]
+  );
+
+  const driverOptions = useMemo(
+    () =>
+      drivers.map((d) => ({
+        value: d._id,
+        label: [d.firstName, d.lastName].filter(Boolean).join(" ") || d.driverName || d.name || d.email || d._id,
+      })),
+    [drivers]
+  );
+
+  const updateForm = (key, value) => {
+    setForm((prev) => {
+      const next = { ...prev, [key]: value };
+      if (key === "unitDefects" || key === "trailerDefects") {
+        const total =
+          (key === "unitDefects" ? value.length : prev.unitDefects.length) +
+          (key === "trailerDefects" ? value.length : prev.trailerDefects.length);
+        if (total > 0 && prev.status === "No Defects") {
+          next.status = "";
+        }
+      }
+      return next;
+    });
+  };
+
+  const hasDefectsSelected = (form.unitDefects?.length || 0) > 0 || (form.trailerDefects?.length || 0) > 0;
+
+  const handleMarkFixed = async () => {
+    try {
+      setFixing(true);
+      await dispatch(updateDvir(dvirId, { status: "Defects Fixed" }));
+      setForm((prev) => ({ ...prev, status: "Defects Fixed" }));
+    } catch (err) {
+      console.warn("Mark defects fixed failed", err?.response?.data?.message || err.message);
+    } finally {
+      setFixing(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        ...form,
+        odometer: form.odometer ? Number(form.odometer) : 0,
+        unitDefects: (form.unitDefects || []).map((d) => d.value || d),
+        trailerDefects: (form.trailerDefects || []).map((d) => d.value || d),
+      };
+      await dispatch(updateDvir(dvirId, payload));
+      navigate(`/dvirs-list/dvir-details/${companyId}/${dvirId}`);
+    } catch (err) {
+      console.warn("Update DVIR failed", err?.response?.data?.message || err.message);
+    }
+  };
 
   return (
     <div className="AddVehicles-page py-3">
@@ -50,106 +142,194 @@ export const EditDVIR = () => {
         <div className="heading-wrapper d-flex justify-content-between align-items-center mb-4">
           <div className="main-heading">Edit DVIR</div>
           <div className="btn-wrapper d-flex flex-wrap gap-2">
-            <Button variant="white" className="bg-white border-gray" onClick={() => navigate(-1)}>Cancel</Button>
-            <Button variant="primary" type="submit" form="add-vehicle-form">Save</Button>
+            <Button variant="white" className="bg-white border-gray" onClick={() => navigate(-1)}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit" form="edit-dvir-form" disabled={loading}>
+              {loading ? <Spinner animation="border" size="sm" /> : "Save"}
+            </Button>
+            {/* {form.status === "Has Defects" && (
+              <Button
+                variant="success"
+                type="button"
+                disabled={loading || fixing}
+                onClick={handleMarkFixed}
+              >
+                {fixing ? <Spinner animation="border" size="sm" /> : "Defects Fixed"}
+              </Button>
+            )} */}
           </div>
         </div>
 
         <div className="form-wrapper">
-          <Form id="add-vehicle-form">
+          <Form id="edit-dvir-form" onSubmit={handleSubmit}>
             <section className="bg-white w-100 border rounded-4 shadow-sm mb-4 px-3 px-md-4 py-4">
               <Row className="g-3 g-xl-4">
                 <Col sm={6}>
                   <Form.Group controlId="vehicle_number">
-                    <Form.Label>Vehicle<span className="text-danger">*</span></Form.Label>
-                    <Form.Select name="" defaultValue="023" required >
-                      <option value="" hidden>Select vehicle</option>
-                      <option value="023">023</option>
-                      <option value="024">024</option>
-                    </Form.Select>
+                    <Form.Label>
+                      Vehicle<span className="text-danger">*</span>
+                    </Form.Label>
+                    <Select
+                      className="custom-select"
+                      classNamePrefix="custom-select"
+                      components={animatedComponents}
+                      options={vehicleOptions}
+                      placeholder="Select vehicle"
+                      value={vehicleOptions.find((opt) => opt.value === form.vehicleId) || null}
+                      onChange={(opt) => updateForm("vehicleId", opt ? opt.value : "")}
+                      isClearable
+                      required
+                    />
                   </Form.Group>
                 </Col>
                 <Col sm={6}>
                   <Form.Group controlId="driver_name">
-                    <Form.Label>Driver<span className="text-danger">*</span></Form.Label>
-                    <Form.Select name="" defaultValue="Sukhvinder Singh" required >
-                      <option value="" hidden>Select driver</option>
-                      <option value="Sukhvinder Singh">Sukhvinder Singh</option>
-                      <option value="Amit Kumar">Amit Kumar</option>
-                    </Form.Select>
+                    <Form.Label>
+                      Driver<span className="text-danger">*</span>
+                    </Form.Label>
+                    <Select
+                      className="custom-select"
+                      classNamePrefix="custom-select"
+                      components={animatedComponents}
+                      options={driverOptions}
+                      placeholder="Select driver"
+                      value={driverOptions.find((opt) => opt.value === form.driverId) || null}
+                      onChange={(opt) => updateForm("driverId", opt ? opt.value : "")}
+                      isClearable
+                      required
+                    />
                   </Form.Group>
                 </Col>
                 <Col sm={6}>
                   <Form.Group controlId="trailers">
                     <Form.Label>Trailers</Form.Label>
-                    <Form.Control type="text" name="" placeholder="Enter trailers" defaultValue="TR-109" />
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter trailers"
+                      value={form.trailers}
+                      onChange={(e) => updateForm("trailers", e.target.value)}
+                    />
                   </Form.Group>
                 </Col>
                 <Col sm={6}>
-                  <Form.Group controlId="vehicleModel">
-                    <Form.Label>Date & Time (Select driver first)<span className="text-danger">*</span></Form.Label>
-                    <Form.Control type="datetime-local" name="" defaultValue="2025-01-15T10:30" required />
+                  <Form.Group controlId="dateTime">
+                    <Form.Label>
+                      Date & Time<span className="text-danger">*</span>
+                    </Form.Label>
+                    <Form.Control
+                      type="datetime-local"
+                      value={form.dateTime}
+                      onChange={(e) => updateForm("dateTime", e.target.value)}
+                      required
+                    />
                   </Form.Group>
                 </Col>
                 <Col sm={6}>
                   <Form.Group controlId="location">
-                    <Form.Label>Location<span className="text-danger">*</span></Form.Label>
-                    <Form.Control type="text" name="" placeholder="Enter location" defaultValue="New Delhi Yard" required />
+                    <Form.Label>
+                      Location<span className="text-danger">*</span>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter location"
+                      value={form.location}
+                      onChange={(e) => updateForm("location", e.target.value)}
+                      required
+                    />
                   </Form.Group>
                 </Col>
                 <Col sm={6}>
-                  <Form.Group controlId="location">
+                  <Form.Group controlId="odometer">
                     <Form.Label>Odometer (mi)</Form.Label>
-                    <Form.Control type="number" name="" min={0} placeholder="0" defaultValue={245678} />
+                    <Form.Control
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      value={form.odometer}
+                      onChange={(e) => updateForm("odometer", e.target.value)}
+                    />
                   </Form.Group>
                 </Col>
                 <Col md={6}>
-                  <Form.Group controlId="location">
+                  <Form.Group controlId="unitDefects">
                     <Form.Label>Unit Defects</Form.Label>
                     <Select
-                      className='custom-select'
-                      classNamePrefix='custom-select'
+                      className="custom-select"
+                      classNamePrefix="custom-select"
                       components={animatedComponents}
                       isMulti
                       options={unitDefects}
-                      defaultValue={staticUnitDefects}
                       placeholder="Select unit defects"
+                      value={form.unitDefects}
+                      onChange={(opts) => updateForm("unitDefects", opts || [])}
                     />
                   </Form.Group>
                 </Col>
                 <Col md={6}>
-                  <Form.Group controlId="location">
+                  <Form.Group controlId="trailerDefects">
                     <Form.Label>Trailer Defects</Form.Label>
                     <Select
-                      className='custom-select'
-                      classNamePrefix='custom-select'
+                      className="custom-select"
+                      classNamePrefix="custom-select"
                       components={animatedComponents}
                       isMulti
                       options={trailerDefects}
-                      defaultValue={staticTrailerDefects}
-                      placeholder="Select unit defects"
+                      placeholder="Select trailer defects"
+                      value={form.trailerDefects}
+                      onChange={(opts) => updateForm("trailerDefects", opts || [])}
                     />
                   </Form.Group>
                 </Col>
                 <Col sm={6}>
-                  <Form.Group controlId="location">
-                    <Form.Label>Status<span className="text-danger">*</span></Form.Label>
-                    <Form.Select name="" defaultValue="Has Defects" required >
-                      <option value="" hidden>Select defects</option>
-                      <option value="No Defects">No Defects</option>
+                  <Form.Group controlId="status">
+                    <Form.Label>
+                      Status<span className="text-danger">*</span>
+                    </Form.Label>
+                    <Form.Select
+                      value={form.status}
+                      onChange={(e) => updateForm("status", e.target.value)}
+                      required
+                    >
+                      <option value="" hidden>
+                        Select defects
+                      </option>
+                      <option value="No Defects" disabled={hasDefectsSelected}>
+                        No Defects
+                      </option>
                       <option value="Has Defects">Has Defects</option>
                       <option value="Defects Fixed">Defects Fixed</option>
                     </Form.Select>
                   </Form.Group>
                 </Col>
                 <Col sm={6}>
-                  <Form.Group controlId="location">
-                    <Form.Label>Choose Safety Status<span className="text-danger">*</span></Form.Label>
-                    <Form.Select name="" defaultValue="Safe to Driver" required >
-                      <option value="" hidden>Select safety status</option>
+                  <Form.Group controlId="safetyStatus">
+                    <Form.Label>
+                      Choose Safety Status<span className="text-danger">*</span>
+                    </Form.Label>
+                    <Form.Select
+                      value={form.safetyStatus}
+                      onChange={(e) => updateForm("safetyStatus", e.target.value)}
+                      required
+                    >
+                      <option value="" hidden>
+                        Select safety status
+                      </option>
                       <option value="Safe to Driver">Safe to Driver</option>
                       <option value="Unsafe">Unsafe</option>
                     </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col sm={12}>
+                  <Form.Group controlId="notes">
+                    <Form.Label>Notes</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="Add notes (optional)"
+                      value={form.notes}
+                      onChange={(e) => updateForm("notes", e.target.value)}
+                    />
                   </Form.Group>
                 </Col>
               </Row>

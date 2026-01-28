@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import { Link, useParams, useNavigate } from "react-router-dom";
 // import BellIcon from "../assets/images/icons/bell.svg";
@@ -12,6 +12,31 @@ export const Header = ({ collapsed, toggleSidebar }) => {
   const navigate = useNavigate();
 
   const { companyId } = useParams();
+
+  const [userState, setUserState] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("admin_user")) || null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    const handleStorage = () => {
+      try {
+        const updated = JSON.parse(localStorage.getItem("admin_user")) || null;
+        setUserState(updated);
+      } catch (e) {
+        // ignore
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  const userName = userState?.name || "User";
+  const userEmail = userState?.email || "";
+  const companyName = userState?.company?.name || "";
 
   return (
     <nav className="navbar navbar-light bg-white border-bottom navbar-expand-lgg top-header sticky-top py-2" data-bs-theme="light" style={{ minHeight: "61px" }}>
@@ -38,7 +63,7 @@ export const Header = ({ collapsed, toggleSidebar }) => {
                 <div className="chip-img bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center rounded-circle overflow-hidden">
                   {/* <div className="user-shortname fs-16 fw-medium text-black text-opacity-75 text-uppercase">K</div> */}
                   <div className="user-shortname fs-16 fw-medium text-black text-opacity-75 text-uppercase">
-                    {JSON.parse(localStorage.getItem("admin_user"))?.name?.charAt(0) || "U"}
+                    {userName?.charAt(0) || "U"}
                   </div>
 
                   {/* <img className="w-100 h-100" src={require("../assets/images/dummy-user.jpeg")} alt="User" /> */}
@@ -49,10 +74,13 @@ export const Header = ({ collapsed, toggleSidebar }) => {
                 </div> */}
                 <div className="user-info text-start text-truncate d-none d-sm-block">
                   <div className="username fs-14 fw-medium text-black text-opacity-75 text-capitalize">
-                    {JSON.parse(localStorage.getItem("admin_user"))?.name || "User"}
+                    {userName}
                   </div>
                   <div className="user-email fs-12 text-muted text-lowercase text-truncate">
-                    {JSON.parse(localStorage.getItem("admin_user"))?.email}
+                    {userEmail}
+                  </div>
+                   <div className="user-email fs-12 text-muted  text-truncate">
+                    {companyName}
                   </div>
                 </div>
               </div>
