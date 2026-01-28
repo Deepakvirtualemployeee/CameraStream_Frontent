@@ -145,10 +145,10 @@ function App() {
           <Route path="driver-hos/graph-details/edit-event/:companyId/:driverId" element={<EditEvent />} />
           <Route path="logs/:companyId" element={<LogsList />} />
           <Route path="unidentified-events/:companyId" element={<UnidentifiedEvents />} />
-          <Route path="dvirs-list" element={<DVIRSList />} />
-          <Route path="dvirs-list/add-dvir" element={<AddNewDVIR />} />
-          <Route path="dvirs-list/dvir-details" element={<DVIRDetails />} />
-          <Route path="dvirs-list/edit-dvir" element={<EditDVIR />} />
+          <Route path="dvirs-list/:companyId" element={<DVIRSList />} />
+          <Route path="dvirs-list/add-dvir/:companyId" element={<AddNewDVIR />} />
+          <Route path="dvirs-list/dvir-details/:companyId/:id" element={<DVIRDetails />} />
+          <Route path="dvirs-list/edit-dvir/:companyId/:id" element={<EditDVIR />} />
           <Route path="fmcsa-records/:companyId" element={<FMCSARecords />} />
           <Route path="reports/ifta-reports/:companyId" element={<IFTAReports />} />
           <Route path="location/:companyId" element={<Location />} />

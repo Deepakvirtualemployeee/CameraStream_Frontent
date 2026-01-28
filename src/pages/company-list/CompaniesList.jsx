@@ -46,6 +46,16 @@ export const CompaniesList = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="small text-primary text-decoration-underline"
+                  onClick={() => {
+                    try {
+                      const user = JSON.parse(localStorage.getItem("admin_user") || "{}");
+                      user.company = { id: row._id, name: row.companyName };
+                      localStorage.setItem("admin_user", JSON.stringify(user));
+                      window.dispatchEvent(new Event("storage")); // update header/sidebar listeners
+                    } catch (e) {
+                      console.warn("Failed to set selected company", e);
+                    }
+                  }}
                 >
                   Open dashboard
                 </a>
