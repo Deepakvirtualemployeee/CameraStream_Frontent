@@ -65,7 +65,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
       </div>
 
       <ul className="sidebar-item-cover list-inline overflow-auto flex-fill m-0">
-        <li className="nav-item">
+        {/* <li className="nav-item">
           <Link
             to={`/location/${companyId}`}
             className={`${location.pathname === `/location/${companyId}` ? "active" : ""
@@ -75,7 +75,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
             <i className="bi bi-radar"></i>
             {!collapsed && <span>Fleet Radar</span>}
           </Link>
-        </li>
+        </li> */}
 
         {userRole !== ROLES.Broker && (
           <>
@@ -105,7 +105,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
               </Link>
             </li>
 
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <Link
                 to={`/unidentified-events/${companyId}`}
                 className={`${location.pathname === `/unidentified-events/${companyId}`
@@ -117,7 +117,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                 <i className="bi bi-exclamation-circle"></i>
                 {!collapsed && <span>Unidentified Events</span>}
               </Link>
-            </li>
+            </li> */}
 
             <li className="nav-item">
               <Link to={`/dvirs-list/${companyId}`} className={`${location.pathname === `/dvirs-list/${companyId}` ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
@@ -144,7 +144,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                   )}
                 </a>
 
-                {!collapsed && openReports && (
+                {/* {!collapsed && openReports && (
                   <ul className="sub-menu list-unstyled">
                     <li className="nav-item">
                       <Link
@@ -168,7 +168,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                       </Link>
                     </li>
                   </ul>
-                )}
+                )} */}
               </li>
             )}
           </>

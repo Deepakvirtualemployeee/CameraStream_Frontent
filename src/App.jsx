@@ -151,7 +151,7 @@ function App() {
           <Route path="dvirs-list/edit-dvir/:companyId/:id" element={<EditDVIR />} />
           <Route path="fmcsa-records/:companyId" element={<FMCSARecords />} />
           <Route path="reports/ifta-reports/:companyId" element={<IFTAReports />} />
-          <Route path="location/:companyId" element={<Location />} />
+          {/* <Route path="location/:companyId" element={<Location />} /> */}
           <Route path="settings/drivers-listing/:companyId" element={<DriversListing />} />
           <Route path="settings/drivers-listing/add-driver/:companyId" element={<AddDriver />} />
           <Route path="settings/drivers-listing/edit-driver/:companyId/:id" element={<EditDriver />} />
