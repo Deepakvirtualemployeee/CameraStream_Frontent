@@ -41,24 +41,23 @@ export const CompaniesList = () => {
             cell: (row) => (
               <div className="d-flex flex-column">
                 <span className="fw-semibold text-body">{row.companyName}</span>
-                <a
-                  href={`/location/${row._id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="small text-primary text-decoration-underline"
+                <button
+                  type="button"
+                  className="btn btn-link p-0 small text-primary text-decoration-underline text-start"
                   onClick={() => {
                     try {
                       const user = JSON.parse(localStorage.getItem("admin_user") || "{}");
                       user.company = { id: row._id, name: row.companyName };
                       localStorage.setItem("admin_user", JSON.stringify(user));
-                      window.dispatchEvent(new Event("storage")); // update header/sidebar listeners
+                      window.dispatchEvent(new Event("storage"));
                     } catch (e) {
                       console.warn("Failed to set selected company", e);
                     }
+                    navigate(`/driver-hos/${row._id}`);
                   }}
                 >
-                  Open dashboard
-                </a>
+                  Open driver HOS
+                </button>
               </div>
             ),
           },          

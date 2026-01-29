@@ -72,7 +72,11 @@ export const login = (data, navigate) => {
           await dispatch(AuthSuccess({ message: response.data.message, user }));           
           await localStorage.setItem("token", response.data.accessToken);           
           localStorage.setItem("admin_user", JSON.stringify(user));           
-          window.location = '/';         
+          if (navigate) {
+            navigate("/companies-list", { replace: true });
+          } else {
+            window.location = "/companies-list";
+          }
         } else {           
           dispatch(AuthFail(response.data.message));         
         }       
