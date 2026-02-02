@@ -10,17 +10,17 @@ const instance = axios.create({
   baseURL,
 });
 
-// Add request interceptor to attach token automatically
-// instance.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem("token");
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
+// Add request interceptor to attach the freshest token automatically
+instance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Add response interceptor to handle expired/invalid token
 instance.interceptors.response.use(
