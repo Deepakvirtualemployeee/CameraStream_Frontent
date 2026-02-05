@@ -52,7 +52,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
       <div className={`logo-wrapper d-flex align-items-center gap-1 ${collapsed ? "px-2 py-3" : "p-3"
         }`}>
         <Link
-          to={`/location/${companyId}`}
+          to={`/companies-list`}
           className="sidebar-logo text-decoration-none"
         >
           <img

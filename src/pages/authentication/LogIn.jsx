@@ -29,7 +29,7 @@ const LogIn = ({ login, openSnackbar }) => {
         const companyId = token ? extractCompanyId(token) : null;
 
         if (token && companyId) {
-            navigate(`/location/${companyId}`);
+            navigate(`/companies-list`);
         }
 
         // Load saved credentials if "Remember me" was checked before

@@ -762,19 +762,44 @@ export const EditEvent = () => {
                     <Form.Label className="fw-semibold">
                       Status<span className="text-danger">*</span>
                     </Form.Label>
-                    <Form.Select
+                  <Form.Select
                       value={form.eventCode}
                       onChange={(e) => updateField("eventCode", e.target.value)}
                       required
                     >
-                      <option value="">-- Not Selected --</option>
-                      <option value="DS_OFF">OFF</option>
-                      <option value="DS_SB">Sleeper</option>
-                      <option value="DS_ON">ON Duty</option>
+                    <option value="">-- Not Selected --</option>
+
+                      
+                      <option value="DS_OFF">Off Duty</option>
+                      <option value="DS_SB">Sleeper Berth</option>
+                      <option value="DS_ON">On Duty</option>
                       <option value="DS_D">Driving</option>
+
+                      
                       <option value="DR_IND_YM">Yard Move</option>
                       <option value="DR_IND_PC">Personal Conveyance</option>
-                      <option value="INTER_NORMAL_PRECISION">Inter Normal Precision</option>
+
+                      
+                      <option value="DR_LOGIN">Driver Login</option>
+                      <option value="DR_LOGOUT">Driver Logout</option>
+
+                      
+                      <option value="DR_CERT">Driver Certification</option>
+                      <option value="DR_CERT_1">Driver Certification 1</option>
+                      <option value="DR_CERT_2">Driver Certification 2</option>
+                      <option value="DR_CERT_3">Driver Certification 3</option>
+                      <option value="DR_CERT_4">Driver Certification 4</option>
+                      <option value="DR_CERT_5">Driver Certification 5</option>
+                      <option value="DR_CERT_6">Driver Certification 6</option>
+                      <option value="DR_CERT_7">Driver Certification 7</option>
+                      <option value="DR_CERT_8">Driver Certification 8</option>
+                      <option value="DR_CERT_9">Driver Certification 9</option>
+
+                      <option value="ENG_UP_NORMAL">Engine Power Up (Normal)</option>
+                      <option value="ENG_DOWN_NORMAL">Engine Power Down (Normal)</option>
+                      <option value="ENG_UP_REDUCED">Engine Power Up (Reduced)</option>
+                      <option value="ENG_DOWN_REDUCED">Engine Power Down (Reduced)</option>
+
                     </Form.Select>
                   </div>
 
