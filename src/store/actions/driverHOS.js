@@ -46,16 +46,27 @@ export const getDriverLogs = (driverId, logDate) => async (dispatch) => {
   }
 };
 
+// Fetch driver circle data; ensures logDate is always sent as YYYY-MM-DD when provided
 export const getDriverData = (driverId, logDate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_DATA_REQUEST });
 
-    const dateQuery = logDate ? `&logDate=${logDate}` : "";
-    const { data } = await axios.get(`/fetchCircle?driverId=${driverId}${dateQuery}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const dateQuery = logDate
+      ? `&logDate=${encodeURIComponent(
+          typeof logDate === "string"
+            ? logDate
+            : new Date(logDate).toISOString().split("T")[0]
+        )}`
+      : "";
+
+    const { data } = await axios.get(
+      `/fetchCircle?driverId=${encodeURIComponent(driverId)}${dateQuery}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     // console.log("Company:", companyId);
     console.log("Fetch home:", data);
