@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import DataTable from 'react-data-table-component';
@@ -51,6 +51,14 @@ export const GraphDetails = () => {
 
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [showTSModal, setShowTSModal] = useState(false);
+    const [hoveredEventId, setHoveredEventId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(30);
+    const tableWrapperRef = useRef(null);
+    const scrollRetryRef = useRef(null);
+    const datePickerPopperContainer = ({ children }) => (
+        <div style={{ zIndex: 2000 }}>{children}</div>
+    );
     console.log("selectedDate", selectedDate);
     // const [logsEnabled, setLogsEnabled] = useState(false);
 
@@ -138,7 +146,7 @@ export const GraphDetails = () => {
 
             try {
                 await Promise.all([
-                    dispatch(getDriverData(driverId)),
+                    dispatch(getDriverData(driverId, formattedDate)),
                     dispatch(getDriverLogs(driverId, formattedDate)),
                     dispatch(getMobileSettings(driverId)),
                     // dispatch(getProcessedDriverData(driverId)),
@@ -156,6 +164,19 @@ export const GraphDetails = () => {
             setDateLoading(false); // Hide spinner after logs are loaded
         }
     }, [driverLogs]);
+
+    useEffect(() => {
+        setHoveredEventId(null);
+    }, [selectedDate, driverLogs]);
+
+    // Hover is ignored; we highlight rows only on click/tap.
+    const handleHoverEvent = () => { };
+    const handleHoverEnd = () => { };
+
+    const handleSelectEvent = (eventId) => {
+        console.log("[GraphDetails] Click from chart:", eventId);
+        setHoveredEventId(eventId || null);
+    };
 
     // const handlePrevDay = () => {
     //     setSelectedDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
@@ -284,7 +305,7 @@ export const GraphDetails = () => {
 
         try {
             await Promise.all([
-                dispatch(getDriverData(driverId)),
+                dispatch(getDriverData(driverId, formattedDate)),
                 dispatch(getDriverLogs(driverId, formattedDate)),
                 dispatch(getMobileSettings(driverId)),
                 // dispatch(getProcessedDriverData(driverId)),
@@ -304,12 +325,19 @@ export const GraphDetails = () => {
     };
 
     const confirmDelete = async () => {
-        if (!selectedEventId) return;
+        if (!selectedEventId || !driverId || !selectedDate) return;
+
+        const formattedDate = formatDate(selectedDate);
+
         await dispatch(deleteEvent(companyId, driverId, selectedEventId, navigate));
 
-        // Refresh logs after delete
-        const formattedDate = formatDate(selectedDate);
-        dispatch(getDriverLogs(driverId, formattedDate));
+        // Refresh all related data (same pattern as edit submit)
+        await Promise.all([
+            dispatch(getDriverData(driverId, formattedDate)),
+            dispatch(getDriverLogs(driverId, formattedDate)),
+            dispatch(getMobileSettings(driverId)),
+            // dispatch(getProcessedDriverData(driverId)), // enable if processed circles must update too
+        ]);
 
         setShowDeleteModal(false);
         setSelectedEventId(null);
@@ -603,11 +631,20 @@ export const GraphDetails = () => {
         "DS_D",     // Driving
     ];
 
+    const resolveEventId = (event) =>
+        event?._id ||
+        event?.seqId ||
+        event?.eventDateTime ||
+        event?.startTime ||
+        event?.eventCode ||
+        null;
+
     // Transform filteredLogs into table data
     const tableData = driverLogs
         ?.flatMap((log) =>
             log.hosEvents.map((event, index) => {
                 let duration = "--";
+                const eventId = resolveEventId(event);
 
                 const tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles";
 
@@ -647,7 +684,7 @@ export const GraphDetails = () => {
                 }
 
                 return {
-                    eventId: event._id || "",
+                    eventId,
                     id: String(index + 1).padStart(2, "0"),
                     eventCode: event.eventCode,
                     status: mapEventCodeToStatus(event.eventCode) || event.eventCode,
@@ -670,6 +707,94 @@ export const GraphDetails = () => {
         );
 
 
+    useEffect(() => {
+        if (!hoveredEventId) {
+            console.log("[GraphDetails] highlight cleared");
+            return;
+        }
+        const match = (tableData || []).find((row) => row.eventId === hoveredEventId);
+        console.log("[GraphDetails] highlight attempt", {
+            hoveredEventId,
+            found: !!match,
+            matchStatus: match?.status,
+            matchStart: match?.start_PDT,
+        });
+    }, [hoveredEventId, tableData]);
+
+    useEffect(() => {
+        if (!hoveredEventId || !tableData?.length) return;
+        const rowIndex = tableData.findIndex((row) => row.eventId === hoveredEventId);
+        if (rowIndex === -1) return;
+        const targetPage = Math.floor(rowIndex / rowsPerPage) + 1;
+        if (targetPage !== currentPage) {
+            console.log("[GraphDetails] switching page for highlight", { targetPage, currentPage, rowIndex, rowsPerPage });
+            setCurrentPage(targetPage);
+        }
+    }, [hoveredEventId, tableData, rowsPerPage, currentPage]);
+
+    const conditionalRowStyles = [
+        {
+            when: (row) => hoveredEventId && row.eventId === hoveredEventId,
+            style: {
+                backgroundColor: "#e7f1ff",
+                color: "#000",
+            },
+            classNames: ["hovered-hos-row"],
+        },
+    ];
+
+    useEffect(() => {
+        if (scrollRetryRef.current) {
+            clearTimeout(scrollRetryRef.current);
+            scrollRetryRef.current = null;
+        }
+        if (!hoveredEventId) return;
+
+        const container = tableWrapperRef.current;
+        const rowIndex = tableData?.findIndex((row) => row.eventId === hoveredEventId) ?? -1;
+        if (rowIndex === -1) return;
+
+        const targetPage = Math.floor(rowIndex / rowsPerPage) + 1;
+
+        // Keep the very first rows visible (no auto-scroll) so they don't hide under the graph.
+        // But ensure the list is scrolled to top when coming back from deeper pages.
+        if (targetPage === 1 && rowIndex <= 2) {
+            if (targetPage !== currentPage) {
+                setCurrentPage(targetPage);
+                scrollRetryRef.current = setTimeout(() => {
+                    if (container?.scrollTo) {
+                        container.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                }, 200);
+            } else if (container?.scrollTo) {
+                container.scrollTo({ top: 0, behavior: "smooth" });
+            }
+            return;
+        }
+
+        const performScroll = (attempt = 0) => {
+            const highlighted = container?.querySelector(".hovered-hos-row");
+            if (!highlighted) {
+                if (attempt < 12) {
+                    scrollRetryRef.current = setTimeout(() => performScroll(attempt + 1), 80);
+                }
+                return;
+            }
+
+            // Smoothly center the highlighted row within its scroll container
+            highlighted.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+        };
+
+        // If we need to change pages, switch first and then scroll after a short delay
+        if (targetPage !== currentPage) {
+            setCurrentPage(targetPage);
+            scrollRetryRef.current = setTimeout(() => performScroll(0), 220);
+            return;
+        }
+
+        performScroll(0);
+    }, [hoveredEventId, currentPage, rowsPerPage, tableData]);
+
     // Getting tailers and shipping docs
     const trailers = driverLogs
         ?.flatMap(log => log.trailers || []) // collect all trailers
@@ -682,6 +807,40 @@ export const GraphDetails = () => {
     // Final strings with fallback
     const trailersText = trailers.length ? trailers.join(", ") : "Missing";
     const shippingDocsText = shippingDocs.length ? shippingDocs.join(", ") : "Missing";
+
+    // Violations for the selected day (break/shift/drive/cycle)
+const violationsForDay = React.useMemo(() => {
+    if (!driverLogs || driverLogs.length === 0) return [];
+
+    const log = driverLogs[0]; // API returns single day log
+
+    if (!log?.violations) return [];
+
+    const entries = [];
+
+    const pushType = (list, type) => {
+        (list || []).forEach((v) => {
+            entries.push({
+                id: v._id,
+                type,
+                start: v.startTime,
+            });
+        });
+    };
+
+    pushType(log.violations.break, "Break");
+    pushType(log.violations.shift, "Shift");
+    pushType(log.violations.drive, "Drive");
+    pushType(log.violations.cycle, "Cycle");
+
+    return entries.sort((a, b) => new Date(a.start) - new Date(b.start));
+}, [driverLogs]);
+
+    const formatViolationTime = (iso) => {
+        if (!iso) return "--";
+        const tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles";
+        return moment(iso).tz(tz).format("MMM DD, YYYY hh:mm A");
+    };
 
     // Helper function to check if two dates are the same day
     const isSameDay = (d1, d2) =>
@@ -998,6 +1157,8 @@ export const GraphDetails = () => {
                                                 dateFormat="MMM dd, yyyy"
                                                 className="form-control"
                                                 showPopperArrow={false}
+                                                popperContainer={datePickerPopperContainer}
+                                                popperClassName="graph-details-datepicker-popper"
                                                 maxDate={todayInTZ} // disables future dates according to company timezone
                                                 customInput={
                                                     <div className="input-field d-flex align-items-center gap-2 border border-secondary border-opacity-50 rounded p-2">
@@ -1078,11 +1239,24 @@ export const GraphDetails = () => {
                     selectedDate={selectedDate}
                     timezone={driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles"}
                 /> */}
+                    <div
+                        style={{
+                            position: "sticky",
+                            top: "120px",
+                            zIndex: 5,
+                            background: "#fff",
+                        }}
+                    >
                     <Chart
                         logs={driverLogs}
                         selectedDate={selectedDate}
                         timezone={driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles"}
+                        violations={violationsForDay}
+                        onHoverEvent={undefined}
+                        onHoverEnd={undefined}
+                        onClickEvent={handleSelectEvent}
                     />
+                    </div>
 
                     <ConfirmModal
                         show={showDeleteModal}
@@ -1096,17 +1270,33 @@ export const GraphDetails = () => {
                     />
 
                     {/* Error Table Section */}
-                    <div className="table-content-wrapper" style={{ zIndex: 1 }}>
-                        <div className='table-responsive table-custom-wrapper'>
+                    <div
+                        className="table-content-wrapper"
+                        style={{
+                            zIndex: 1,
+                            maxHeight: "30vh",
+                            overflowY: "auto",
+                        }}
+                        ref={tableWrapperRef}
+                    >
+                        <div className='table-responsive table-custom-wrapper h-100'>
 
                             <DataTable
+                                key={`hos-table-${currentPage}-${rowsPerPage}`}
                                 columns={columns}
                                 data={tableData || []}
                                 pagination
-                                paginationPerPage={30}
+                                paginationPerPage={rowsPerPage}
+                                paginationDefaultPage={currentPage}
+                                onChangePage={(page) => setCurrentPage(page)}
+                                onChangeRowsPerPage={(newPerPage, page) => {
+                                    setRowsPerPage(newPerPage);
+                                    setCurrentPage(page);
+                                }}
                                 highlightOnHover
                                 responsive
                                 customStyles={dataTableCustomStyles}
+                                conditionalRowStyles={conditionalRowStyles}
                                 noDataComponent={<NoDataComponent />}
                                 striped
                             />
@@ -1124,7 +1314,7 @@ export const GraphDetails = () => {
                     />
                 </div>
             </div>
-            );
+            
         </div>
 
     )
