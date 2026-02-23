@@ -49,16 +49,22 @@ export const getDriverLogs = (driverId, logDate) => async (dispatch) => {
 // Fetch driver circle data; ensures logDate is always sent as YYYY-MM-DD when provided
 export const getDriverData = (driverId, logDate) => async (dispatch) => {
   try {
-    if (!driverId || !logDate) {
-      console.warn("getDriverData blocked - missing params");
-      return;
-    }
-
     dispatch({ type: actionTypes.GET_DRIVERS_DATA_REQUEST });
 
-    const params = { driverId, logDate };
+    if (!driverId) {
+      throw new Error("driverId is required");
+    }
 
-    console.log("🚀 getDriverData params:", params);
+    if (!logDate) {
+      console.error("❌ logDate is missing!");
+    }
+
+    const params = {
+      driverId: driverId,
+      logDate: logDate, // always send it
+    };
+
+    console.log("🚀 FINAL PARAMS:", params);
 
     const { data } = await axios.get("/fetchCircle", {
       params,
