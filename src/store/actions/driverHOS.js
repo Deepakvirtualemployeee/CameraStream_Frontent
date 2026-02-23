@@ -1,3 +1,4 @@
+
 import * as actionTypes from "../actions/actionTypes";
 import axios from "../../axios-config";
 import { toast } from "react-toastify";
@@ -45,11 +46,12 @@ export const getDriverLogs = (driverId, logDate) => async (dispatch) => {
   }
 };
 
-export const getDriverData = (driverId) => async (dispatch) => {
+export const getDriverData = (driverId, logDate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_DATA_REQUEST });
 
-    const { data } = await axios.get(`/fetchCircle?driverId=${driverId}`, {
+    const dateQuery = logDate ? `&logDate=${logDate}` : "";
+    const { data } = await axios.get(`/fetchCircle?driverId=${driverId}${dateQuery}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
