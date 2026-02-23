@@ -56,6 +56,7 @@ export const GraphDetails = () => {
     const [rowsPerPage, setRowsPerPage] = useState(30);
     const tableWrapperRef = useRef(null);
     const scrollRetryRef = useRef(null);
+    const isFetchingRef = useRef(false);
     const datePickerPopperContainer = ({ children }) => (
         <div style={{ zIndex: 2000 }}>{children}</div>
     );
@@ -145,17 +146,18 @@ export const GraphDetails = () => {
     //   }, [dispatch, driverId, companyId, selectedDate]);
 
 useEffect(() => {
-    if (!driverId || !selectedDate || !driverSettings) return;
+    if (!driverId || !selectedDate) return;
+    if (isFetchingRef.current) return;
 
     const fetchData = async () => {
+        isFetchingRef.current = true;
         setDateLoading(true);
 
-        const formattedDate = formatDate(
-            selectedDate,
-            driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles"
-        );
+        const tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles";
+        const formattedDate = formatDate(selectedDate, tz);
         if (!formattedDate) {
             setDateLoading(false);
+            isFetchingRef.current = false;
             return;
         }
 
@@ -163,14 +165,18 @@ useEffect(() => {
             await Promise.all([
                 dispatch(getDriverData(driverId, formattedDate)),
                 dispatch(getDriverLogs(driverId, formattedDate)),
+                dispatch(getMobileSettings(driverId)),
             ]);
         } finally {
             setDateLoading(false);
+            isFetchingRef.current = false;
         }
     };
 
     fetchData();
-}, [dispatch, driverId, selectedDate, driverSettings]);
+    // Intentionally exclude driverSettings from deps to avoid re-fetch loops
+    // when settings arrive; we already use latest tz inside the effect.
+}, [dispatch, driverId, selectedDate]);
 
 
     useEffect(() => {
