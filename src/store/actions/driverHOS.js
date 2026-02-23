@@ -51,20 +51,17 @@ export const getDriverData = (driverId, logDate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_DATA_REQUEST });
 
-    const normalizeDate = (d) => {
-      if (!d) return null;
-      if (typeof d === "string") return d;
-      return new Date(d).toISOString().split("T")[0];
-    };
+    if (!driverId) {
+      throw new Error("driverId is required");
+    }
 
+    // ✅ Clean params object
     const params = {
       driverId,
+      ...(logDate ? { logDate } : {}),
     };
-    const normalized = normalizeDate(logDate);
-    if (normalized) params.logDate = normalized;
 
-    // Debug: verify params being sent (visible in browser console)
-    console.log("getDriverData params:", params);
+    console.log("🚀 getDriverData params:", params);
 
     const { data } = await axios.get("/fetchCircle", {
       params,
@@ -73,9 +70,11 @@ export const getDriverData = (driverId, logDate) => async (dispatch) => {
       },
     });
 
-    // console.log("Company:", companyId);
-    console.log("Fetch home:", data);
-    dispatch({ type: actionTypes.GET_DRIVERS_DATA_SUCCESS, payload: data.data });
+    dispatch({
+      type: actionTypes.GET_DRIVERS_DATA_SUCCESS,
+      payload: data.data,
+    });
+
   } catch (error) {
     dispatch({
       type: actionTypes.GET_DRIVERS_DATA_FAIL,
@@ -83,6 +82,7 @@ export const getDriverData = (driverId, logDate) => async (dispatch) => {
     });
   }
 };
+
 
 export const getMobileSettings = (driverId) => async (dispatch) => {
   try {

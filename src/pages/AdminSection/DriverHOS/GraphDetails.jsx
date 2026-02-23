@@ -44,8 +44,8 @@ export const GraphDetails = () => {
     // const [searchParams] = useSearchParams();
     // const companyId = searchParams.get("companyId");
 
-    console.log("Driver ID:", driverId);
-    console.log("Company ID:", companyId);
+    // console.log("Driver ID:", driverId);
+    // console.log("Company ID:", companyId);
 
     const dispatch = useDispatch();
 
@@ -59,7 +59,7 @@ export const GraphDetails = () => {
     const datePickerPopperContainer = ({ children }) => (
         <div style={{ zIndex: 2000 }}>{children}</div>
     );
-    console.log("selectedDate", selectedDate);
+    // console.log("selectedDate", selectedDate);
     // const [logsEnabled, setLogsEnabled] = useState(false);
 
     const navigate = useNavigate();
@@ -75,10 +75,9 @@ export const GraphDetails = () => {
     // Redux state
     const { driverData, driverLogs, driverSettings, driverProcessedData, loading, error } = useSelector((state) => state.driversHOS);
 
-    console.log("driverData", driverData);
-    // console.log("driverLogs", driverLogs);
-    console.log("driverSettings", driverSettings);
-    console.log("processedDriverData", driverProcessedData);
+    // console.log("driverData", driverData);
+    // console.log("driverSettings", driverSettings);
+    // console.log("processedDriverData", driverProcessedData);
 
     // useEffect(() => {
     //     if (driverId) {
@@ -137,27 +136,29 @@ export const GraphDetails = () => {
     //     fetchData();
     //   }, [dispatch, driverId, companyId, selectedDate]);
 
-    useEffect(() => {
-        if (!driverId || !selectedDate) return;
+useEffect(() => {
+    if (!driverId || !selectedDate || !driverSettings) return;
 
-        const fetchData = async () => {
-            setDateLoading(true); // Show spinner as soon as date changes
-            const formattedDate = formatDate(selectedDate);
+    const fetchData = async () => {
+        setDateLoading(true);
 
-            try {
-                await Promise.all([
-                    dispatch(getDriverData(driverId, formattedDate)),
-                    dispatch(getDriverLogs(driverId, formattedDate)),
-                    dispatch(getMobileSettings(driverId)),
-                    // dispatch(getProcessedDriverData(driverId)),
-                ]);
-            } catch (error) {
-                console.error("Error fetching data for new date:", error);
-            }
-        };
+        const formattedDate = moment(selectedDate)
+            .tz(driverSettings?.timeZoneId || driverSettings?.timeZone)
+            .format("YYYY-MM-DD");
 
-        fetchData();
-    }, [dispatch, driverId, companyId, selectedDate]);
+        try {
+            await Promise.all([
+                dispatch(getDriverData(driverId, formattedDate)),
+                dispatch(getDriverLogs(driverId, formattedDate)),
+            ]);
+        } finally {
+            setDateLoading(false);
+        }
+    };
+
+    fetchData();
+}, [dispatch, driverId, selectedDate, driverSettings]);
+
 
     useEffect(() => {
         if (driverLogs && driverLogs.length > 0) {
@@ -821,9 +822,9 @@ const violationsForDay = React.useMemo(() => {
     const pushType = (list, type) => {
         (list || []).forEach((v) => {
             entries.push({
-                id: v._id,
+                id: v._id || `${type}-${v.startTime || v.logDate}`,
                 type,
-                start: v.startTime,
+                start: v.startTime || v.logDate,
             });
         });
     };
