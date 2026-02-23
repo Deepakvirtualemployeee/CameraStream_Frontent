@@ -49,17 +49,14 @@ export const getDriverLogs = (driverId, logDate) => async (dispatch) => {
 // Fetch driver circle data; ensures logDate is always sent as YYYY-MM-DD when provided
 export const getDriverData = (driverId, logDate) => async (dispatch) => {
   try {
-    dispatch({ type: actionTypes.GET_DRIVERS_DATA_REQUEST });
-
-    if (!driverId) {
-      throw new Error("driverId is required");
+    if (!driverId || !logDate) {
+      console.warn("getDriverData blocked - missing params");
+      return;
     }
 
-    // ✅ Clean params object
-    const params = {
-      driverId,
-      ...(logDate ? { logDate } : {}),
-    };
+    dispatch({ type: actionTypes.GET_DRIVERS_DATA_REQUEST });
+
+    const params = { driverId, logDate };
 
     console.log("🚀 getDriverData params:", params);
 
@@ -82,6 +79,7 @@ export const getDriverData = (driverId, logDate) => async (dispatch) => {
     });
   }
 };
+
 
 
 export const getMobileSettings = (driverId) => async (dispatch) => {
