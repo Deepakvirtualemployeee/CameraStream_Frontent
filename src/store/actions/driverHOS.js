@@ -51,22 +51,27 @@ export const getDriverData = (driverId, logDate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_DRIVERS_DATA_REQUEST });
 
-    const dateQuery = logDate
-      ? `&logDate=${encodeURIComponent(
-          typeof logDate === "string"
-            ? logDate
-            : new Date(logDate).toISOString().split("T")[0]
-        )}`
-      : "";
+    const normalizeDate = (d) => {
+      if (!d) return null;
+      if (typeof d === "string") return d;
+      return new Date(d).toISOString().split("T")[0];
+    };
 
-    const { data } = await axios.get(
-      `/fetchCircle?driverId=${encodeURIComponent(driverId)}${dateQuery}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const params = {
+      driverId,
+    };
+    const normalized = normalizeDate(logDate);
+    if (normalized) params.logDate = normalized;
+
+    // Debug: verify params being sent (visible in browser console)
+    console.log("getDriverData params:", params);
+
+    const { data } = await axios.get("/fetchCircle", {
+      params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     // console.log("Company:", companyId);
     console.log("Fetch home:", data);
