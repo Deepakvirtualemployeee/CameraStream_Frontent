@@ -95,9 +95,17 @@ export const GraphDetails = () => {
         return moment.tz(moment(date), tz).toDate();
     };
 
-    // Utility: format date as YYYY-MM-DD in driver’s timezone
-    const formatDate = (date, tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles") => {
-        return moment(date).tz(tz).format("YYYY-MM-DD");
+    // Utility: format date as YYYY-MM-DD in driver’s timezone (defensive)
+    const formatDate = (
+        date,
+        tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles"
+    ) => {
+        if (!date) return "";
+        try {
+            return tz ? moment(date).tz(tz).format("YYYY-MM-DD") : moment(date).format("YYYY-MM-DD");
+        } catch (_err) {
+            return moment(date).format("YYYY-MM-DD");
+        }
     };
 
     // --- useEffect to fetch logs whenever selectedDate changes ---
@@ -142,9 +150,14 @@ useEffect(() => {
     const fetchData = async () => {
         setDateLoading(true);
 
-        const formattedDate = moment(selectedDate)
-            .tz(driverSettings?.timeZoneId || driverSettings?.timeZone)
-            .format("YYYY-MM-DD");
+        const formattedDate = formatDate(
+            selectedDate,
+            driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles"
+        );
+        if (!formattedDate) {
+            setDateLoading(false);
+            return;
+        }
 
         try {
             await Promise.all([
