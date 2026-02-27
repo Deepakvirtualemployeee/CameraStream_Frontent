@@ -157,11 +157,22 @@ export default function ChartComponent({
     const violationBadges = useMemo(() => {
         if (!startOfDay) return [];
 
-        return (violations || [])
+        const badges = (violations || [])
             .map((v) => {
                 const startIso = v.start || v.startTime || v.eventDateTime || v.logDate;
                 const start = startIso ? moment.tz(startIso, timezone) : null;
-                const xHour = start ? start.diff(startOfDay, "minutes", true) / 60 : null;
+                let xHour = start ? start.diff(startOfDay, "minutes", true) / 60 : null;
+
+                // If the violation belongs to the selected log day but the UTC time pushes it
+                // outside the local 0-24 window (common for cycle resets), anchor it to 00:00.
+                if ((xHour === null || xHour < 0 || xHour > 24) && v.logDate) {
+                    // Compare in UTC to respect the API's logDate (date-only) even when TZ shifts it
+                    const logDayUtc = moment.utc(v.logDate).startOf("day");
+                    const selectedDayUtc = moment.utc(startOfDay).startOf("day");
+                    if (logDayUtc.isSame(selectedDayUtc, "day")) {
+                        xHour = 0;
+                    }
+                }
                 return {
                     id: v.id || `${v.type || "violation"}-${startIso}`,
                     type: v.type || "Violation",
@@ -170,6 +181,18 @@ export default function ChartComponent({
                 };
             })
             .filter((v) => v.xHour !== null && v.xHour >= 0 && v.xHour <= 24);
+
+        // Helpful debug log to trace why a violation does/doesn't render for the selected day
+        if (typeof console !== "undefined" && process.env.NODE_ENV !== "production") {
+            console.log("[HOS Chart] Violations", {
+                selectedDay: startOfDay.format("YYYY-MM-DD"),
+                timezone,
+                rawViolations: violations,
+                plottedBadges: badges,
+            });
+        }
+
+        return badges;
     }, [violations, startOfDay, timezone]);
 
     const formatHourLabel = (decimalHours) => {

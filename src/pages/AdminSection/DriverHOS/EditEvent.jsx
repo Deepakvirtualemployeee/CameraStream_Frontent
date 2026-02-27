@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, InputGroup, Badge, Spinner } from "react-bootstrap";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { addEditEvent } from "../../../store/actions/driverHOS"; // redux action
 import { getAssignableVehicles } from "../../../store/actions/vehicles";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment-timezone";
 import { fetchLocationFromLatLng } from "../../../data/utils";
+import CustomDateTimePicker from "../../../components/CustomDateTimePicker";
 
 // import "rsuite/dist/rsuite.min.css";
 
@@ -20,6 +19,7 @@ export const EditEvent = () => {
 
   const { selectedDate, eventId, driverLogs, timeZoneId } =
     location.state || {};
+  const companyTz = timeZoneId || "America/Los_Angeles";
   console.log(
     "EventId:",
     eventId,
@@ -212,6 +212,36 @@ export const EditEvent = () => {
     }
 
     return message === "";
+  };
+
+  const handleDateTimeChange = (value) => {
+    if (!value) {
+      setEventDate(null);
+      setEventDateForDb(null);
+      return;
+    }
+
+    const dateString = moment(value?.toDate ? value.toDate() : value).format(
+      "YYYY-MM-DD HH:mm:ss"
+    );
+    const dateInCompanyTZ = moment.tz(
+      dateString,
+      "YYYY-MM-DD HH:mm:ss",
+      companyTz
+    );
+
+    const nowInTZ = moment().tz(companyTz);
+    if (dateInCompanyTZ.isAfter(nowInTZ)) {
+      setErrors((prev) => ({
+        ...prev,
+        eventDate: "You cannot select a future time based on company timezone.",
+      }));
+      return;
+    }
+
+    setErrors((prev) => ({ ...prev, eventDate: "" }));
+    setEventDate(dateInCompanyTZ.toDate());
+    setEventDateForDb(dateInCompanyTZ.utc().toDate());
   };
 
   const handleChipClick = (chip) => {
@@ -582,72 +612,20 @@ export const EditEvent = () => {
                     </Form.Select>
                   </div>
 
-                  {/* <div className="col-sm-6">
-                                        <Form.Label className="fw-semibold">
-                                            Date & Time<span className="text-danger">*</span>
-                                        </Form.Label>
-                                        <div className="w-100">
-                                            <DatePicker
-                                                selected={eventDate}
-                                                onChange={(date) => {
-                                                    const selectedInTZ = moment.tz(date, timeZoneId);
-                                                    const nowInTZ = moment.tz(timeZoneId);
-
-                                                    // check if selected date is in future (based on timezone)
-                                                    if (selectedInTZ.isAfter(nowInTZ)) {
-                                                        setErrors((prev) => ({
-                                                            ...prev,
-                                                            eventDate: "You cannot select a future time based on company timezone.",
-                                                        }));
-                                                    } else {
-                                                        setErrors((prev) => ({ ...prev, eventDate: "" }));
-                                                        setEventDate(selectedInTZ.toDate());
-                                                    }
-                                                }}
-                                                showTimeSelect
-                                                dateFormat="MMMM d, yyyy hh:mm aa"
-                                                className="form-control"
-                                                required
-                                            />
-                                            {errors.eventDate && (
-                                                <div className="text-danger">{errors.eventDate}</div>
-                                            )}
-                                        </div>
-                                    </div> */}
+                  
 
                   <div className="col-sm-6">
                     <Form.Label className="fw-semibold">
                       Date & Time<span className="text-danger">*</span>
                     </Form.Label>
                     <div className="w-100">
-                      {/* <DatePicker
+                      {/* <CustomDateTimePicker
                                                 selected={
                                                     eventDate
                                                         ? new Date(moment(eventDate).format("YYYY-MM-DDTHH:mm:ss"))
                                                         : null
                                                 }
-                                                onChange={(date) => {
-                                                    if (!date) return;
-
-                                                    // interpret the picked local time as company timezone
-                                                    const selectedInTZ = moment.tz(
-                                                        moment(date).format("YYYY-MM-DD HH:mm:ss"),
-                                                        "YYYY-MM-DD HH:mm:ss",
-                                                        timeZoneId
-                                                    );
-
-                                                    const nowInTZ = moment.tz(timeZoneId);
-
-                                                    if (selectedInTZ.isAfter(nowInTZ)) {
-                                                        setErrors((prev) => ({
-                                                            ...prev,
-                                                            eventDate: "You cannot select a future time based on company timezone.",
-                                                        }));
-                                                    } else {
-                                                        setErrors((prev) => ({ ...prev, eventDate: "" }));
-                                                        setEventDate(selectedInTZ); // store moment (not raw Date)
-                                                    }
-                                                }}
+                                                onChange={handleDateTimeChange}
                                                 showTimeSelect
                                                 timeFormat="hh:mm aa"
                                                 timeIntervals={1}
@@ -669,55 +647,64 @@ export const EditEvent = () => {
                             display: "block",
                           }}
                         >
-                          Select Event Date/Time (Company Timezone: {timeZoneId})
+                          Select Event Date/Time (Company Timezone: {companyTz})
                         </label>
-                        <DatePicker
-                          selected={eventDate ? moment(eventDate).toDate() : null}
-                          onChange={(date) => {
-                            if (!date) return;
-
-                            const companyTimeZone = timeZoneId;
-                            const dateString = moment(date).format(
-                              "YYYY-MM-DD HH:mm:ss"
-                            );
-                            const dateInCompanyTZ = moment.tz(
-                              dateString,
-                              "YYYY-MM-DD HH:mm:ss",
-                              companyTimeZone
-                            );
-
-                            const nowInTZ = moment().tz(companyTimeZone);
-                            if (dateInCompanyTZ.isAfter(nowInTZ)) {
-                              setErrors((prev) => ({
-                                ...prev,
-                                eventDate:
-                                  "You cannot select a future time based on company timezone.",
-                              }));
-                              return;
-                            }
-
-                            setErrors((prev) => ({
-                              ...prev,
-                              eventDate: "",
-                            }));
-
-                            setEventDate(date);
-                            setEventDateForDb(dateInCompanyTZ.utc().toDate());
-                          }}
-                          showTimeSelect
-                          timeFormat="hh:mm aa"
-                          timeIntervals={1}
-                          dateFormat="MMMM d, yyyy hh:mm aa"
-                          className="form-control"
-                          placeholderText={`Select date/time (${timeZoneId})`}
-                          wrapperClassName="w-100"
-                          required
-                        />
+                                  <CustomDateTimePicker
+                value={eventDate}
+              onChange={(date) => {
+                if (!date) {
+                  setEventDate(null);
+                  setEventDateForDb(null);
+                  return;
+                }
+              
+                const tz = timeZoneId;
+              
+                // Interpret picked clock time as company timezone
+                const selectedInTZ = moment.tz(
+                  moment(date).format("YYYY-MM-DD HH:mm:ss"),
+                  "YYYY-MM-DD HH:mm:ss",
+                  tz
+                );
+              
+                const nowInTZ = moment.tz(tz);
+              
+                if (selectedInTZ.isAfter(nowInTZ)) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    eventDate:
+                      "You cannot select a future time based on company timezone.",
+                  }));
+                  return;
+                }
+              
+                setErrors((prev) => ({ ...prev, eventDate: "" }));
+              
+                // IMPORTANT:
+                // Store company clock time for UI
+                const dateForPicker = new Date(
+                  selectedInTZ.year(),
+                  selectedInTZ.month(),
+                  selectedInTZ.date(),
+                  selectedInTZ.hour(),
+                  selectedInTZ.minute(),
+                  selectedInTZ.second(),
+                  selectedInTZ.millisecond()
+                );
+              
+                setEventDate(dateForPicker);
+              
+                // Store true UTC for backend
+                setEventDateForDb(selectedInTZ.utc().toDate());
+              }}
+                placeholder={`Select date/time (${timeZoneId})`}
+                error={errors.eventDate}
+              />
                       </div>
 
                       {/* Show current company time below */}
                       {/* <div className="mt-1 text-muted small">
-                                                        Current time ({timeZoneId}):{" "}
+                                                        Current time ({companyTz}):{" "}
                                                         {moment().tz(timeZoneId).format("MMMM D, YYYY hh:mm:ss A")}
                                                     </div>
 
@@ -728,12 +715,10 @@ export const EditEvent = () => {
                                             </div> */}
 
                       {/* Display timezone info below */}
-                      <div className="mt-1 text-muted small">
-                        Current time ({timeZoneId}):{" "}
-                        {moment()
-                          .tz(timeZoneId)
-                          .format("MMMM D, YYYY hh:mm:ss A")}
-                      </div>
+                    <div className="mt-1 text-muted small">
+                        Current time ({companyTz}):{" "}
+                        {moment().tz(companyTz).format("MMMM D, YYYY hh:mm:ss A")}
+                    </div>
 
                       {errors.eventDate && (
                         <div className="text-danger">{errors.eventDate}</div>
@@ -1059,4 +1044,5 @@ export const EditEvent = () => {
 };
 
 export default EditEvent;
+
 

@@ -56,7 +56,7 @@ export const GraphDetails = () => {
     const [rowsPerPage, setRowsPerPage] = useState(30);
     const tableWrapperRef = useRef(null);
     const scrollRetryRef = useRef(null);
-    const isFetchingRef = useRef(false);
+    const requestIdRef = useRef(0); // tracks latest date fetch to avoid stale updates
     const datePickerPopperContainer = ({ children }) => (
         <div style={{ zIndex: 2000 }}>{children}</div>
     );
@@ -75,6 +75,7 @@ export const GraphDetails = () => {
     }, [location.state]);
     // Redux state
     const { driverData, driverLogs, driverSettings, driverProcessedData, loading, error } = useSelector((state) => state.driversHOS);
+    const driverTimeZone = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles";
 
     // console.log("driverData", driverData);
     // console.log("driverSettings", driverSettings);
@@ -99,13 +100,16 @@ export const GraphDetails = () => {
     // Utility: format date as YYYY-MM-DD in driver’s timezone (defensive)
     const formatDate = (
         date,
-        tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles"
+        tz = driverTimeZone
     ) => {
         if (!date) return "";
         try {
-            return tz ? moment(date).tz(tz).format("YYYY-MM-DD") : moment(date).format("YYYY-MM-DD");
+            const m = tz ? moment.tz(moment(date), tz) : moment(date);
+            if (!m || !m.isValid()) return "";
+            return m.format("YYYY-MM-DD");
         } catch (_err) {
-            return moment(date).format("YYYY-MM-DD");
+            const fallback = moment(date);
+            return fallback.isValid() ? fallback.format("YYYY-MM-DD") : "";
         }
     };
 
@@ -147,17 +151,15 @@ export const GraphDetails = () => {
 
 useEffect(() => {
     if (!driverId || !selectedDate) return;
-    if (isFetchingRef.current) return;
 
+    const fetchId = ++requestIdRef.current;
     const fetchData = async () => {
-        isFetchingRef.current = true;
         setDateLoading(true);
 
-        const tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles";
+        const tz = driverTimeZone;
         const formattedDate = formatDate(selectedDate, tz);
         if (!formattedDate) {
-            setDateLoading(false);
-            isFetchingRef.current = false;
+            if (requestIdRef.current === fetchId) setDateLoading(false);
             return;
         }
 
@@ -168,15 +170,14 @@ useEffect(() => {
                 dispatch(getMobileSettings(driverId)),
             ]);
         } finally {
-            setDateLoading(false);
-            isFetchingRef.current = false;
+            if (requestIdRef.current === fetchId) {
+                setDateLoading(false);
+            }
         }
     };
 
     fetchData();
-    // Intentionally exclude driverSettings from deps to avoid re-fetch loops
-    // when settings arrive; we already use latest tz inside the effect.
-}, [dispatch, driverId, selectedDate]);
+}, [dispatch, driverId, selectedDate, driverTimeZone]);
 
 
     useEffect(() => {
@@ -224,6 +225,7 @@ useEffect(() => {
         if (driverId && selectedDate) {
             const formattedDate = formatDate(selectedDate);
             dispatch(getDriverLogs(driverId, formattedDate));
+            dispatch(getMobileSettings(driverId));
         }
     };
 
@@ -911,7 +913,13 @@ const violationsForDay = React.useMemo(() => {
         )
     }
 
-    const tz = driverSettings?.timeZoneId || driverSettings?.timeZone || "America/Los_Angeles";
+    const tz = driverTimeZone;
+    const carrierName = driverSettings?.companyName || driverData?.companyName || "--";
+    const vehicleNumber =
+        driverSettings?.vehicleNumber ||
+        driverData?.vehicleNumber ||
+        driverLogs?.[0]?.hosEvents?.find((event) => event?.vehicle?.vehicleNumber)?.vehicle?.vehicleNumber ||
+        "--";
 
     // Convert UTC to company timezone for display
     const displayDate = selectedDate
@@ -954,7 +962,7 @@ const violationsForDay = React.useMemo(() => {
                                 <div className="info-wrapper">
                                     <div className="info-box d-flex gap-1 mb-2">
                                         <span className="label-name text-muted text-truncate">Carrier:</span>
-                                        <span className="text-body fw-semibold text-truncate">{driverSettings?.companyName}</span>
+                                        <span className="text-body fw-semibold text-truncate">{carrierName}</span>
                                     </div>
                                     {/* <div className="info-box d-flex gap-1 mb-1">
                                     <span className="label-name text-muted text-truncate">Driver:</span>
@@ -1006,7 +1014,7 @@ const violationsForDay = React.useMemo(() => {
 
                                     <div className="info-box d-flex gap-1 mb-2">
                                         <span className="label-name text-muted text-truncate">Vehicle:</span>
-                                        <span className="text-body fw-semibold text-truncate">{driverSettings?.vehicleNumber}</span>
+                                        <span className="text-body fw-semibold text-truncate">{vehicleNumber}</span>
                                     </div>
 
                                     <div className="info-box d-flex gap-1 mb-2">
