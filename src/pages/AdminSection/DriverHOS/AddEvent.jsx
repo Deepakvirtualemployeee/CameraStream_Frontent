@@ -2,17 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, InputGroup, Badge, Spinner } from "react-bootstrap";
-import DatePicker from "react-datepicker";
+// import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addEditEvent } from "../../../store/actions/driverHOS"; // redux action
 import { getAssignableVehicles } from "../../../store/actions/vehicles";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
 import moment from "moment-timezone";
 import { fetchLocationFromLatLng } from "../../../data/utils";
-
-
-
-
+ import CustomDateTimePicker from "../../../components/CustomDateTimePicker"; 
+ 
 export const AddEvent = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -237,7 +235,7 @@ export const AddEvent = () => {
     const activeStatus =
       form.isActive?.toLowerCase() === "active" ? true : false;
 
-    const eventDateUTC = new Date(eventDate).toISOString();
+    // const eventDateUTC = new Date(eventDate).toISOString();
 
     // console.log("eventDateUTC:", eventDateUTC);
     const odometerVal = Number(form.odometer);
@@ -268,7 +266,9 @@ export const AddEvent = () => {
         ...form,
         seqId: Number(form.seqId),
         isActive: activeStatus,
-        eventDateTime: eventDateForDb,
+       eventDateTime: eventDateForDb
+  ? new Date(eventDateForDb).toISOString()
+  : null,
         odometer: odometerVal,
         engineHours: engineHoursVal,
         notes: form.notes
@@ -409,51 +409,66 @@ export const AddEvent = () => {
                                                 Calculated Location
                                             </option> */}
                     </Form.Select>
-                    </div>
+                  </div>
+
+                  
 
                   <div className="col-sm-6">
                     <Form.Label className="fw-semibold">
                       Date & Time<span className="text-danger">*</span>
                     </Form.Label>
                     <div className="w-100">
-                      <DatePicker
-                        selected={eventDate ? moment(eventDate).tz(timeZoneId).toDate() : null}
-                        onChange={(date) => {
-                          if (!date) return;
+                    <CustomDateTimePicker
+  value={eventDate}
+onChange={(date) => {
+  if (!date) {
+    setEventDate(null);
+    setEventDateForDb(null);
+    return;
+  }
 
-                          const companyTimeZone = timeZoneId;
-                          const dateString = moment(date).format(
-                            "YYYY-MM-DD HH:mm:ss"
-                          );
-                          const dateInCompanyTZ = moment.tz(
-                            dateString,
-                            "YYYY-MM-DD HH:mm:ss",
-                            companyTimeZone
-                          );
+  const tz = timeZoneId;
 
-                          const nowInTZ = moment().tz(companyTimeZone);
-                          if (dateInCompanyTZ.isAfter(nowInTZ)) {
-                            setErrors((prev) => ({
-                              ...prev,
-                              eventDate:
-                                "You cannot select a future time based on company timezone.",
-                            }));
-                            return;
-                          }
+  // Interpret picked clock time as company timezone
+  const selectedInTZ = moment.tz(
+    moment(date).format("YYYY-MM-DD HH:mm:ss"),
+    "YYYY-MM-DD HH:mm:ss",
+    tz
+  );
 
-                          setErrors((prev) => ({ ...prev, eventDate: "" }));
-                          setEventDate(date);
-                          setEventDateForDb(dateInCompanyTZ.utc().toDate());
-                        }}
-                        showTimeSelect
-                        timeFormat="hh:mm aa"
-                        timeIntervals={1}
-                        dateFormat="MMMM d, yyyy hh:mm aa"
-                        className="form-control"
-                        placeholderText={`Select date/time (${timeZoneId})`}
-                        wrapperClassName="w-100"
-                        required
-                      />
+  const nowInTZ = moment.tz(tz);
+
+  if (selectedInTZ.isAfter(nowInTZ)) {
+    setErrors((prev) => ({
+      ...prev,
+      eventDate:
+        "You cannot select a future time based on company timezone.",
+    }));
+    return;
+  }
+
+  setErrors((prev) => ({ ...prev, eventDate: "" }));
+
+  // IMPORTANT:
+  // Store company clock time for UI
+  const dateForPicker = new Date(
+    selectedInTZ.year(),
+    selectedInTZ.month(),
+    selectedInTZ.date(),
+    selectedInTZ.hour(),
+    selectedInTZ.minute(),
+    selectedInTZ.second(),
+    selectedInTZ.millisecond()
+  );
+
+  setEventDate(dateForPicker);
+
+  // Store true UTC for backend
+  setEventDateForDb(selectedInTZ.utc().toDate());
+}}
+  placeholder={`Select date/time (${timeZoneId})`}
+  error={errors.eventDate}
+/>
 
                       {/* Display timezone info below */}
                       <div className="mt-1 text-muted small">
@@ -488,20 +503,16 @@ export const AddEvent = () => {
                     <Form.Label className="fw-semibold">
                       Status<span className="text-danger">*</span>
                     </Form.Label>
-                     <Form.Select
+                    <Form.Select
                       value={form.eventCode}
                       onChange={(e) => updateField("eventCode", e.target.value)}
                       required
                     >
-                    <option value="">-- Not Selected --</option>
-
-                      
-                      <option value="DS_OFF">Off Duty</option>
-                      <option value="DS_SB">Sleeper Berth</option>
-                      <option value="DS_ON">On Duty</option>
+                      <option value="">-- Not Selected --</option>
+                      <option value="DS_OFF">OFF</option>
+                      <option value="DS_SB">Sleeper</option>
+                      <option value="DS_ON">ON Duty</option>
                       <option value="DS_D">Driving</option>
-
-                      
                       <option value="DR_IND_YM">Yard Move</option>
                       <option value="DR_IND_PC">Personal Conveyance</option>
 
@@ -813,4 +824,3 @@ export const AddEvent = () => {
 };
 
 export default AddEvent;
-
