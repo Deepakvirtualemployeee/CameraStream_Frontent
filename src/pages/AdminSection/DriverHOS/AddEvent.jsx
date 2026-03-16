@@ -129,6 +129,12 @@ export const AddEvent = () => {
     "Co-Driver Joined",
     "Co-Driver Left",
   ];
+  const autoAllowedEventCodes = new Set([
+    "DS_D",
+    "ENG_UP_NORMAL",
+    "ENG_DOWN_NORMAL"
+    
+  ]);
 
   const handleChipClick = (chip) => {
     let currentNotes = form.notes
@@ -158,7 +164,7 @@ export const AddEvent = () => {
 
       case "eventCode":
       case "origin":
-        if (currentEventCode === "DS_D") {
+        if (autoAllowedEventCodes.has(currentEventCode)) {
           // Driving → allow both AUTO & DRIVER
           if (!(currentOrigin === "AUTO" || currentOrigin === "DRIVER")) {
             message = "Driving status requires origin AUTO or DRIVER.";
@@ -199,7 +205,7 @@ export const AddEvent = () => {
       let otherField = name === "eventCode" ? "origin" : "eventCode";
       let otherMsg = "";
 
-      if (currentEventCode === "DS_D") {
+      if (autoAllowedEventCodes.has(currentEventCode)) {
         if (!(currentOrigin === "AUTO" || currentOrigin === "DRIVER")) {
           otherMsg = "Driving status requires origin AUTO or DRIVER.";
         }
