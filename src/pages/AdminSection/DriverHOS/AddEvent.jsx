@@ -5,7 +5,7 @@ import { Button, Form, InputGroup, Badge, Spinner } from "react-bootstrap";
 // import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addEditEvent } from "../../../store/actions/driverHOS"; // redux action
-import { getAssignableVehicles } from "../../../store/actions/vehicles";
+import { getAllActiveVehicles } from "../../../store/actions/vehicles";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
 import moment from "moment-timezone";
 import { fetchLocationFromLatLng } from "../../../data/utils";
@@ -29,7 +29,12 @@ export const AddEvent = () => {
   const { loading, error } = useSelector(
     (state) => state.addEditEvent || { loading: false, error: null }
   );
-  const { assignableVehicles, loading: vehiclesLoading } = useSelector(
+  const {
+    vehicles = [],
+    assignableVehicles = [],
+    allActiveVehicles = [],
+    loading: vehiclesLoading,
+  } = useSelector(
     (state) => state.vehicles
   );
   const { unassignedElds = [], loading: eldLoading } = useSelector(
@@ -133,8 +138,13 @@ export const AddEvent = () => {
     "DS_D",
     "ENG_UP_NORMAL",
     "ENG_DOWN_NORMAL"
-    
+   
   ]);
+  const vehicleOptions = assignableVehicles.length
+    ? assignableVehicles
+    : allActiveVehicles.length
+    ? allActiveVehicles
+    : vehicles;
 
   const handleChipClick = (chip) => {
     let currentNotes = form.notes
@@ -303,7 +313,7 @@ export const AddEvent = () => {
   // Fetch Assignable Vehicles
   useEffect(() => {
     if (companyId) {
-      dispatch(getAssignableVehicles(companyId));
+      dispatch(getAllActiveVehicles(companyId));
     }
   }, [companyId, dispatch]);
 
@@ -684,7 +694,7 @@ onChange={(date) => {
                     >
                       <option value="">-- Not Selected --</option>
                       {vehiclesLoading && <option>Loading...</option>}
-                      {assignableVehicles?.map((v) => (
+                      {vehicleOptions?.map((v) => (
                         <option key={v._id} value={v._id}>
                           {v.vehicleNumber}
                         </option>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Form, InputGroup, Badge, Spinner } from "react-bootstrap";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { addEditEvent } from "../../../store/actions/driverHOS"; // redux action
-import { getAssignableVehicles } from "../../../store/actions/vehicles";
+import { getAllActiveVehicles } from "../../../store/actions/vehicles";
 import { getUnassignedElds } from "../../../store/actions/eldDevices";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment-timezone";
@@ -45,7 +45,12 @@ export const EditEvent = () => {
   const { loading, error } = useSelector(
     (state) => state.addEditEvent || { loading: false, error: null }
   );
-  const { assignableVehicles, loading: vehiclesLoading } = useSelector(
+  const {
+    vehicles = [],
+    assignableVehicles = [],
+    allActiveVehicles = [],
+    loading: vehiclesLoading,
+  } = useSelector(
     (state) => state.vehicles
   );
   const { unassignedElds = [], loading: eldLoading } = useSelector(
@@ -90,9 +95,13 @@ export const EditEvent = () => {
   const autoAllowedEventCodes = new Set([
     "DS_D",
     "ENG_UP_NORMAL",
-    "ENG_DOWN_NORMAL"
-    
+    "ENG_DOWN_NORMAL" 
   ]);
+  const vehicleOptions = assignableVehicles.length
+    ? assignableVehicles
+    : allActiveVehicles.length
+    ? allActiveVehicles
+    : vehicles;
 
   // const updateField = (key, value) => {
   //     setForm((prev) => ({ ...prev, [key]: value }));
@@ -263,7 +272,7 @@ export const EditEvent = () => {
   // Fetch Assignable Vehicles
   useEffect(() => {
     if (companyId) {
-      dispatch(getAssignableVehicles(companyId));
+      dispatch(getAllActiveVehicles(companyId));
     }
   }, [companyId, dispatch]);
 
@@ -899,16 +908,16 @@ export const EditEvent = () => {
                       <option value="">-- Not Selected --</option>
                       {vehiclesLoading && <option>Loading...</option>}
 
-                      {/* Normal assignable vehicles */}
-                      {assignableVehicles?.map((v) => (
+                      {/* Vehicle list fallback: assignable -> active -> all */}
+                      {vehicleOptions?.map((v) => (
                         <option key={v._id} value={v._id}>
                           {v.vehicleNumber}
                         </option>
                       ))}
 
-                      {/* If prefilled vehicle is NOT in assignableVehicles, show it separately */}
+                      {/* If prefilled vehicle is not in options, show it separately */}
                       {form.vehicleId &&
-                        !assignableVehicles?.some(
+                        !vehicleOptions?.some(
                           (v) => v._id === form.vehicleId
                         ) && (
                           <option value={form.vehicleId}>
