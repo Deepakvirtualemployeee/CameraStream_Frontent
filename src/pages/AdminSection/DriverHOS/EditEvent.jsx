@@ -87,6 +87,12 @@ export const EditEvent = () => {
     "Co-Driver Joined",
     "Co-Driver Left",
   ];
+  const autoAllowedEventCodes = new Set([
+    "DS_D",
+    "ENG_UP_NORMAL",
+    "ENG_DOWN_NORMAL"
+    
+  ]);
 
   // const updateField = (key, value) => {
   //     setForm((prev) => ({ ...prev, [key]: value }));
@@ -157,7 +163,7 @@ export const EditEvent = () => {
 
       case "eventCode":
       case "origin":
-        if (currentEventCode === "DS_D") {
+        if (autoAllowedEventCodes.has(currentEventCode)) {
           // Driving → allow both AUTO & DRIVER
           if (!(currentOrigin === "AUTO" || currentOrigin === "DRIVER")) {
             message = "Driving status requires origin AUTO or DRIVER.";
@@ -198,7 +204,7 @@ export const EditEvent = () => {
       let otherField = name === "eventCode" ? "origin" : "eventCode";
       let otherMsg = "";
 
-      if (currentEventCode === "DS_D") {
+      if (autoAllowedEventCodes.has(currentEventCode)) {
         if (!(currentOrigin === "AUTO" || currentOrigin === "DRIVER")) {
           otherMsg = "Driving status requires origin AUTO or DRIVER.";
         }
@@ -370,7 +376,7 @@ export const EditEvent = () => {
 
     // Explicit cross-check for eventCode + origin
     if (
-      form.eventCode === "DS_D" &&
+      autoAllowedEventCodes.has(form.eventCode) &&
       !(form.origin === "AUTO" || form.origin === "DRIVER")
     ) {
       setErrors((prev) => ({
@@ -380,7 +386,7 @@ export const EditEvent = () => {
       valid = false;
     }
 
-    if (form.eventCode !== "DS_D" && form.origin === "AUTO") {
+    if (!autoAllowedEventCodes.has(form.eventCode) && form.origin === "AUTO") {
       setErrors((prev) => ({
         ...prev,
         origin: "Only DRIVER origin allowed for this status.",
