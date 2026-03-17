@@ -53,7 +53,6 @@ export const GraphDetails = () => {
     const [showTSModal, setShowTSModal] = useState(false);
     const [hoveredEventId, setHoveredEventId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(30);
     const tableWrapperRef = useRef(null);
     const scrollRetryRef = useRef(null);
     const requestIdRef = useRef(0); // tracks latest date fetch to avoid stale updates
@@ -727,6 +726,11 @@ useEffect(() => {
                 };
             })
         );
+    const rowsPerPage = Math.max(tableData?.length || 0, 1);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [tableData?.length]);
 
 
     useEffect(() => {
@@ -1317,10 +1321,6 @@ const violationsForDay = React.useMemo(() => {
                                 paginationPerPage={rowsPerPage}
                                 paginationDefaultPage={currentPage}
                                 onChangePage={(page) => setCurrentPage(page)}
-                                onChangeRowsPerPage={(newPerPage, page) => {
-                                    setRowsPerPage(newPerPage);
-                                    setCurrentPage(page);
-                                }}
                                 highlightOnHover
                                 responsive
                                 customStyles={dataTableCustomStyles}
