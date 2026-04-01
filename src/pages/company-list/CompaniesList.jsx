@@ -53,10 +53,10 @@ export const CompaniesList = () => {
                     } catch (e) {
                       console.warn("Failed to set selected company", e);
                     }
-                    navigate(`/driver-hos/${row._id}`);
+                    navigate(`/video-library/${row._id}`);
                   }}
                 >
-                  Open driver HOS
+                  Open Video Library
                 </button>
               </div>
             ),

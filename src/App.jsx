@@ -37,14 +37,7 @@ import { Resources } from './pages/resources-section/Resources';
 import { DriversList } from './pages/drivers-list/DriversList';
 
 // Admin Section Layout Pages
-import { DriversHOSList } from './pages/AdminSection/DriverHOS/DriversHOSList';
-import { GraphDetails } from './pages/AdminSection/DriverHOS/GraphDetails';
-import { FMCSARecords } from './pages/AdminSection/FMCSA-Reports/FMCSA-Reports';
-import { LogsList } from './pages/AdminSection/LogsSection/LogsList';
 import { Location } from './pages/AdminSection/Locations/Location';
-import { AddEvent } from './pages/AdminSection/DriverHOS/AddEvent';
-import { EditEvent } from './pages/AdminSection/DriverHOS/EditEvent';
-import { UnidentifiedEvents } from './pages/AdminSection/UnidentifiedEvents/UnidentifiedEvents';
 import { DriversListing } from './pages/settings-section/Drivers/DriversListing';
 import { AddDriver } from './pages/settings-section/Drivers/AddDriver';
 import { EditDriver } from './pages/settings-section/Drivers/EditDriver';
@@ -64,11 +57,7 @@ import { EditPortalUser } from './pages/settings-section/Portal-Users/EditPortal
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProtectedRoute from "./components/ProtectedRoute";
-import {IFTAReports} from './pages/AdminSection/IFTA-Reports/IFTA-Reports';
-import { DVIRSList } from './pages/AdminSection/DVIRs/DVIRSList';
-import { AddNewDVIR } from './pages/AdminSection/DVIRs/AddNewDVIR';
-import { DVIRDetails } from './pages/AdminSection/DVIRs/DVIRDetails';
-import { EditDVIR } from './pages/AdminSection/DVIRs/EditDVIR';
+import { VideoLibrary } from './pages/AdminSection/VideoLibrary/VideoLibrary';
 
 
 
@@ -138,20 +127,8 @@ function App() {
             <Layout2 />
           </ProtectedRoute>
         }>
-          <Route path="driver-hos/:companyId" element={<DriversHOSList />} />
-          {/* <Route path="driver-hos/graph-details/:driverId" element={<GraphDetails />} /> */}
-          <Route path="driver-hos/graph-details/:companyId/:driverId" element={<GraphDetails />} />
-          <Route path="driver-hos/graph-details/add-event/:companyId/:driverId" element={<AddEvent />} />
-          <Route path="driver-hos/graph-details/edit-event/:companyId/:driverId" element={<EditEvent />} />
-          <Route path="logs/:companyId" element={<LogsList />} />
-          <Route path="unidentified-events/:companyId" element={<UnidentifiedEvents />} />
-          <Route path="dvirs-list/:companyId" element={<DVIRSList />} />
-          <Route path="dvirs-list/add-dvir/:companyId" element={<AddNewDVIR />} />
-          <Route path="dvirs-list/dvir-details/:companyId/:id" element={<DVIRDetails />} />
-          <Route path="dvirs-list/edit-dvir/:companyId/:id" element={<EditDVIR />} />
-          <Route path="fmcsa-records/:companyId" element={<FMCSARecords />} />
-          <Route path="reports/ifta-reports/:companyId" element={<IFTAReports />} />
-          {/* <Route path="location/:companyId" element={<Location />} /> */}
+          <Route path="video-library/:companyId" element={<VideoLibrary />} />
+          <Route path="location/:companyId" element={<Location />} />
           <Route path="settings/drivers-listing/:companyId" element={<DriversListing />} />
           <Route path="settings/drivers-listing/add-driver/:companyId" element={<AddDriver />} />
           <Route path="settings/drivers-listing/edit-driver/:companyId/:id" element={<EditDriver />} />

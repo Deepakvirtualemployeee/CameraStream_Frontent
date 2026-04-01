@@ -11,16 +11,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
   const userRole = userDetails?.role;
 
   const [openSettings, setOpenSettings] = useState(false);
-  const [openReports, setOpenReports] = useState(false);
   const toggleSettings = () => setOpenSettings(!openSettings);
-  const toggleReports = () => setOpenReports(!openReports);
-
-  // Group of routes under Reports
-  const reportsRoutes = ["/reports/fmcsa-reports", "/reports/ifta-reports"];
-
-  const isReportsActive = reportsRoutes.some((path) =>
-    location.pathname.startsWith(path)
-  );
   // Group of routes under Settings
   const settingsRoutes = [
     "/settings",
@@ -34,11 +25,6 @@ const Sidebar = ({ collapsed, openSidebar }) => {
   const isSettingsActive = settingsRoutes.some((path) =>
     location.pathname.startsWith(path)
   );
-  // Auto-toggle reports dropdown based on current route
-  useEffect(() => {
-    setOpenReports(isReportsActive);
-  }, [isReportsActive, location.pathname]);
-
   // Auto-toggle settings dropdown based on current route
   useEffect(() => {
     setOpenSettings(isSettingsActive);
@@ -65,122 +51,40 @@ const Sidebar = ({ collapsed, openSidebar }) => {
       </div>
 
       <ul className="sidebar-item-cover list-inline overflow-auto flex-fill m-0">
-        {/* <li className="nav-item">
+        <li className="nav-item">
           <Link
             to={`/location/${companyId}`}
-            className={`${location.pathname === `/location/${companyId}` ? "active" : ""
+            className={`${location.pathname.startsWith(`/location/${companyId}`) ? "active" : ""
               } nav-link d-flex align-items-center gap-2`}
             onClick={openSidebar}
           >
-            <i className="bi bi-radar"></i>
-            {!collapsed && <span>Fleet Radar</span>}
+            <i className="bi bi-map"></i>
+            {!collapsed && <span>Map</span>}
           </Link>
-        </li> */}
+        </li>
 
-        {userRole !== ROLES.Broker && (
-          <>
-            <li className="nav-item">
-              <Link
-                to={`/driver-hos/${companyId}`}
-                className={`${location.pathname === `/driver-hos/${companyId}`
-                  ? "active"
-                  : ""
-                  } nav-link d-flex align-items-center gap-2`}
-                onClick={openSidebar}
-              >
-                <i className="bi bi-clock"></i>
-                {!collapsed && <span>Drivers HOS</span>}
-              </Link>
-            </li>
-
-            <li className="nav-item">
-              <Link
-                to={`/logs/${companyId}`}
-                className={`${location.pathname === `/logs/${companyId}` ? "active" : ""
-                  } nav-link d-flex align-items-center gap-2`}
-                onClick={openSidebar}
-              >
-                <i className="bi bi-activity"></i>
-                {!collapsed && <span>Logs</span>}
-              </Link>
-            </li>
-
-            {/* <li className="nav-item">
-              <Link
-                to={`/unidentified-events/${companyId}`}
-                className={`${location.pathname === `/unidentified-events/${companyId}`
-                  ? "active"
-                  : ""
-                  } nav-link d-flex align-items-center gap-2`}
-                onClick={openSidebar}
-              >
-                <i className="bi bi-exclamation-circle"></i>
-                {!collapsed && <span>Unidentified Events</span>}
-              </Link>
-            </li> */}
-
-            <li className="nav-item">
-              <Link to={`/dvirs-list/${companyId}`} className={`${location.pathname === `/dvirs-list/${companyId}` ? 'active' : ''} nav-link d-flex align-items-center gap-2`} onClick={openSidebar}>
-                <i className="bi bi-list-check"></i>
-                {!collapsed && <span>DVIRs</span>}
-              </Link>
-            </li>
-
-            {userRole !== ROLES.Broker && (
-              <li className="nav-item">
-                <a
-                  className="nav-link d-flex align-items-center gap-2 pointer"
-                  onClick={() => {
-                    toggleReports();
-                    openSidebar();
-                  }}
-                >
-                  <i className="bi bi-bar-chart"></i>
-                  {!collapsed && <span>Reports</span>}
-                  {!collapsed && (
-                    <i
-                      className={`bi fs-16 ms-auto ${openReports ? "bi-chevron-up" : "bi-chevron-down"}`}
-                    ></i>
-                  )}
-                </a>
-
-                {/* {!collapsed && openReports && (
-                  <ul className="sub-menu list-unstyled">
-                    <li className="nav-item">
-                      <Link
-                        to={`/reports/ifta-reports/${companyId}`}
-                        className={`${
-                          location.pathname.startsWith(`/reports/ifta-reports/${companyId}`) ? "active" : ""
-                        }`}
-                      >
-                        IFTA Reports
-                      </Link>
-                    </li>
-
-                    <li className="nav-item">
-                      <Link
-                        to={`/fmcsa-records/${companyId}`}
-                        className={`${
-                          location.pathname.startsWith(`/fmcsa-records/${companyId}`) ? "active" : ""
-                        }`}
-                      >
-                        FMCSA Reports
-                      </Link>
-                    </li>
-                  </ul>
-                )} */}
-              </li>
-            )}
-          </>
-        )}
+        <li className="nav-item">
+          <Link
+            to={`/video-library/${companyId}`}
+            className={`${location.pathname.startsWith(`/video-library/${companyId}`) ? "active" : ""
+              } nav-link d-flex align-items-center gap-2`}
+            onClick={openSidebar}
+          >
+            <i className="bi bi-camera-video"></i>
+            {!collapsed && <span>Video Library</span>}
+          </Link>
+        </li>
 
         <li className="nav-item">
           <hr className="opacity-100 my-2" />
         </li>
 
         <li className="nav-item">
-          <a
-            className="nav-link d-flex align-items-center gap-2 pointer"
+          <button
+            type="button"
+            className={`nav-link d-flex align-items-center gap-2 pointer w-100 border-0 bg-transparent ${
+              collapsed ? "justify-content-center" : "text-start"
+            }`}
             onClick={() => {
               toggleSettings();
               openSidebar();
@@ -194,7 +98,7 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                   }`}
               ></i>
             )}
-          </a>
+          </button>
 
           {/* Dropdown submenu */}
           {!collapsed && openSettings && (

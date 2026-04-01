@@ -36,5 +36,3 @@ export {
   updateEldDevice,
   getUnassignedElds
 } from "./eldDevices";
-
-export { createDvir, getDvirs, getUnitDefects, getTrailerDefects, getDvirById, updateDvir } from "./dvir";

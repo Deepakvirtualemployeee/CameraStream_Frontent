@@ -11,11 +11,7 @@ import vehiclesReducer from './store/reducer/vehicles';
 import driverReducer from './store/reducer/drivers';
 import eldDeviceReducer from './store/reducer/eldDevices';
 import portalUsersReducer from './store/reducer/portalUsers';
-import driversHOSReducer from './store/reducer/driverHOS';
 import dashboardReducer from './store/reducer/dashboard';
-import iftaReducer  from './store/reducer/ifta';
-import unidentifiedEventsReducer from './store/reducer/unidentifiedEvents';
-import dvirReducer from './store/reducer/dvir';
 
 // Import Bootstrap 5.3.3 CSS
 //import 'bootstrap/dist/css/bootstrap.min.css';  // Corrected Bootstrap import for styling
@@ -38,11 +34,7 @@ const rootReducer = combineReducers({
   drivers: driverReducer,
   eldDevices: eldDeviceReducer,
   portalUsers: portalUsersReducer,
-  driversHOS: driversHOSReducer,
   dashboard: dashboardReducer,
-  ifta: iftaReducer,
-  unidentifiedEvents: unidentifiedEventsReducer,
-  dvir: dvirReducer,
 });
 
 const store = createStore(
