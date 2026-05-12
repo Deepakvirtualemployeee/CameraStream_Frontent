@@ -1,20 +1,59 @@
 @import "../../assets/style/custom-variables.scss";
 
+$auth-accent: $sidebar-bg;
+$auth-accent-dark: darken($sidebar-bg, 8%);
+$auth-accent-light: #dcebff;
+$auth-accent-soft: rgba($sidebar-bg, 0.16);
+
 // Authentication Page CSS
 .auth-page {
-    // background: url('./assets/images/bg-banner5.jpg') no-repeat;
-    background-color: #F2F4F7;
+    background:
+        radial-gradient(circle at top left, rgba($white, 0.72), transparent 34%),
+        linear-gradient(180deg, #dcebff 0%, #c5dcff 100%);
     background-size: cover;
+    position: relative;
+
+    &:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba($white, 0.14), rgba($sidebar-bg, 0.08));
+        pointer-events: none;
+    }
+
+    >* {
+        position: relative;
+        z-index: 1;
+    }
+
+    .text-primary,
+    .btn-link,
+    a {
+        color: $auth-accent !important;
+    }
+
+    .form-label {
+        color: #22314a;
+    }
 
     .form-control,
     .form-select {
-        border-color: $theme3;
+        border-color: rgba($auth-accent, 0.85);
         background-color: transparent;
         min-height: 54px;
+
+        &:focus {
+            border-color: $auth-accent;
+            box-shadow: 0 0 0 0.25rem $auth-accent-soft;
+        }
     }
 
     .content-wrapper {
         padding: 2.25rem 1rem;
+        background: rgba($white, 0.96);
+        border: 1px solid rgba($sidebar-bg, 0.12);
+        border-radius: 1.5rem;
+        box-shadow: 0 28px 60px rgba($sidebar-bg, 0.12);
 
         @include media-breakpoint-up(xl) {
             min-height: 550px;
@@ -28,13 +67,56 @@
         }
     }
 
+    .form-check-input {
+        border-color: rgba($auth-accent, 0.8) !important;
+
+        &:checked {
+            background-color: $auth-accent;
+            border-color: $auth-accent !important;
+        }
+
+        &:focus {
+            box-shadow: 0 0 0 0.25rem $auth-accent-soft;
+        }
+    }
+
+    .btn-primary,
+    .btn-primary.btn-custom {
+        background-image: linear-gradient(to bottom, $auth-accent, $auth-accent-light);
+        border: 1px solid rgba($auth-accent-dark, 0.2) !important;
+        color: $white !important;
+
+        &:hover,
+        &:focus,
+        &:active {
+            background-image: linear-gradient(to bottom, darken($auth-accent, 4%), darken($auth-accent-light, 7%));
+            border-color: rgba($auth-accent-dark, 0.3) !important;
+            color: $white !important;
+            box-shadow: 0 0 0 0.25rem $auth-accent-soft;
+        }
+    }
+
+    .btn-outline-primary {
+        border-color: rgba($auth-accent, 0.7) !important;
+        color: $auth-accent !important;
+
+        &:hover,
+        &:focus,
+        &:active {
+            background-image: linear-gradient(to bottom, $auth-accent, $auth-accent-light);
+            border-color: transparent !important;
+            color: $white !important;
+            box-shadow: 0 0 0 0.25rem $auth-accent-soft;
+        }
+    }
+
     .react-tel-input {
         .form-control {
             border-radius: 0.5rem;
         }
 
         .flag-dropdown {
-            border: 1px solid $theme3;
+            border: 1px solid rgba($auth-accent, 0.85);
             border-top-left-radius: 0.5rem;
             border-bottom-left-radius: 0.5rem;
         }

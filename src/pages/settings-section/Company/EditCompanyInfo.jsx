@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getCompanyInfo, updateCompanyById } from "../../../store/actions/companies";
 
 export const EditCompanyInfo = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const location = useLocation();
-    // const { companyId } = location.state || {};
     const { companyId } = useParams(); // company id from URL
 
     // Redux state
@@ -37,7 +35,7 @@ export const EditCompanyInfo = () => {
     // Fetch company on mount
     useEffect(() => {
         dispatch(getCompanyInfo(companyId));
-    }, [dispatch]);
+    }, [dispatch, companyId]);
 
     // Prefill form when company loads
     useEffect(() => {
@@ -195,7 +193,7 @@ export const EditCompanyInfo = () => {
                                             <Form.Label>Time Zone</Form.Label>
                                             <Form.Select
                                                 name="timeZone"
-                                                value={terminal.timeZoneId}
+                                                value={terminal.timeZone || terminal.timeZoneId || ""}
                                                 onChange={(e) => handleTerminalChange(index, e)}
                                                 required
                                             >
@@ -255,166 +253,7 @@ export const EditCompanyInfo = () => {
                             </div>
                         </section>
 
-                        {/* Log Settings */}
-                        <section className="log-settings-section mb-4">
-                            <div className="main-heading mb-3">Default Driver Log Settings</div>
-                            <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
-                                <Form.Group className="mb-3" controlId="HOSRules">
-                                    <Form.Label>
-                                        HOS Rules
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="hosRules"
-                                        value={formData.hosRules || "USA 70 Hour / 8 Day"} // will remove the default values later for all
-                                        onChange={handleChange}
-                                        placeholder="Enter HOS rules"
-                                        autoComplete="off"
-                                        // required
-                                        disabled
-                                    />
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="CargoType">
-                                    <Form.Label>
-                                        Cargo Type
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="cargoType"
-                                        value={formData.cargoType || "Property"}
-                                        onChange={handleChange}
-                                        placeholder="Enter cargo type"
-                                        autoComplete="off"
-                                        // required
-                                        disabled
-                                    />
-                                    {/* <Form.Select
-                                        name="cargoType"
-                                        value={formData.cargoType}
-                                        onChange={handleChange}
-                                        required
-                                    >
-                                        <option value="" hidden>
-                                            Select Cargo Type
-                                        </option>
-                                        <option value="PROPERTY">PROPERTY</option>
-                                        <option value="PASSENGER">PASSENGER</option>
-                                    </Form.Select> */}
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="restartHours">
-                                    <Form.Label>
-                                        Restart
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="restartHours"
-                                        value={formData.restartHours || "34 Hour Restart"}
-                                        onChange={handleChange}
-                                        placeholder="Enter restart"
-                                        autoComplete="off"
-                                        // required
-                                        disabled
-                                    />
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="RestBreak">
-                                    <Form.Label>
-                                        Rest Break
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="restBreak"
-                                        value={formData.restBreak || "30 min Break"}
-                                        onChange={handleChange}
-                                        placeholder="Enter rest break"
-                                        autoComplete="off"
-                                        // required
-                                        disabled
-                                    />
-                                </Form.Group>
-
-                                {/* Checkboxes */}
-                                <Form.Group>
-                                    <div className="checks-wrapper">
-                                        {/* <Form.Check
-                                            type="checkbox"
-                                            name="allowShortHaul"
-                                            checked={formData.allowShortHaul}
-                                            onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={
-                                                <div className="fs-6 text-dark text-opacity-75">
-                                                    Allow Short-Haul Exception
-                                                </div>
-                                            }
-                                        />
-                                        <Form.Check
-                                            type="checkbox"
-                                            name="allowSplitSleeper"
-                                            checked={formData.allowSplitSleeper}
-                                            onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={
-                                                <div className="fs-6 text-dark text-opacity-75">
-                                                    Allow Split-Sleeper Berth
-                                                </div>
-                                            }
-                                        /> */}
-                                        <Form.Check
-                                            type="checkbox"
-                                            name="allowPersonalConveyance"
-                                            checked={formData.allowPersonalConveyance}
-                                            onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={
-                                                <div className="fs-6 text-dark text-opacity-75">
-                                                    Allow Personal Conveyance
-                                                </div>
-                                            }
-                                        />
-                                        <Form.Check
-                                            type="checkbox"
-                                            name="allowYardMove"
-                                            checked={formData.allowYardMove}
-                                            onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={
-                                                <div className="fs-6 text-dark text-opacity-75">
-                                                    Allow Yard Move
-                                                </div>
-                                            }
-                                        />
-                                        <Form.Check
-                                            type="checkbox"
-                                            name="allowManualDriver"
-                                            checked={formData.allowManualDriver}
-                                            onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={
-                                                <div className="fs-6 text-dark text-opacity-75">
-                                                    Allow Manual Driver
-                                                </div>
-                                            }
-                                        />
-                                        {/* <Form.Check
-                                            type="checkbox"
-                                            name="restrictDriverFromCreationDate"
-                                            checked={formData.restrictDriverFromCreationDate}
-                                            onChange={handleChange}
-                                            className="fs-16"
-                                            label={
-                                                <div className="fs-6 text-dark text-opacity-75">
-                                                    Restrict Driver from Creation Date & Time
-                                                </div>
-                                            }
-                                        /> */}
-                                    </div>
-                                </Form.Group>
-                            </div>
-                        </section>
+                       
                     </Form>
                 </div>
             </div>

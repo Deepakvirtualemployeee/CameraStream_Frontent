@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Form, Row, Col, Button, Spinner } from "react-bootstrap";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useDispatch, useSelector } from "react-redux";
 import { getDriverById, updateDriver, getCoDrivers, getDriversIssuingState, deleteDriver, deactivateDriver, activateDriver } from "../../../store/actions/drivers";
-import { getAllActiveVehicles } from "../../../store/actions/vehicles";
+import { getVehicles } from "../../../store/actions/vehicles";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import { ALPHABATES_NUMERIC } from "../../../constants";
 import { getCompanyInfo } from "../../../store/actions/companies";
 import { ROLES } from '../../../constants';
+import { toast } from "react-toastify";
 
 export const EditDriver = () => {
     const navigate = useNavigate();
@@ -25,7 +26,7 @@ const userRole = userDetails?.role;
     const { driver, loading: driverLoading } = useSelector((state) => state.drivers);
     const { coDrivers, loading: coDriversLoading } = useSelector((state) => state.drivers);
     const { issuingState, loading: issuingStateLoading } = useSelector((state) => state.drivers);
-    const { allActiveVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
+    const { vehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
     const { company, loading, error } = useSelector((state) => state.companies);
 
     // console.log("Address:", company);
@@ -50,7 +51,7 @@ const userRole = userDetails?.role;
             : null;
 
         // Make sure assigned vehicle is in dropdown
-        const vehiclesList = allActiveVehicles || [];
+        const vehiclesList = vehicles || [];
         let merged = [...vehiclesList];
         if (
             assignedVehicle &&
@@ -60,7 +61,7 @@ const userRole = userDetails?.role;
         }
 
         setVehicleOptions(merged);
-    }, [driver, allActiveVehicles]);
+    }, [driver, vehicles]);
 
     // Merge assigned co-driver with available co-drivers
     useEffect(() => {
@@ -96,7 +97,7 @@ const userRole = userDetails?.role;
         setConfirmPassVisible(!confirmPassVisible);
 
     const [formData, setFormData] = useState({
-        username: "",
+        userName: "",
         firstName: "",
         companyId: companyId,
         lastName: "",
@@ -115,18 +116,18 @@ const userRole = userDetails?.role;
         cargoType: "",
         restart: "",
         restBreak: "",
-        shortHaulException: false,
-        splitSleeperBerth: false,
-        personalConveyance: false,
-        yardMove: false,
-        manualDriver: false,
-        restrictDriverFromCreation: false,
+        allowShortHaulException: false,
+        allowSplitSleeperBerth: false,
+        allowPersonalConveyance: false,
+        allowYardMove: false,
+        allowManualDriver: false,
+        restrictDriverFromCreationDateAndTime: false,
     });
 
     // Fetch Active Vehicles
     useEffect(() => {
         if (companyId) {
-            dispatch(getAllActiveVehicles(companyId));
+            dispatch(getVehicles(companyId));
         }
     }, [companyId, dispatch]);
 
@@ -155,7 +156,7 @@ const userRole = userDetails?.role;
     useEffect(() => {
         if (driver) {
             setFormData({
-                username: driver.userName || "",
+                userName: driver.userName || "",
                 firstName: driver.firstName || "",
                 lastName: driver.lastName || "",
                 email: driver.email || "",
@@ -182,12 +183,12 @@ const userRole = userDetails?.role;
                 cargoType: driver.cargoType || "",
                 restart: driver.restart || "",
                 restBreak: driver.restBreak || "",
-                shortHaulException: driver.allowShortHaulException || false,
-                splitSleeperBerth: driver.allowSplitSleeperBerth || false,
-                personalConveyance: driver.allowPersonalConveyance || false,
-                yardMove: driver.allowYardMove || false,
-                manualDriver: driver.allowManualDriver || false,
-                restrictDriverFromCreation: driver.restrictDriverFromCreationDateAndTime || false,
+                allowShortHaulException: driver.allowShortHaulException || false,
+                allowSplitSleeperBerth: driver.allowSplitSleeperBerth || false,
+                allowPersonalConveyance: driver.allowPersonalConveyance || false,
+                allowYardMove: driver.allowYardMove || false,
+                allowManualDriver: driver.allowManualDriver || false,
+                restrictDriverFromCreationDateAndTime: driver.restrictDriverFromCreationDateAndTime || false,
                 companyId: companyId
             });
         }
@@ -272,7 +273,7 @@ const userRole = userDetails?.role;
         // If user entered a password, check confirm password
         if (formData.password || formData.confirmPassword) {
             if (formData.password !== formData.confirmPassword) {
-                alert("Passwords do not match!");
+                toast.error("Passwords do not match!");
                 return;
             }
         } else {
@@ -399,8 +400,8 @@ const userRole = userDetails?.role;
                                         <Form.Label>Username<span className="text-danger">*</span></Form.Label>
                                         <Form.Control
                                             type="text"
-                                            name="username"
-                                            value={formData.username}
+                                            name="userName"
+                                            value={formData.userName}
                                             onChange={handleChange}
                                             placeholder="Enter username"
                                             autoComplete='off'
@@ -727,141 +728,10 @@ const userRole = userDetails?.role;
                                         ))}
                                     </Form.Select>
                                 </Form.Group> */}
-                                <Form.Group controlId="AssignCoDriver">
-                                    <Form.Label>Assign Co-Driver</Form.Label>
-                                    <Form.Select
-                                        name="coDriverId"
-                                        value={formData.coDriverId}
-                                        onChange={(e) => {
-                                            const selectedCoDriver = coDriverOptions.find(
-                                                (d) => d._id === e.target.value
-                                            );
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                coDriverId: e.target.value || "",
-                                                // Optional: store name if needed for UI
-                                                assignCoDriver: selectedCoDriver
-                                                    ? `${selectedCoDriver.firstName} ${selectedCoDriver.lastName}`
-                                                    : "",
-                                            }));
-                                        }}
-                                    >
-                                        <option value="">Select Co-Driver</option>
-                                        {coDriversLoading && <option>Loading...</option>}
-                                        {coDriverOptions?.map((d) => (
-                                            <option key={d._id} value={d._id}>
-                                                {d.firstName} {d.lastName}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
+                               
                             </div>
                         </section>
 
-                        <section className="log-section">
-                            <div className="main-heading mb-3">Log Settings</div>
-                            <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
-                                <Form.Group className="mb-3" controlId="HOSRules">
-                                    <Form.Label>HOS Rules
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="hosRules"
-                                        // value={formData.hosRules || "USA 70 Hour / 8 Day"}
-                                        value={"USA 70 Hour / 8 Day"}
-                                        onChange={handleChange}
-                                        placeholder="Enter HOS rules"
-                                        autoComplete='off'
-                                        // required
-                                        disabled
-                                    />
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="CargoType">
-                                    <Form.Label>Cargo Type
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="cargoType"
-                                        // value={formData.cargoType || "Property"}
-                                        value={"Property"}
-                                        onChange={handleChange}
-                                        placeholder="Enter cargo type"
-                                        autoComplete='off'
-                                        // required
-                                        disabled
-                                    />
-                                    {/* <Form.Select
-                                        name="cargoType"
-                                        value={formData.cargoType || "Property"}
-                                        onChange={handleChange}
-                                        required
-                                    >
-                                        <option value="" hidden>
-                                            Select Cargo Type
-                                        </option>
-                                        <option value="PROPERTY">PROPERTY</option>
-                                        <option value="PASSENGER">PASSENGER</option>
-                                    </Form.Select> */}
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="Restart">
-                                    <Form.Label>Restart
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="restart"
-                                        // value={formData.restart || "34 Hour Restart"}
-                                        value={"34 Hour Restart"}
-                                        onChange={handleChange}
-                                        placeholder="Enter restart"
-                                        autoComplete='off'
-                                        // required
-                                        disabled
-                                    />
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="RestBreak">
-                                    <Form.Label>Rest Break
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="restBreak"
-                                        // value={formData.restBreak || "30 min Break"}
-                                        value={"30 min Break"}
-                                        onChange={handleChange}
-                                        placeholder="Enter rest break"
-                                        autoComplete='off'
-                                        // required
-                                        disabled
-                                    />
-                                </Form.Group>
-                                <Form.Group>
-                                    <div className="checks-wrapper">
-                                        {/* <Form.Check type="checkbox" name="shortHaulException" checked={formData.shortHaulException} onChange={handleChange}
-                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Short-Haul Exception</div>}
-                                            required
-                                        />
-                                        <Form.Check type="checkbox" name="splitSleeperBerth" checked={formData.splitSleeperBerth} onChange={handleChange}
-                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Split-Sleeper Berth</div>}
-                                        /> */}
-                                        <Form.Check type="checkbox" name="personalConveyance" checked={formData.personalConveyance} onChange={handleChange}
-                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Personal Conveyance</div>}
-                                        />
-                                        <Form.Check type="checkbox" name="yardMove" checked={formData.yardMove} onChange={handleChange}
-                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Yard Move</div>}
-                                        />
-                                        <Form.Check type="checkbox" name="manualDriver" checked={formData.manualDriver} onChange={handleChange}
-                                            className="fs-16 mb-1" label={<div className="fs-6 text-dark text-opacity-75">Allow Manual Driver</div>}
-                                        />
-                                        {/* <Form.Check type="checkbox" name="restrictDriverFromCreation" checked={formData.restrictDriverFromCreation} onChange={handleChange}
-                                            className="fs-16" label={<div className="fs-6 text-dark text-opacity-75">Restrict Driver from Creation Date & Time</div>}
-                                        /> */}
-                                    </div>
-                                </Form.Group>
-                            </div>
-                        </section>
                     </Form>
                 </div>
             </div>

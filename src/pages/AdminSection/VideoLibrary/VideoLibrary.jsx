@@ -1,6 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "../../../axios-config";
+import CustomDateTimePicker from "../../../components/CustomDateTimePicker";
+import moment from "moment-timezone";
 import "./VideoLibrary.scss";
 
 const LIVE_ROWS = [
@@ -8,6 +12,7 @@ const LIVE_ROWS = [
     id: "cam-1",
     type: "Road-facing Main Camera",
     cameraSn: "200147",
+    deviceID: "200147",
     vehicleId: "001",
     currentDriver: "N/A",
     location: "16mi W of Somerton, AZ",
@@ -16,52 +21,117 @@ const LIVE_ROWS = [
   },
 ];
 
-const INITIAL_REQUESTS = [
-  {
-    id: "req-1",
-    vehicleId: "001",
-    cameraSn: "200147",
-    requestedOn: "Mar 09, 2026 11:05 PM",
-    duration: "Mar 09, 2026 10:25 PM - 01:22:23 PM",
-    requestedBy: "Manpreet Singh",
-  },
-  {
-    id: "req-2",
-    vehicleId: "001",
-    cameraSn: "200147",
-    requestedOn: "Mar 10, 2026 12:07 PM",
-    duration: "Mar 09, 2026 08:23:52 AM - 02:09:52 AM",
-    requestedBy: "Manpreet Singh",
-  },
-];
+const INITIAL_REQUESTS = [];
 
 const initialRequestForm = {
-  vehicleId: "",
-  date: "",
-  cameraView: "road",
-  videoType: "standard",
-  hour: "12",
-  minute: "00",
-  second: "00",
-  durationMinute: "02",
-  durationSecond: "00",
+  deviceNo: "",
+  resStartTime: null,
+  resEndTime: null,
+  channel: "1",
+  resDeviceFileName: "",
+  fileFormat: "mp4",
 };
+
+const formatDateTimeForApi = (value) => {
+  if (!value) return "";
+  const parsedDate = moment(value);
+  return parsedDate.isValid() ? parsedDate.format("YYYY-MM-DD HH:mm:ss") : "";
+};
+
+const CHANNEL_OPTIONS = [
+  { value: "1", label: "Channel 1" },
+  { value: "2", label: "Channel 2" },
+  { value: "3", label: "Channel 3" },
+  { value: "4", label: "Channel 4" },
+];
+
+const FILE_FORMAT_OPTIONS = [
+  { value: "mp4", label: "MP4" },
+];
+
+const getRecordsFromResponse = (responseData) => {
+  if (Array.isArray(responseData)) return responseData;
+  if (Array.isArray(responseData?.data)) return responseData.data;
+  if (Array.isArray(responseData?.data?.docs)) return responseData.data.docs;
+  if (Array.isArray(responseData?.data?.videos)) return responseData.data.videos;
+  if (Array.isArray(responseData?.data?.downloadedVideos)) return responseData.data.downloadedVideos;
+  if (Array.isArray(responseData?.data?.records)) return responseData.data.records;
+  if (Array.isArray(responseData?.docs)) return responseData.docs;
+  if (Array.isArray(responseData?.videos)) return responseData.videos;
+  if (Array.isArray(responseData?.downloadedVideos)) return responseData.downloadedVideos;
+  if (Array.isArray(responseData?.records)) return responseData.records;
+  return [];
+};
+
+const formatRequestRow = (record, fallbackPayload, fallbackVehicleId, index) => ({
+  id:
+    record?.id ||
+    record?._id ||
+    record?.recordId ||
+    record?.videoId ||
+    `${fallbackPayload?.deviceNo || fallbackPayload?.deviceID || "video"}-${
+      fallbackPayload?.resStartTime || fallbackPayload?.startTime || "request"
+    }-${index}`,
+  vehicleId:
+    record?.vehicleId ||
+    record?.vehicleID ||
+    record?.vehicleNumber ||
+    fallbackVehicleId ||
+    "-",
+  cameraSn:
+    record?.cameraSn ||
+    record?.cameraSN ||
+    record?.cameraSerialNumber ||
+    record?.deviceNo ||
+    record?.deviceID ||
+    record?.deviceId ||
+    fallbackPayload?.deviceNo ||
+    fallbackPayload?.deviceID ||
+    "-",
+  requestedOn:
+    record?.requestedOn ||
+    record?.requestDate ||
+    record?.createdAt ||
+    record?.updatedAt ||
+    new Date().toLocaleString(),
+  duration:
+    record?.duration ||
+    record?.videoDuration ||
+    `${record?.resStartTime || record?.startTime || fallbackPayload?.resStartTime || fallbackPayload?.startTime || "-"} - ${
+      record?.resEndTime || record?.endTime || fallbackPayload?.resEndTime || fallbackPayload?.endTime || "-"
+    }`,
+  status:
+    record?.status ||
+    record?.downloadStatus ||
+    (record?.downloadUrl || record?.downloadURL || record?.playUrl ? "Ready" : "Requested"),
+  requestedBy:
+    record?.requestedBy ||
+    record?.requestedUser ||
+    record?.userName ||
+    record?.createdBy ||
+    "Current User",
+  raw: record,
+});
 
 export const VideoLibrary = () => {
   const location = useLocation();
+  const { companyId } = useParams();
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || "live");
   const [search, setSearch] = useState("");
 
   const [vehicleFilter, setVehicleFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
+  const [lastSearchMeta, setLastSearchMeta] = useState(null);
+  const [loadingRequests, setLoadingRequests] = useState(false);
 
   const [showRequestModal, setShowRequestModal] = useState(
     Boolean(location.state?.openRequestModal)
   );
+  const [submittingRequest, setSubmittingRequest] = useState(false);
   const [requestForm, setRequestForm] = useState({
     ...initialRequestForm,
-    vehicleId: location.state?.vehicleId || "",
+    deviceNo: location.state?.deviceID || "",
   });
 
   useEffect(() => {
@@ -75,10 +145,50 @@ export const VideoLibrary = () => {
       setShowRequestModal(true);
       setRequestForm((prev) => ({
         ...prev,
-        vehicleId: location.state.vehicleId || prev.vehicleId,
+        deviceNo: location.state.deviceID || prev.deviceNo,
       }));
     }
   }, [location.state]);
+
+  const fetchDownloadedVideos = useCallback(async () => {
+    if (!companyId) {
+      setRequests([]);
+      return;
+    }
+
+    try {
+      setLoadingRequests(true);
+      const response = await axios.get("/video/downloaded-videos", {
+        params: { companyId },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const records = getRecordsFromResponse(response.data);
+      setRequests(
+        records.map((record, index) =>
+          formatRequestRow(record, {}, location.state?.vehicleId, index)
+        )
+      );
+      setLastSearchMeta(null);
+    } catch (error) {
+      setRequests([]);
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to fetch requested videos."
+      );
+    } finally {
+      setLoadingRequests(false);
+    }
+  }, [companyId, location.state?.vehicleId]);
+
+  useEffect(() => {
+    if (activeTab === "requests") {
+      fetchDownloadedVideos();
+    }
+  }, [activeTab, fetchDownloadedVideos]);
 
   const filteredLive = useMemo(() => {
     if (!search.trim()) return LIVE_ROWS;
@@ -96,6 +206,11 @@ export const VideoLibrary = () => {
     [requests]
   );
 
+  const deviceOptions = useMemo(
+    () => [...new Set(LIVE_ROWS.map((row) => row.deviceID || row.cameraSn).filter(Boolean))],
+    []
+  );
+
   const filteredRequests = useMemo(() => {
     return requests.filter((req) => {
       const vehicleMatch =
@@ -109,24 +224,74 @@ export const VideoLibrary = () => {
 
   const closeRequestModal = () => {
     setShowRequestModal(false);
-    setRequestForm(initialRequestForm);
+    setRequestForm({
+      ...initialRequestForm,
+      deviceNo: location.state?.deviceID || "",
+    });
   };
 
-  const handleCreateRequest = (e) => {
+  const handleCreateRequest = async (e) => {
     e.preventDefault();
-    if (!requestForm.vehicleId || !requestForm.date) return;
+    if (!requestForm.deviceNo || !requestForm.resStartTime || !requestForm.resEndTime) {
+      toast.error("Device ID, start time, and end time are required.");
+      return;
+    }
 
-    const nextRow = {
-      id: `req-${Date.now()}`,
-      vehicleId: requestForm.vehicleId,
-      cameraSn: "200147",
-      requestedOn: new Date().toLocaleString(),
-      duration: `${requestForm.date} ${requestForm.hour}:${requestForm.minute}:${requestForm.second} (${requestForm.durationMinute}m ${requestForm.durationSecond}s)`,
-      requestedBy: "Current User",
+    const payload = {
+      deviceNo: requestForm.deviceNo.trim(),
+      channel: Number(requestForm.channel),
+      resStartTime: formatDateTimeForApi(requestForm.resStartTime),
+      resEndTime: formatDateTimeForApi(requestForm.resEndTime),
+      resDeviceFileName: requestForm.resDeviceFileName.trim() || "video-request",
+      fileFormat: requestForm.fileFormat,
     };
 
-    setRequests((prev) => [nextRow, ...prev]);
-    closeRequestModal();
+    if (moment(payload.resStartTime).isAfter(moment(payload.resEndTime))) {
+      toast.error("End time must be greater than start time.");
+      return;
+    }
+
+    try {
+      setSubmittingRequest(true);
+      const response = await axios.post("/video/download/tasks", payload, {
+        params: { companyId },
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+
+      const records = getRecordsFromResponse(response.data);
+      const nextRows = records.length
+        ? records.map((record, index) =>
+            formatRequestRow(record, payload, location.state?.vehicleId, index)
+          )
+        : [
+            formatRequestRow({}, payload, location.state?.vehicleId, 0),
+          ];
+
+      setRequests(nextRows);
+      setLastSearchMeta({
+        total: records.length,
+        deviceID: payload.deviceNo,
+        startTime: payload.resStartTime,
+        endTime: payload.resEndTime,
+      });
+      toast.success(
+        records.length
+          ? `Created ${records.length} video request${records.length > 1 ? "s" : ""}.`
+          : "Video request submitted successfully."
+      );
+      closeRequestModal();
+    } catch (error) {
+      toast.error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to request video."
+      );
+    } finally {
+      setSubmittingRequest(false);
+    }
   };
 
   return (
@@ -243,11 +408,24 @@ export const VideoLibrary = () => {
                   >
                     <i className="bi bi-plus-lg me-1"></i> Request Video
                   </Button>
-                  <button type="button" className="icon-btn">
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    onClick={fetchDownloadedVideos}
+                    disabled={loadingRequests}
+                  >
                     <i className="bi bi-arrow-clockwise"></i>
                   </button>
                 </div>
               </div>
+
+              {lastSearchMeta && (
+                <div className="small text-muted mb-3">
+                  Showing {requests.length} result{requests.length !== 1 ? "s" : ""} for device{" "}
+                  <strong>{lastSearchMeta.deviceID}</strong> from {lastSearchMeta.startTime} to{" "}
+                  {lastSearchMeta.endTime}
+                </div>
+              )}
 
               <div className="table-responsive video-table-wrapper">
                 <table className="table table-hover align-middle mb-0">
@@ -259,28 +437,41 @@ export const VideoLibrary = () => {
                       <th>Video Duration</th>
                       <th>Status</th>
                       <th>Requested By</th>
-                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredRequests.map((row) => (
-                      <tr key={row.id}>
-                        <td>{row.vehicleId}</td>
-                        <td>{row.cameraSn}</td>
-                        <td>{row.requestedOn}</td>
-                        <td>{row.duration}</td>
-                        <td>
-                          <span className="status-pill play me-2">Play</span>
-                          <span className="status-pill download">Download</span>
-                        </td>
-                        <td>{row.requestedBy}</td>
-                        <td>
-                          <button type="button" className="icon-link" title="Edit">
-                            <i className="bi bi-pencil"></i>
-                          </button>
+                    {loadingRequests ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted py-4">
+                          Loading requested videos...
                         </td>
                       </tr>
-                    ))}
+                    ) : filteredRequests.length ? (
+                      filteredRequests.map((row) => (
+                        <tr key={row.id}>
+                          <td>{row.vehicleId}</td>
+                          <td>{row.cameraSn}</td>
+                          <td>{row.requestedOn}</td>
+                          <td>{row.duration}</td>
+                          <td>
+                            <span
+                              className={`status-pill ${
+                                row.status === "Ready" ? "download" : "play"
+                              }`}
+                            >
+                              {row.status}
+                            </span>
+                          </td>
+                          <td>{row.requestedBy}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="6" className="text-center text-muted py-4">
+                          No requested videos found.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -299,148 +490,118 @@ export const VideoLibrary = () => {
           <Modal.Header closeButton>
             <Modal.Title>Request Video</Modal.Title>
           </Modal.Header>
-          <Modal.Body>
-            <Form.Group className="mb-3">
-              <Form.Label>Vehicle ID</Form.Label>
-              <Form.Select
-                value={requestForm.vehicleId}
-                onChange={(e) =>
-                  setRequestForm((prev) => ({ ...prev, vehicleId: e.target.value }))
-                }
-                required
-              >
-                <option value="">Please enter Vehicle ID</option>
-                {vehicleOptions
-                  .filter((item) => item !== "all")
-                  .map((vehicleId) => (
-                    <option key={vehicleId} value={vehicleId}>
-                      {vehicleId}
-                    </option>
+          <Modal.Body className="request-video-form">
+            <Form.Group className="request-video-form__group">
+              <Form.Label>Device ID</Form.Label>
+              <div className="request-video-form__input-wrap">
+                <Form.Control
+                  list="request-video-device-options"
+                  type="text"
+                  value={requestForm.deviceNo}
+                  onChange={(e) =>
+                    setRequestForm((prev) => ({ ...prev, deviceNo: e.target.value }))
+                  }
+                  placeholder="Enter device ID"
+                  required
+                />
+                <datalist id="request-video-device-options">
+                  {deviceOptions.map((deviceID) => (
+                    <option key={deviceID} value={deviceID} />
                   ))}
-              </Form.Select>
+                </datalist>
+              </div>
             </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Date</Form.Label>
-              <Form.Control
-                type="date"
-                value={requestForm.date}
-                onChange={(e) =>
-                  setRequestForm((prev) => ({ ...prev, date: e.target.value }))
+            <Form.Group className="request-video-form__group">
+              <Form.Label>Start Time</Form.Label>
+              <CustomDateTimePicker
+                value={requestForm.resStartTime}
+                onChange={(value) =>
+                  setRequestForm((prev) => ({ ...prev, resStartTime: value }))
                 }
-                required
+                placeholder="Select start date and time"
               />
             </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Camera View</Form.Label>
-              <div className="d-flex gap-2">
-                <Form.Check
-                  inline
-                  type="radio"
-                  id="road-view"
-                  label="Road View"
-                  name="cameraView"
-                  checked={requestForm.cameraView === "road"}
-                  onChange={() =>
-                    setRequestForm((prev) => ({ ...prev, cameraView: "road" }))
+            <Form.Group className="request-video-form__group">
+              <Form.Label>End Time</Form.Label>
+              <CustomDateTimePicker
+                value={requestForm.resEndTime}
+                onChange={(value) =>
+                  setRequestForm((prev) => ({ ...prev, resEndTime: value }))
+                }
+                placeholder="Select end date and time"
+              />
+            </Form.Group>
+
+            <Form.Group className="request-video-form__group">
+              <Form.Label>Channel</Form.Label>
+              <div className="request-video-form__input-wrap">
+                <Form.Select
+                  value={requestForm.channel}
+                  onChange={(e) =>
+                    setRequestForm((prev) => ({ ...prev, channel: e.target.value }))
                   }
-                />
-                <Form.Check
-                  inline
-                  type="radio"
-                  id="cabin-view"
-                  label="Cabin View"
-                  name="cameraView"
-                  checked={requestForm.cameraView === "cabin"}
-                  onChange={() =>
-                    setRequestForm((prev) => ({ ...prev, cameraView: "cabin" }))
+                  required
+                >
+                  {CHANNEL_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Form.Select>
+              </div>
+            </Form.Group>
+
+            <Form.Group className="request-video-form__group">
+              <Form.Label>File Name</Form.Label>
+              <div className="request-video-form__input-wrap">
+                <Form.Control
+                  type="text"
+                  value={requestForm.resDeviceFileName}
+                  onChange={(e) =>
+                    setRequestForm((prev) => ({ ...prev, resDeviceFileName: e.target.value }))
                   }
+                  placeholder="Enter file name"
                 />
               </div>
             </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Video Type</Form.Label>
-              <div className="d-flex flex-column gap-2">
-                {["standard", "high", "hyperlapse"].map((type) => (
-                  <Form.Check
-                    key={type}
-                    type="radio"
-                    id={`video-type-${type}`}
-                    label={type.charAt(0).toUpperCase() + type.slice(1)}
-                    name="videoType"
-                    checked={requestForm.videoType === type}
-                    onChange={() =>
-                      setRequestForm((prev) => ({ ...prev, videoType: type }))
-                    }
-                  />
-                ))}
+            <Form.Group className="request-video-form__group">
+              <Form.Label>File Format</Form.Label>
+              <div className="request-video-form__input-wrap">
+                <Form.Select
+                  value={requestForm.fileFormat}
+                  onChange={(e) =>
+                    setRequestForm((prev) => ({ ...prev, fileFormat: e.target.value }))
+                  }
+                >
+                  {FILE_FORMAT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Form.Select>
               </div>
             </Form.Group>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Start Time</Form.Label>
-              <div className="d-flex align-items-center gap-2">
-                <Form.Control
-                  value={requestForm.hour}
-                  onChange={(e) =>
-                    setRequestForm((prev) => ({ ...prev, hour: e.target.value }))
-                  }
-                />
-                <span>:</span>
-                <Form.Control
-                  value={requestForm.minute}
-                  onChange={(e) =>
-                    setRequestForm((prev) => ({ ...prev, minute: e.target.value }))
-                  }
-                />
-                <span>:</span>
-                <Form.Control
-                  value={requestForm.second}
-                  onChange={(e) =>
-                    setRequestForm((prev) => ({ ...prev, second: e.target.value }))
-                  }
-                />
-                <Button type="button" variant="outline-secondary" size="sm">
-                  Add
-                </Button>
-              </div>
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>Duration</Form.Label>
-              <div className="d-flex align-items-center gap-2">
-                <Form.Control
-                  value={requestForm.durationMinute}
-                  onChange={(e) =>
-                    setRequestForm((prev) => ({
-                      ...prev,
-                      durationMinute: e.target.value,
-                    }))
-                  }
-                />
-                <small className="text-muted">mins</small>
-                <Form.Control
-                  value={requestForm.durationSecond}
-                  onChange={(e) =>
-                    setRequestForm((prev) => ({
-                      ...prev,
-                      durationSecond: e.target.value,
-                    }))
-                  }
-                />
-                <small className="text-muted">secs</small>
-              </div>
-              <div className="text-muted small mt-1">Minimum 10s, Maximum 5 mins</div>
-            </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button type="button" variant="light" onClick={closeRequestModal}>
-              Close
+            <Button
+              type="button"
+              variant="light"
+              className="request-video-form__footer-btn request-video-form__footer-btn--secondary"
+              onClick={closeRequestModal}
+            >
+              Cancel
             </Button>
-            <Button type="submit" variant="primary">
-              Request Video
+            <Button
+              type="submit"
+              variant="primary"
+              className="request-video-form__footer-btn request-video-form__footer-btn--primary"
+              disabled={submittingRequest}
+            >
+              {submittingRequest ? "Searching..." : "Request Video"}
             </Button>
           </Modal.Footer>
         </Form>

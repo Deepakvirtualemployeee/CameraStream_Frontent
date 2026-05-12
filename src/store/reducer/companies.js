@@ -22,7 +22,7 @@ const companiesReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        companies: action.payload,           // array of companies
+        companies: Array.isArray(action.payload) ? action.payload : state.companies,
         success: action.message || null,
         error: null,
       };

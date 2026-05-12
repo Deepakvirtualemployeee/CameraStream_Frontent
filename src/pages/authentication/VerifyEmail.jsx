@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
-import { Spinner, Alert, Button } from 'react-bootstrap';
+import { Spinner, Button } from 'react-bootstrap';
 import { verifyEmail } from "../../store/actions/auth";
 
 const VerifyEmail = () => {
@@ -37,18 +37,18 @@ const VerifyEmail = () => {
         </>
       ) : verified ? (
         <>
-          <Alert variant="success" className="text-center">
+          <div className="text-center mb-3">
             Your email has been successfully verified!
-          </Alert>
+          </div>
           <Button variant="primary" onClick={() => navigate('/login')}>
             Go to Login
           </Button>
         </>
       ) : (
         <>
-          <Alert variant="danger" className="text-center">
+          <div className="text-center mb-3">
             Invalid or expired verification link.
-          </Alert>
+          </div>
           <Button variant="secondary" onClick={() => navigate('/')}>
             Go to Home
           </Button>

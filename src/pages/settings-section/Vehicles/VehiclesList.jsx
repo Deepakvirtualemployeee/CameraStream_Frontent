@@ -19,6 +19,7 @@ export const VehiclesList = () => {
     // Correct selector
     const { userDetails } = useSelector((state) => state.auth);
     const userRole = userDetails?.role;
+    const vehicleBasePath = `/settings/vehicles-list`;
 
     const { vehicles, loading } = useSelector((state) => state.vehicles);
 
@@ -59,7 +60,7 @@ export const VehiclesList = () => {
             minWidth: "200px",
         },
         {
-            name: "Eld Sn (Mac)",
+            name: "Camera Device SN",
             selector: (row) => row.eldSerialNumber,
             sortable: true,
             minWidth: "200px",
@@ -94,7 +95,7 @@ export const VehiclesList = () => {
                             className="pointer ms-3"
                             title="Edit"
                             onClick={() =>
-                                navigate(`/settings/vehicles-list/edit-vehicle/${companyId}/${row._id}`, { state: { companyId: companyId } })
+                                navigate(`${vehicleBasePath}/edit-vehicle/${companyId}/${row._id}`, { state: { companyId: companyId } })
                             }
                         >
                             <img src={EditIcon} alt="Edit Icon" />
@@ -147,7 +148,7 @@ export const VehiclesList = () => {
                         <TableFilter
                             searchText={searchText}
                             setSearchText={setSearchText}
-                            searchPlaceholder="Search by Vehicle Number, VIN or Plate"
+                            searchPlaceholder="Search by vehicle number, VIN, plate, or camera serial"
                             filters={filters}
                             onReset={resetFilters}
                         />
@@ -170,7 +171,7 @@ export const VehiclesList = () => {
                                 {userRole !== ROLES.Company_Safety_Personal && (
                                 <Button
                                     variant="primary"
-                                    onClick={() => navigate(`/settings/vehicles-list/add-vehicle/${companyId}`)}
+                                    onClick={() => navigate(`${vehicleBasePath}/add-vehicle/${companyId}`)}
                                 >
                                     <i className="bi bi-plus-lg fs-16"></i> Add Vehicle
                                 </Button>

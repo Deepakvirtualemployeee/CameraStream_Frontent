@@ -277,6 +277,7 @@ export const Location = () => {
         activeTab: "requests",
         openRequestModal: true,
         vehicleId: vehicle.vehicleNumber,
+        deviceID: vehicle.cameraSerial,
       },
     });
   };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { toast } from "react-toastify";
 
 export const AddUser = () => {
     const navigate = useNavigate();
@@ -52,17 +53,17 @@ export const AddUser = () => {
         e.preventDefault();
 
         if (password !== confirmPassword) {
-            alert('Passwords do not match!');
+            toast.error('Passwords do not match!');
             return;
         }
 
         if (!Object.values(requirements).every(Boolean)) {
-            alert('Password does not meet all requirements!');
+            toast.error('Password does not meet all requirements!');
             return;
         }
 
         console.log('Submitted data:', formData);
-        alert('User added successfully!');
+        toast.success('User added successfully!');
     };
 
     return (

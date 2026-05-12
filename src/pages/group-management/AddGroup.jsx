@@ -3,6 +3,7 @@ import { Form, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import Select from "react-select";
 import makeAnimated from 'react-select/animated';
+import { toast } from "react-toastify";
 
 const animatedComponents = makeAnimated();
 
@@ -52,7 +53,7 @@ export const AddGroup = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Submitted Group Data:', formData);
-        alert("Group added successfully!");
+        toast.success("Group added successfully!");
     };
 
     return (

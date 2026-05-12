@@ -44,6 +44,17 @@ const vehiclesReducer = (state = initialState, action) => {
         ),
       };
 
+    case actionTypes.DEACTIVATE_VEHICLE_SUCCESS:
+    case actionTypes.ACTIVATE_VEHICLE_SUCCESS:
+      return {
+        ...state,
+        vehicles: state.vehicles.map((v) =>
+          v._id === action.payload?._id ? action.payload : v
+        ),
+        vehicle:
+          state.vehicle?._id === action.payload?._id ? action.payload : state.vehicle,
+      };
+
     case actionTypes.DELETE_VEHICLE_SUCCESS:
       return {
         ...state,

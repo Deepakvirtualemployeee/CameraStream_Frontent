@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Dropdown } from "react-bootstrap";
 import { Link, useParams, useNavigate } from "react-router-dom";
 // import BellIcon from "../assets/images/icons/bell.svg";
@@ -8,7 +8,7 @@ import UserIcon from "../assets/images/icons/user.svg";
 // import APIIcon from "../assets/images/icons/api.svg";
 import LogoutIcon from "../assets/images/icons/log-out.svg";
 
-export const Header = ({ collapsed, toggleSidebar }) => {
+export const Header = memo(({ collapsed, toggleSidebar }) => {
   const navigate = useNavigate();
 
   const { companyId } = useParams();
@@ -132,4 +132,4 @@ export const Header = ({ collapsed, toggleSidebar }) => {
       </div>
     </nav>
   );
-};
+});

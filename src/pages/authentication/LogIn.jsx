@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { withSnackbar } from 'react-simple-snackbar';
 import * as actions from '../../store/actions/index';
+import './authentication.scss';
 
 const LogIn = ({ login, openSnackbar }) => {
     const navigate = useNavigate();
@@ -81,7 +82,7 @@ const LogIn = ({ login, openSnackbar }) => {
                             src={require('../../assets/images/sidebar-logo.png')}
                             alt="Logo"
                             className="img-fluid"
-                            style={{ width: '100px' }}
+                            style={{ width: '100px', color:'black'}}
                         />
                     </div>
                     <div className="heading-wrapper text-dark mb-4 pb-md-2">

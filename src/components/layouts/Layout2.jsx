@@ -1,13 +1,17 @@
-import React, {useState} from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { Outlet } from "react-router-dom";
 import Sidebar from '../Sidebar';
 import { Header } from '../Header';
 
 
-export const Layout2 = () => {
+export const Layout2 = memo(() => {
     const [collapsed, setCollapsed] = useState(true);
-    const toggleSidebar = () => setCollapsed(!collapsed);
-    const openSidebar = () => setCollapsed(false);
+    const toggleSidebar = useCallback(() => {
+        setCollapsed((previous) => !previous);
+    }, []);
+    const openSidebar = useCallback(() => {
+        setCollapsed(false);
+    }, []);
 
     return (
         <>
@@ -21,4 +25,4 @@ export const Layout2 = () => {
             </div>
         </>
     )
-}
+});

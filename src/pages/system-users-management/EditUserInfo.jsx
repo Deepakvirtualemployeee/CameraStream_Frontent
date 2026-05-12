@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { toast } from "react-toastify";
 
 export const EditUserInfo = () => {
     const navigate = useNavigate();
@@ -29,19 +30,19 @@ export const EditUserInfo = () => {
         e.preventDefault();
 
         if (password !== confirmPassword) {
-            alert('Passwords do not match.');
+            toast.error('Passwords do not match.');
             return;
         }
 
         const isPasswordValid = Object.values(requirements).every(Boolean);
         if (!isPasswordValid) {
-            alert('Password does not meet the required criteria.');
+            toast.error('Password does not meet the required criteria.');
             return;
         }
 
         // Simulate save
         console.log('Saved user data:', userData);
-        alert('User info updated successfully!');
+        toast.success('User info updated successfully!');
     };
 
     const renderCheck = (condition) => (

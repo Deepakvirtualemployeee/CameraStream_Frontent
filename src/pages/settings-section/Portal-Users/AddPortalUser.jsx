@@ -6,6 +6,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { createPortalUser } from "../../../store/actions/portalUsers"; // import action
 import { ROLES, ROLE_NAMES } from "../../../constants";
+import { toast } from "react-toastify";
 
 export const AddPortalUser = () => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const handleSubmit = (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
 
@@ -72,7 +73,7 @@ const handleSubmit = (e) => {
         console.log("Role after conversion:", roleNumber, "Type:", typeof roleNumber);
         
         if (!roleNumber) {
-            alert("Invalid role selected!");
+            toast.error("Invalid role selected!");
             return;
         }
     }

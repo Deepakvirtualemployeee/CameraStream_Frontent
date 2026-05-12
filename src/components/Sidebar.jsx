@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ArrowLogoutIcon from "../assets/images/icons/arrow-bar-right.svg";
@@ -13,14 +13,15 @@ const Sidebar = ({ collapsed, openSidebar }) => {
   const [openSettings, setOpenSettings] = useState(false);
   const toggleSettings = () => setOpenSettings(!openSettings);
   // Group of routes under Settings
-  const settingsRoutes = [
+  const settingsRoutes = useMemo(() => [
     "/settings",
-    "/settings/eld-devices",
+    "/settings/devices",
+    "/settings/camera-devices",
     "/settings/vehicles-list",
     "/settings/company-info",
     "/settings/portal-users",
     "/settings/resources",
-  ];
+  ], []);
 
   const isSettingsActive = settingsRoutes.some((path) =>
     location.pathname.startsWith(path)
@@ -104,14 +105,35 @@ const Sidebar = ({ collapsed, openSidebar }) => {
           {!collapsed && openSettings && (
             <ul className="sub-menu list-unstyled">
               {userRole === ROLES.Broker ? (
-                <li className="nav-item">
-                  <Link
-                    to={`/settings/vehicles-list/${companyId}`}
-                    className={`${location.pathname.startsWith(`/settings/vehicles-list/${companyId}`) ? "active" : ""}`}
-                  >
-                    Vehicles
-                  </Link>
-                </li>
+                <>
+                  <li className="nav-item">
+                    <Link
+                      to={`/settings/vehicles-list/${companyId}`}
+                      className={`${
+                        location.pathname.startsWith(`/settings/vehicles-list/${companyId}`)
+                          ? "active"
+                          : ""
+                      }`}
+                    >
+                      Vehicles
+                    </Link>
+                  </li>
+
+                  <li className="nav-item">
+                    <Link
+                      to={`/settings/devices/${companyId}`}
+                      className={`${
+                        location.pathname.startsWith(`/settings/devices/${companyId}`) ||
+                        location.pathname.startsWith(`/settings/camera-devices/${companyId}`)
+                          ? "active"
+                          : ""
+                      }`}
+                    >
+                      Devices
+                    </Link>
+                  </li>
+                </>
+
               ) : (
                 <>
                   <li className="nav-item">
@@ -126,7 +148,11 @@ const Sidebar = ({ collapsed, openSidebar }) => {
                   <li className="nav-item">
                     <Link
                       to={`/settings/vehicles-list/${companyId}`}
-                      className={`${location.pathname.startsWith(`/settings/vehicles-list/${companyId}`) ? "active" : ""}`}
+                      className={`${
+                        location.pathname.startsWith(`/settings/vehicles-list/${companyId}`)
+                          ? "active"
+                          : ""
+                      }`}
                     >
                       Vehicles
                     </Link>
@@ -134,10 +160,15 @@ const Sidebar = ({ collapsed, openSidebar }) => {
 
                   <li className="nav-item">
                     <Link
-                      to={`/settings/eld-devices/${companyId}`}
-                      className={`${location.pathname.startsWith(`/settings/eld-devices/${companyId}`) ? "active" : ""}`}
+                      to={`/settings/devices/${companyId}`}
+                      className={`${
+                        location.pathname.startsWith(`/settings/devices/${companyId}`) ||
+                        location.pathname.startsWith(`/settings/camera-devices/${companyId}`)
+                          ? "active"
+                          : ""
+                      }`}
                     >
-                      ELD Devices
+                      Devices
                     </Link>
                   </li>
 
@@ -186,4 +217,4 @@ const Sidebar = ({ collapsed, openSidebar }) => {
   );
 };
 
-export default Sidebar;
+export default memo(Sidebar);

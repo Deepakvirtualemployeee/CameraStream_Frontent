@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { getPortalUserById, updatePortalUser, deactivatePortalUser, activatePortalUser, deletePortalUser } from "../../../store/actions/portalUsers";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 import { ROLES, ROLE_NAMES } from "../../../constants";
+import { toast } from "react-toastify";
 
 export const EditPortalUser = () => {
     const navigate = useNavigate();
@@ -103,7 +104,7 @@ const handleSubmit = (e) => {
     e.preventDefault();
 
     if (password && password !== confirmPassword) {
-        alert("Passwords do not match!");
+        toast.error("Passwords do not match!");
         return;
     }
 
@@ -123,7 +124,7 @@ const handleSubmit = (e) => {
             roleNumber = role;
         }
     } else if (!roleNumber) {
-        alert("Cannot determine user role. Please contact support.");
+        toast.error("Cannot determine user role. Please contact support.");
         return;
     }
 

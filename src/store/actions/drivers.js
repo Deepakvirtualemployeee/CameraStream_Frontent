@@ -2,36 +2,114 @@ import axios from "../../axios-config";
 import { toast } from "react-toastify";
 import * as actionTypes from "../actions/actionTypes";
 
+const getAuthConfig = () => ({
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-const token = localStorage.getItem("token"); // or however you store JWT
+const isRouteNotFoundError = (error) => {
+  const status = error?.response?.status;
+  const message = (
+    error?.response?.data?.message ||
+    error?.response?.data?.error ||
+    error?.message ||
+    ""
+  )
+    .toString()
+    .toLowerCase();
+
+  return status === 404 || message.includes("route not found") || message.includes("cannot");
+};
+
+const requestWithFallbacks = async (factories) => {
+  let lastError;
+
+  for (const createRequest of factories) {
+    try {
+      return await createRequest();
+    } catch (error) {
+      lastError = error;
+      if (!isRouteNotFoundError(error)) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError;
+};
+
+const normalizeDriverPayload = (driverData = {}, companyId) => {
+  const payload = {
+    companyId: driverData.companyId || companyId,
+    userName: driverData.userName || "",
+    firstName: driverData.firstName || "",
+    lastName: driverData.lastName || "",
+    email: driverData.email || "",
+    phoneNumber: driverData.phoneNumber || "",
+    licenseState: driverData.licenseState || "",
+    licenseNumber: driverData.licenseNumber || "",
+    homeTerminal: driverData.homeTerminal || "",
+    assignedVehicleId: driverData.assignedVehicleId || null,
+    coDriverId: driverData.coDriverId || null,
+    hosRules: driverData.hosRules || "",
+    cargoType: driverData.cargoType || "",
+    restart: driverData.restart || "",
+    restBreak: driverData.restBreak || "",
+    allowShortHaulException: Boolean(driverData.allowShortHaulException),
+    allowSplitSleeperBerth: Boolean(driverData.allowSplitSleeperBerth),
+    allowPersonalConveyance: Boolean(driverData.allowPersonalConveyance),
+    allowYardMove: Boolean(driverData.allowYardMove),
+    allowManualDriver: Boolean(driverData.allowManualDriver),
+    restrictDriverFromCreationDateAndTime: Boolean(
+      driverData.restrictDriverFromCreationDateAndTime
+    ),
+  };
+
+  if (driverData.password) {
+    payload.password = driverData.password;
+  }
+
+  if (driverData.confirmPassword) {
+    payload.confirmPassword = driverData.confirmPassword;
+  }
+
+  return payload;
+};
+
+const extractDrivers = (data) => {
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.data?.docs)) return data.data.docs;
+  if (Array.isArray(data?.docs)) return data.docs;
+  return [];
+};
+
+const extractSingleDriver = (data) => {
+  if (Array.isArray(data?.data)) return data.data[0] || null;
+  if (Array.isArray(data?.data?.docs)) return data.data.docs[0] || null;
+  return data?.data || null;
+};
 
 // Add Driver Action
 export const addDriver = (companyId, driverData, navigate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.ADD_DRIVER_REQUEST });
 
-    const res = await axios.post(
-      `/drivers/add?companyId=${companyId}`, // API endpoint for adding driver
-      driverData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const payload = normalizeDriverPayload(driverData, companyId);
+    const res = await requestWithFallbacks([
+      () => axios.post("/drivers", payload, getAuthConfig()),
+      () => axios.post(`/drivers/add?companyId=${companyId}`, payload, getAuthConfig()),
+    ]);
 
-    console.log("Driver data", driverData);
     dispatch({
       type: actionTypes.ADD_DRIVER_SUCCESS,
-      payload: res.data.data,
+      payload: res.data?.data || payload,
     });
 
-    toast.success("Driver added successfully!");
-    if (navigate) navigate(`/settings/drivers-listing/${companyId}`); // redirect after success
+    toast.success(res.data?.message || "Driver added successfully!");
+    if (navigate) navigate(`/settings/drivers-listing/${companyId}`);
     return true;
   } catch (err) {
-    console.log(err);
     dispatch({
       type: actionTypes.ADD_DRIVER_FAILURE,
       payload: err.response?.data?.message || err.message,
@@ -46,20 +124,11 @@ export const fetchDrivers = (companyId) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.FETCH_DRIVERS_REQUEST });
 
-    const { data } = await axios.get(`/drivers?companyId=${companyId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    //  const { data } = await axios.get(`/drivers`, {
-    //     headers: {
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //   });
-    console.log("Drivers list", data);
+    const { data } = await axios.get(`/drivers?companyId=${companyId}`, getAuthConfig());
+
     dispatch({
       type: actionTypes.FETCH_DRIVERS_SUCCESS,
-      payload: data.data,
+      payload: extractDrivers(data),
     });
   } catch (err) {
     dispatch({
@@ -69,36 +138,18 @@ export const fetchDrivers = (companyId) => async (dispatch) => {
   }
 };
 
-// GET Co-Drivers
-// export const getCoDrivers = (companyId, driverId) => {
-//   return (dispatch) => {
-//     dispatch(startDrivers());
-//     axios.get(`/drivers/codrivers?companyId=${companyId}&driverId=${driverId}`, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         "Content-Type": "application/json"
-//       }
-//     })
-//       .then(res => {
-//         console.log("CoDrivers:", res.data);
-//         dispatch(driversSuccess(res.data.data)); // you may want a separate reducer
-//       })
-//       .catch(err => {
-//         console.error("Error fetching co-drivers:", err);
-//         dispatch(driversFail(err));
-//       });
-//   };
-// };
-
+// Get co-drivers
 export const getCoDrivers = (companyId, driverId) => async (dispatch) => {
   try {
-    const res = await axios.get(`/drivers/codrivers?companyId=${companyId}&driverId=${driverId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    console.log("Co drivers:", res);
-    dispatch({ type: actionTypes.GET_CO_DRIVERS, payload: res.data.data });
+    const res = await requestWithFallbacks([
+      () => axios.get(`/drivers/codrivers?companyId=${companyId}&driverId=${driverId}`, getAuthConfig()),
+      () => axios.get(`/drivers/co-drivers?companyId=${companyId}&driverId=${driverId}`, getAuthConfig()),
+    ]);
+
+    dispatch({
+      type: actionTypes.GET_CO_DRIVERS,
+      payload: res.data?.data || [],
+    });
   } catch (error) {
     console.error("Error fetching co drivers:", error);
     toast.error(error.response?.data?.message || "Failed to fetch co drivers");
@@ -106,18 +157,20 @@ export const getCoDrivers = (companyId, driverId) => async (dispatch) => {
 };
 
 // Get driving license issuing state
-export const getDriversIssuingState = (companyId) => async (dispatch) => {
+export const getDriversIssuingState = () => async (dispatch) => {
   try {
-    const res = await axios.get(`/drivers/states`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    console.log("Drivers states:", res);
-    dispatch({ type: actionTypes.GET_DRIVERS_STATE, payload: res.data.data });
+    const res = await requestWithFallbacks([
+      () => axios.get("/drivers/states", getAuthConfig()),
+      () => axios.get("/drivers/license-states", getAuthConfig()),
+    ]);
+
+    dispatch({
+      type: actionTypes.GET_DRIVERS_STATE,
+      payload: res.data?.data || [],
+    });
   } catch (error) {
-    console.error("Error fetching co drivers:", error);
-    toast.error(error.response?.data?.message || "Failed to fetch co drivers");
+    console.error("Error fetching driver states:", error);
+    toast.error(error.response?.data?.message || "Failed to fetch driver states");
   }
 };
 
@@ -125,10 +178,11 @@ export const getDriversIssuingState = (companyId) => async (dispatch) => {
 export const getDriverById = (companyId, id) => async (dispatch) => {
   try {
     dispatch({ type: "GET_DRIVER_REQUEST" });
-    const res = await axios.get(`/drivers?companyId=${companyId}&driverId=${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const res = await axios.get(`/drivers?companyId=${companyId}&driverId=${id}`, getAuthConfig());
+    dispatch({
+      type: "GET_DRIVER_SUCCESS",
+      payload: extractSingleDriver(res.data),
     });
-    dispatch({ type: "GET_DRIVER_SUCCESS", payload: res.data.data });
   } catch (err) {
     dispatch({
       type: "GET_DRIVER_FAILURE",
@@ -141,13 +195,20 @@ export const getDriverById = (companyId, id) => async (dispatch) => {
 export const updateDriver = (companyId, id, driverData, navigate) => async (dispatch) => {
   try {
     dispatch({ type: "UPDATE_DRIVER_REQUEST" });
-    const res = await axios.put(`/drivers?driverId=${id}`, driverData, {
-      headers: { Authorization: `Bearer ${token}` },
+
+    const payload = normalizeDriverPayload(driverData, companyId);
+    const res = await axios.put(
+      `/drivers?companyId=${companyId}&driverId=${id}`,
+      payload,
+      getAuthConfig()
+    );
+
+    dispatch({
+      type: "UPDATE_DRIVER_SUCCESS",
+      payload: res.data?.data || payload,
     });
-    console.log("Update Driver data:", driverData);
-    dispatch({ type: "UPDATE_DRIVER_SUCCESS", payload: res.data.data });
-    toast.success("Driver updated successfully!");
-    if (navigate) navigate(`/settings/drivers-listing/${companyId}`); // redirect after success
+    toast.success(res.data?.message || "Driver updated successfully!");
+    if (navigate) navigate(`/settings/drivers-listing/${companyId}`);
   } catch (err) {
     dispatch({
       type: "UPDATE_DRIVER_FAILURE",
@@ -162,21 +223,12 @@ export const deleteDriver = (companyId, driverId, navigate) => async (dispatch) 
   try {
     dispatch({ type: actionTypes.DELETE_DRIVER_REQUEST });
 
-    await axios.delete(`/drivers?companyId=${companyId}&driverId=${driverId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    await axios.delete(`/drivers?companyId=${companyId}&driverId=${driverId}`, getAuthConfig());
 
-    // just remove from redux by id
     dispatch({ type: actionTypes.DELETE_DRIVER_SUCCESS, payload: driverId });
-
     toast.success("Driver deleted successfully");
 
-    // Redirect back to drivers listing after delete
     if (navigate) navigate(`/settings/drivers-listing/${companyId}`);
-
   } catch (error) {
     dispatch({
       type: actionTypes.DELETE_DRIVER_FAILURE,
@@ -192,24 +244,19 @@ export const deactivateDriver = (companyId, driverId, navigate) => async (dispat
   try {
     dispatch({ type: actionTypes.DEACTIVATE_DRIVER_REQUEST });
 
-    const res = await axios.put(
+    const res = await axios.patch(
       `/drivers/deactivate?driverId=${driverId}&companyId=${companyId}`,
-      // { isActive: false }, // mark inactive
       {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
+      getAuthConfig()
     );
 
-    dispatch({ type: actionTypes.DEACTIVATE_DRIVER_SUCCESS, payload: res.data.data });
-    toast.success("Driver deactivated successfully!");
+    dispatch({
+      type: actionTypes.DEACTIVATE_DRIVER_SUCCESS,
+      payload: res.data?.data,
+    });
+    toast.success(res.data?.message || "Driver deactivated successfully!");
     if (navigate) navigate(`/settings/drivers-listing/${companyId}`);
   } catch (err) {
-    console.log("Token:", token);
-    console.log(err);
     dispatch({
       type: actionTypes.DEACTIVATE_DRIVER_FAILURE,
       payload: err.response?.data?.message || err.message,
@@ -223,23 +270,18 @@ export const activateDriver = (companyId, id, navigate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.ACTIVATE_DRIVER_REQUEST });
 
-    const res = await axios.put(
+    const res = await axios.patch(
       `/drivers/activate?companyId=${companyId}&driverId=${id}`,
       {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
+      getAuthConfig()
     );
 
     dispatch({
       type: actionTypes.ACTIVATE_DRIVER_SUCCESS,
-      payload: res.data.data,
+      payload: res.data?.data,
     });
 
-    toast.success("Driver activated successfully!");
+    toast.success(res.data?.message || "Driver activated successfully!");
     if (navigate) navigate(`/settings/drivers-listing/${companyId}`);
   } catch (err) {
     dispatch({
@@ -249,4 +291,3 @@ export const activateDriver = (companyId, id, navigate) => async (dispatch) => {
     toast.error(err.response?.data?.message || "Failed to activate driver");
   }
 };
-

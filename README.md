@@ -1,70 +1,62 @@
-# Getting Started with Create React App
+# Camera Stream Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Local setup
 
-## Available Scripts
+1. Install dependencies:
 
-In the project directory, you can run:
+```bash
+npm install
+```
 
-### `npm start`
+2. Create a local env file from the example:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+copy .env.example .env
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+3. Start the app:
 
-### `npm test`
+```bash
+npm start
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The frontend runs on `http://localhost:3000`.
 
-### `npm run build`
+## API configuration
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The frontend reads the backend base URL from `REACT_APP_API_BASE_URL`.
+Auth requests use `REACT_APP_AUTH_API_BASE_URL` because the main service exposes auth separately from the mounted Web VSS app.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Default local API URL:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```env
+REACT_APP_API_BASE_URL=http://localhost:5001/apicamera/webvss/api
+REACT_APP_AUTH_API_BASE_URL=http://localhost:5001/apicamera/auth
+API_PROXY_TARGET=http://localhost:5001
+REACT_APP_TENANT_ID=your-tenant-id-here
+```
 
-### `npm run eject`
+In development, the React dev server proxies stale `/api` requests to `/apicamera/webvss/api` on `http://localhost:5001`.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+If your backend requires tenant scoping, set `REACT_APP_TENANT_ID` in `.env`. The frontend attaches it automatically as the `x-tenant-id` header on API requests through the shared Axios client.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Login API
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The login request used by this app is:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+curl --location 'http://localhost:5001/apicamera/auth/login' \
+--header 'Content-Type: application/json' \
+--data-raw '{"email":"broker@gmail.com","password":"Broker@123"}'
+```
 
-## Learn More
+## Test login
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Email: `broker@gmail.com`
+- Password: `Broker@123`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Scripts
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- `npm start` runs the app in development
+- `npm run build` creates a production build
+- `npm test` starts the test runner

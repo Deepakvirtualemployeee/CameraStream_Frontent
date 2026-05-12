@@ -24,15 +24,16 @@ export {
 export {
   getVehicles,
   createVehicle,
+  createDevice,
   updateVehicle,
   deleteVehicle,
   getAssignableVehicles
 } from "./vehicles";
 
 export {
-  fetchEldDevices,
-  addEldDevice,
-  getEldDeviceById,
-  updateEldDevice,
-  getUnassignedElds
-} from "./eldDevices";
+  fetchCameraDevices,
+  addCameraDevice,
+  getCameraDeviceById,
+  updateCameraDevice,
+  getUnassignedCameraDevices
+} from "./cameraDevices";

@@ -27,6 +27,8 @@ const initialState = {
         return { ...state, portalUsers: [...state.portalUsers, action.payload] };
   
       case actionTypes.UPDATE_PORTAL_USERS_SUCCESS:
+      case actionTypes.ACTIVATE_PORTAL_USERS_SUCCESS:
+      case actionTypes.DEACTIVATE_PORTAL_USERS_SUCCESS:
         return {
           ...state,
           portalUsers: state.portalUsers.map((v) =>

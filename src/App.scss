@@ -426,7 +426,8 @@ input[type="time"]:invalid:before {
   &.collapsed {
     width: 70px;
 
-    li a {
+    li a,
+    li button.nav-link {
       // width: 50px;
       justify-content: center;
       // border-radius: 6px;
@@ -448,7 +449,8 @@ input[type="time"]:invalid:before {
       background-color: $white !important;
     }
 
-    li a {
+    li a,
+    li button.nav-link {
       color: #667085;
       display: block;
       font-size: 16px;

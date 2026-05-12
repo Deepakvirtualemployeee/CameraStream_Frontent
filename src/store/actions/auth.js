@@ -47,12 +47,13 @@ export const login = (data, navigate) => {
     axios.post("/auth/login", data)       
       .then(async response => {         
         if (response.status === 200) {           
-          const user = response.data.data.user;   // user details
+          const user = response?.data?.data?.user;
+          const token = response?.data?.data?.token || response?.data?.accessToken;
+
+          if (!user || !token) {
+            throw new Error("Login response is missing user or token");
+          }
           
-          console.log("User from API:", user);
-          console.log("Role from API:", user.role, "Type:", typeof user.role);
-          
-           
           let roleNumber = user.role;
           
           if (typeof user.role === 'string') {
@@ -67,15 +68,14 @@ export const login = (data, navigate) => {
           }
           
           user.role = roleNumber;
-          console.log("Final role:", user.role);
           
           await dispatch(AuthSuccess({ message: response.data.message, user }));           
-          await localStorage.setItem("token", response.data.accessToken);           
+          await localStorage.setItem("token", token);           
           localStorage.setItem("admin_user", JSON.stringify(user));           
           if (navigate) {
             navigate("/companies-list", { replace: true });
           } else {
-            window.location = "/companies-list";
+            window.location.replace("/companies-list");
           }
         } else {           
           dispatch(AuthFail(response.data.message));         
@@ -83,7 +83,7 @@ export const login = (data, navigate) => {
       })       
       .catch((err) => {         
         console.log("Login error:", err);
-        dispatch(AuthFail(err?.response?.data?.message || "Login failed"));       
+        dispatch(AuthFail(err?.response?.data?.message || err?.message || "Login failed"));       
       });   
   }; 
 };

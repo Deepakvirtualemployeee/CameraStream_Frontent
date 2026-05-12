@@ -6,6 +6,7 @@ import dataTableCustomStyles from '../../assets/style/dataTableCustomStyles';
 import { NoDataComponent } from '../../components/NoDataComponent';
 import LogoutIocn from '../../assets/images/icons/logout.svg';
 import TrashIcon from '../../assets/images/icons/trash.svg';
+import EditIcon from '../../assets/images/icons/edit.svg';
 import { DeleteModal } from '../../components/DeleteModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCompanies, deleteCompany } from '../../store/actions/companies';
@@ -32,6 +33,23 @@ export const CompaniesList = () => {
     const [searchText, setSearchText] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
 
+    const openCompanyLocation = (row) => {
+        try {
+            const user = JSON.parse(localStorage.getItem("admin_user") || "{}");
+            user.company = { id: row._id, name: row.companyName };
+            localStorage.setItem("admin_user", JSON.stringify(user));
+            window.dispatchEvent(new Event("storage"));
+        } catch (e) {
+            console.warn("Failed to set selected company", e);
+        }
+
+        navigate(`/location/${row._id}`);
+    };
+
+    const openCompanySettings = (row) => {
+        navigate(`/settings/company-info/${row._id}`);
+    };
+
     const columns = [
         {
             name: 'Name',
@@ -44,19 +62,9 @@ export const CompaniesList = () => {
                 <button
                   type="button"
                   className="btn btn-link p-0 small text-primary text-decoration-underline text-start"
-                  onClick={() => {
-                    try {
-                      const user = JSON.parse(localStorage.getItem("admin_user") || "{}");
-                      user.company = { id: row._id, name: row.companyName };
-                      localStorage.setItem("admin_user", JSON.stringify(user));
-                      window.dispatchEvent(new Event("storage"));
-                    } catch (e) {
-                      console.warn("Failed to set selected company", e);
-                    }
-                    navigate(`/video-library/${row._id}`);
-                  }}
+                  onClick={() => openCompanyLocation(row)}
                 >
-                  Open Video Library
+                  Open Location
                 </button>
               </div>
             ),
@@ -92,16 +100,32 @@ export const CompaniesList = () => {
                 </Badge>
             ),
         },
-        // keep a minimal action (delete) only
         {
             name: 'Actions',
             minWidth: '120px',
             cell: (row) => (
                 <div className='action-wrapper d-flex align-items-center gap-2'>
-                    <span className='pointer p-0' title='Delete' onClick={() => {
-                        setCompanyToDelete(row._id); // store ID
-                        handleShow();
-                    }}><img src={TrashIcon} alt="Trash Icon" /></span>
+                    <span
+                        className='pointer p-0'
+                        title='Edit'
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            openCompanySettings(row);
+                        }}
+                    >
+                        <img src={EditIcon} alt="Edit Icon" />
+                    </span>
+                    <span
+                        className='pointer p-0'
+                        title='Delete'
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            setCompanyToDelete(row._id);
+                            handleShow();
+                        }}
+                    >
+                        <img src={TrashIcon} alt="Trash Icon" />
+                    </span>
                 </div>
             ),
         },
@@ -222,6 +246,7 @@ export const CompaniesList = () => {
                             <DataTable
                                 columns={columns}
                                 data={filteredData}
+                                onRowClicked={openCompanyLocation}
                                 pointerOnHover
                                 striped
                                 pagination

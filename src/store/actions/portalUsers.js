@@ -2,23 +2,37 @@ import * as actionTypes from "../actions/actionTypes";
 import axios from "../../axios-config";
 import { toast } from "react-toastify";
 
-const token = localStorage.getItem("token");
+const getAuthHeaders = () => ({
+  Authorization: `Bearer ${localStorage.getItem("token")}`,
+  "Content-Type": "application/json",
+});
+
+const normalizePortalUser = (user) => {
+  if (!user) return user;
+
+  if (user.name && user.status) {
+    return user;
+  }
+
+  return {
+    ...user,
+    name: [user.firstName, user.lastName].filter(Boolean).join(" ").trim(),
+    status: user.isActive ? "Active" : "Inactive",
+  };
+};
 
 // Get all portal users
 export const getPortalUsers = (companyId) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.GET_PORTAL_USERS_REQUEST });
     const res = await axios.get(`/portal-users?companyId=${companyId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
     });
     console.log("Get all users:", res.data.data);
     // users list is in res.data.data (array)
     dispatch({
       type: actionTypes.GET_PORTAL_USERS_SUCCESS,
-      payload: res.data.data || [],
+      payload: (res.data.data || []).map(normalizePortalUser),
     });
   } catch (err) {
     dispatch({
@@ -33,16 +47,13 @@ export const createPortalUser = (companyId, userData, navigate) => async (dispat
     try {
       dispatch({ type: actionTypes.CREATE_PORTAL_USERS_REQUEST });
   
-      const res = await axios.post("/add-portal-users", userData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+      const res = await axios.post("/portal-users", userData, {
+        headers: getAuthHeaders(),
       });
       console.log("User Data Create", userData);
       dispatch({
         type: actionTypes.CREATE_PORTAL_USERS_SUCCESS,
-        payload: res.data.data,
+        payload: normalizePortalUser(res.data.data),
       });
   
       toast.success("User created successfully!");
@@ -65,16 +76,13 @@ export const updatePortalUser = (companyId, id, userData, navigate) => async (di
   console.log("Veh data", userData);
   try {
     dispatch({ type: actionTypes.UPDATE_PORTAL_USERS_REQUEST });
-    const res = await axios.put(`/update-portal-users?userId=${id}`, userData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+    const res = await axios.put(`/portal-users?userId=${id}`, userData, {
+      headers: getAuthHeaders(),
     });
     console.log("Update user:", res);
     dispatch({
       type: actionTypes.UPDATE_PORTAL_USERS_SUCCESS,
-      payload: res.data.data,
+      payload: normalizePortalUser(res.data.data),
     });
     toast.success("User updated successfully!");
 
@@ -96,10 +104,8 @@ export const getPortalUserById = (companyId, id) => async (dispatch) => {
     try {
       dispatch({ type: actionTypes.GET_PORTAL_USERS_BY_ID_REQUEST });
   
-      const res = await axios.get(`/portal-usersbyId?companyId=${companyId}&userId=${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await axios.get(`/portal-users/by-id?companyId=${companyId}&userId=${id}`, {
+        headers: getAuthHeaders(),
       });
       console.log("portal-usersbyId:", res.data.data);
       dispatch({
@@ -120,16 +126,13 @@ export const deactivatePortalUser = (companyId, id, navigate) => async (dispatch
     try {
       dispatch({ type: actionTypes.DEACTIVATE_PORTAL_USERS_REQUEST });
   
-      const res = await axios.put(`/deactivate?companyId=${companyId}&userId=${id}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+      const res = await axios.patch(`/portal-users/deactivate?companyId=${companyId}&userId=${id}`, {}, {
+        headers: getAuthHeaders(),
       });
   
       dispatch({
         type: actionTypes.DEACTIVATE_PORTAL_USERS_SUCCESS,
-        payload: res.data.data,
+        payload: normalizePortalUser(res.data.data),
       });
   
       toast.success("User deactivated successfully!");
@@ -151,30 +154,29 @@ export const activatePortalUser = (companyId, id, navigate) => async (dispatch) 
     try {
       dispatch({ type: actionTypes.ACTIVATE_PORTAL_USERS_REQUEST });
   
-      const res = await axios.put(
-        `/activate?companyId=${companyId}&userId=${id}`,
+      const res = await axios.patch(
+        `/portal-users/activate?companyId=${companyId}&userId=${id}`,
         {},
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          headers: getAuthHeaders(),
         }
       );
   
       dispatch({
         type: actionTypes.ACTIVATE_PORTAL_USERS_SUCCESS,
-        payload: res.data.data,
+        payload: normalizePortalUser(res.data.data),
       });
   
       toast.success("User activated successfully!");
       if (navigate) navigate(`/settings/portal-users/${companyId}`);
+      return true;
     } catch (err) {
       dispatch({
         type: actionTypes.ACTIVATE_PORTAL_USERS_FAILURE,
         payload: err.response?.data?.message || err.message,
       });
       toast.error(err.response?.data?.message || "Failed to activate user");
+      return false;
     }
   };
   
@@ -182,11 +184,8 @@ export const activatePortalUser = (companyId, id, navigate) => async (dispatch) 
 export const deletePortalUser = (companyId, id, navigate) => async (dispatch) => {
   try {
     dispatch({ type: actionTypes.DELETE_PORTAL_USERS_REQUEST });
-    await axios.delete(`/delete-portal-users?companyId=${companyId}&userId=${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+    await axios.delete(`/portal-users?companyId=${companyId}&userId=${id}`, {
+      headers: getAuthHeaders(),
     });
 
     // just remove from redux by id

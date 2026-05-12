@@ -9,7 +9,7 @@ import auth from './store/reducer/auth';
 import companiesReducer from './store/reducer/companies';
 import vehiclesReducer from './store/reducer/vehicles';
 import driverReducer from './store/reducer/drivers';
-import eldDeviceReducer from './store/reducer/eldDevices';
+import cameraDeviceReducer from './store/reducer/cameraDevices';
 import portalUsersReducer from './store/reducer/portalUsers';
 import dashboardReducer from './store/reducer/dashboard';
 
@@ -32,7 +32,7 @@ const rootReducer = combineReducers({
   companies: companiesReducer,
   vehicles: vehiclesReducer,
   drivers: driverReducer,
-  eldDevices: eldDeviceReducer,
+  cameraDevices: cameraDeviceReducer,
   portalUsers: portalUsersReducer,
   dashboard: dashboardReducer,
 });

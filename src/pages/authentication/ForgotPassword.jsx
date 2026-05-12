@@ -3,6 +3,7 @@ import { Form, Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
 import * as actions from '../../store/actions/index'; // Adjust path as needed
+import './authentication.scss';
 
 const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp }) => {
     const navigate = useNavigate();
@@ -78,12 +79,12 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp }) =>
                             <div className="btn-wrapper">
                                 <Row className="g-2 gx-md-3">
                                     <Col>
-                                        <Button type="button" variant="outline-primary" className="w-100 d-flex align-items-center justify-content-center" onClick={() => navigate('/login')}>
+                                        <Button type="button" variant="outline-primary" className="w-100 btn-custom rounded-pill d-flex align-items-center justify-content-center" onClick={() => navigate('/login')}>
                                             <i className="bi bi-arrow-left-short fs-3 lh-1"></i> Back to login
                                         </Button>
                                     </Col>
                                     <Col>
-                                        <Button type="submit" variant="primary" className="w-100 d-flex align-items-center justify-content-center">
+                                        <Button type="submit" variant="primary" className="w-100 btn-custom rounded-pill d-flex align-items-center justify-content-center">
                                             Send OTP <i className="bi bi-arrow-right-short fs-3 lh-1"></i>
                                         </Button>
                                     </Col>
@@ -107,7 +108,7 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp }) =>
                                 />
                             </Form.Group>
                             <div className="btn-wrapper">
-                                <Button variant="primary" type="submit" className="w-100 py-2">Verify OTP</Button>
+                                <Button variant="primary" type="submit" className="w-100 btn-custom rounded-pill py-2">Verify OTP</Button>
                             </div>
                         </Form>
                     )}
@@ -145,7 +146,7 @@ const ForgotPassword = ({ forgotPassword, verifyOtp, resetPasswordAfterOtp }) =>
                                 </div>
                             </Form.Group>
                             <div className="btn-wrapper">
-                                <Button variant="primary" type="submit" className="w-100 py-2">Submit</Button>
+                                <Button variant="primary" type="submit" className="w-100 btn-custom rounded-pill py-2">Submit</Button>
                             </div>
                         </Form>
                     )}

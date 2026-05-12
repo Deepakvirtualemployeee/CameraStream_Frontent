@@ -14,7 +14,7 @@ export const CompanyInfo = () => {
 
   useEffect(() => {
     dispatch(getCompanyInfo(companyId));
-  }, [dispatch]);
+  }, [dispatch, companyId]);
 
   if (loading) {
     return (
@@ -162,7 +162,7 @@ export const CompanyInfo = () => {
                       </div>
                       <div className="col-sm-7 col-xl-6">
                         <div className="value fw-semibold text-black text-opacity-75">
-                          {terminal.timeZoneId || "-"}
+                          {terminal.timeZone || terminal.timeZoneId || "-"}
                         </div>
                       </div>
                     </div>

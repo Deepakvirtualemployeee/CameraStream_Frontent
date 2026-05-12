@@ -5,45 +5,76 @@ import { Form, Row, Col, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { createCompany } from '../../store/actions';
 
+const PHONE_REGEX = /^\d{10,15}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const CreateCompany = ({ createCompany }) => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [submitError, setSubmitError] = useState('');
     const [formData, setFormData] = useState({
         companyName: '',
         timeZoneId: '',
         dotNumber: '',
         address: '',
-        phoneNumber: '5555555555'
+        phoneNumber: '',
+        email: '',
+        terminalAddress: '',
     });
 
-    const { companyName, timeZoneId, dotNumber, address, phoneNumber } = formData;
+    const { companyName, timeZoneId, dotNumber, address, phoneNumber, email, terminalAddress } = formData;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        const nextValue =
+            name === 'phoneNumber'
+                ? value.replace(/\D/g, '').slice(0, 15)
+                : value;
+
+        if (submitError) {
+            setSubmitError('');
+        }
+
         setFormData((prev) => ({
             ...prev,
-            [name]: value,
+            [name]: nextValue,
         }));
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!companyName || !timeZoneId || !dotNumber || !address) {
+        if (!companyName || !timeZoneId || !dotNumber || !address || !phoneNumber || !email || !terminalAddress) {
             toast.error('Please fill in all required fields.');
             return;
         }
 
+        if (!PHONE_REGEX.test(phoneNumber)) {
+            toast.error('Phone number must contain 10 to 15 digits.');
+            return;
+        }
+
+        if (!EMAIL_REGEX.test(email)) {
+            toast.error('Please enter a valid email address.');
+            return;
+        }
+
+        setSubmitError('');
         setLoading(true);
 
         const payload = {
             companyName,
-            address,
             dotNumber,
-            status: "Active",
-            subscriptionStatus: "Paid",
+            timeZoneId,
+            address,
             phoneNumber,
-            timeZoneId
+            email,
+            terminals: [
+                {
+                    timeZone: timeZoneId,
+                    address: terminalAddress,
+                },
+            ],
         };
 
         createCompany(payload)
@@ -52,7 +83,13 @@ const CreateCompany = ({ createCompany }) => {
                 navigate('/companies-list');
             })
             .catch((error) => {
-                toast.error(error || 'Something went wrong.');
+                const errorMessage =
+                    typeof error === 'string'
+                        ? error
+                        : error?.response?.data?.message || error?.message || 'Something went wrong.';
+
+                setSubmitError(errorMessage);
+                toast.error(errorMessage);
             })
             .finally(() => {
                 setLoading(false);
@@ -67,6 +104,12 @@ const CreateCompany = ({ createCompany }) => {
                 </div>
 
                 <div className="form-wrapper bg-white w-100 border rounded-4 px-3 px-md-4 py-4">
+                    {submitError && (
+                        <div className="alert alert-danger mb-4" role="alert">
+                            {submitError}
+                        </div>
+                    )}
+
                     <Form id="add-company-form" onSubmit={handleSubmit}>
                         <Row className="g-3 g-xl-4 mb-4">
                             <Col sm={6}>
@@ -138,6 +181,51 @@ const CreateCompany = ({ createCompany }) => {
                                     />
                                 </Form.Group>
                             </Col>
+                            <Col sm={6}>
+                                <Form.Group controlId="PhoneNumber">
+                                    <Form.Label>
+                                        Phone Number<span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="tel"
+                                        name="phoneNumber"
+                                        value={phoneNumber}
+                                        onChange={handleChange}
+                                        placeholder="Enter phone number"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col sm={6}>
+                                <Form.Group controlId="Email">
+                                    <Form.Label>
+                                        Email<span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="email"
+                                        name="email"
+                                        value={email}
+                                        onChange={handleChange}
+                                        placeholder="Enter company email"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col xs={12}>
+                                <Form.Group controlId="TerminalAddress">
+                                    <Form.Label>
+                                        Terminal Address<span className="text-danger">*</span>
+                                    </Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="terminalAddress"
+                                        value={terminalAddress}
+                                        onChange={handleChange}
+                                        placeholder="Enter terminal address"
+                                        required
+                                    />
+                                </Form.Group>
+                            </Col>
                         </Row>
 
                         <div className="btn-wrapper d-flex flex-wrap justify-content-end gap-2">
@@ -166,12 +254,7 @@ const CreateCompany = ({ createCompany }) => {
 };
 
 const mapDispatchToProps = (dispatch) => ({
-    createCompany: (data) => new Promise((resolve, reject) => {
-        dispatch(createCompany(data, (err) => {
-            if (err) reject(err);
-            else resolve();
-        }));
-    })
+    createCompany: (data) => dispatch(createCompany(data))
 });
 
 export default connect(null, mapDispatchToProps)(CreateCompany);

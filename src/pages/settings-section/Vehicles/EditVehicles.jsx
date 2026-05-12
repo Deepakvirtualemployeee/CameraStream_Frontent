@@ -13,7 +13,6 @@ import {
 import { getDriversIssuingState } from "../../../store/actions/drivers";
 import { FUELTYPE, MAKE, VEHICLE_MODEL_OPTIONS, ALPHABATES_NUMERIC, VIN_REGEX } from "../../../constants";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
-import { getUnassignedElds } from "../../../store/actions/eldDevices";
 import { ROLES } from '../../../constants';
 
 export const EditVehicles = () => {
@@ -29,7 +28,6 @@ export const EditVehicles = () => {
   console.log("Vehicle Id:", id);
 
   const { vehicle, loading } = useSelector((state) => state.vehicles);
-  const { unassignedElds, loadings } = useSelector((state) => state.eldDevices);
   const { issuingState, loading: issuingStateLoading } = useSelector((state) => state.drivers);
 
   const [showDeactivate, setShowDeactivate] = useState(false);
@@ -37,7 +35,6 @@ export const EditVehicles = () => {
   const [showUnassign, setShowUnassign] = useState(false);
   const [showDelete, setShowDelete] = useState(false); // new
   const [isUnassigned, setIsUnassigned] = useState(false);
-  const [eldOptions, setEldOptions] = useState([]); // merged ELD options
 
   const [formData, setFormData] = useState({
     vehicleNumber: "",
@@ -49,25 +46,22 @@ export const EditVehicles = () => {
     fuelType: "",
     licensePlateState: "",
     licensePlateNumber: "",
-    eldSerialNumber: "",
-    eldId: "",
     status: "Active",
   });
 
-  // Fetch vehicle + unassigned ELDs
+  // Fetch vehicle details
   useEffect(() => {
     if (id) {
       dispatch(getVehicleById(companyId, id));
     }
-    dispatch(getUnassignedElds(companyId));
   }, [dispatch, id, companyId]);
 
   // Fetch issuing state
   useEffect(() => {
-    if (id) {
-      dispatch(getDriversIssuingState(id));
+    if (companyId) {
+      dispatch(getDriversIssuingState(companyId));
     }
-  }, [id, dispatch]);
+  }, [companyId, dispatch]);
 
   // Prefill form when vehicle is loaded
   useEffect(() => {
@@ -82,36 +76,10 @@ export const EditVehicles = () => {
         fuelType: vehicle.fuelType || "",
         licensePlateState: vehicle.licensePlateState || "",
         licensePlateNumber: vehicle.licensePlateNumber || "",
-        eldSerialNumber: vehicle.eldSerialNumber || "",
-        eldId: vehicle.eldId || "",
       });
       setIsUnassigned(!vehicle.eldSerialNumber);
     }
   }, [vehicle, companyId]);
-
-  // Merge assigned ELD with unassigned
-  useEffect(() => {
-    if (!vehicle) return;
-
-    // Assigned ELD from vehicle
-    const assignedEld = vehicle.eldSerialNumber
-      ? {
-        _id: vehicle.eldId,
-        serialNumber: vehicle.eldSerialNumber,
-        macAddress: vehicle.eldMacAddress || "", // if backend returns mac
-      }
-      : null;
-
-    let merged = [...unassignedElds];
-    if (
-      assignedEld &&
-      !unassignedElds.some((eld) => eld._id === assignedEld._id)
-    ) {
-      merged = [assignedEld, ...unassignedElds];
-    }
-
-    setEldOptions(merged);
-  }, [vehicle, unassignedElds]);
 
 
   // const handleChange = (e) => {
@@ -136,24 +104,20 @@ export const EditVehicles = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "eldSerialNumber") {
-      const selectedEld = unassignedElds.find(
-        (eld) => eld.serialNumber === value
-      );
-      setFormData((prev) => ({
-        ...prev,
-        eldSerialNumber: value,
-        eldId: selectedEld?._id || "", // assign eldId
-      }));
-    }
-    // License Plate Validation
-    else if (name === "licensePlateNumber") {
+    if (name === "licensePlateNumber") {
       if (value === "" || ALPHABATES_NUMERIC.test(value)) {
         setFormData((prev) => ({
           ...prev,
           [name]: value,
         }));
       }
+    }
+    else if (name === "year") {
+      const cleaned = value.replace(/\D/g, "").slice(0, 4);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: cleaned,
+      }));
     }
     // VIN Validation
     else if (name === "vin") {
@@ -179,7 +143,7 @@ export const EditVehicles = () => {
     }
   };
 
-  // Unassign ELD
+  // Unassign camera device
   const confirmUnassignEld = async () => {
     if (!id) return;
     const success = await dispatch(unassignEld(companyId, id, navigate));
@@ -187,8 +151,6 @@ export const EditVehicles = () => {
       setIsUnassigned(true);
       setFormData((prev) => ({
         ...prev,
-        eldSerialNumber: "",
-        eldId: "",
       }));
     }
     setShowUnassign(false);
@@ -224,7 +186,7 @@ export const EditVehicles = () => {
         style={{ maxWidth: "calc(1000px + 1.5rem)" }}
       >
         <div className="heading-wrapper d-flex justify-content-between align-items-center mb-4">
-          <div className="main-heading">Edit Vehicle Info</div>
+          <div className="main-heading">Edit Device Info</div>
           <div className="btn-wrapper d-flex flex-wrap gap-2">
             <Button
               variant="white"
@@ -238,7 +200,7 @@ export const EditVehicles = () => {
               onClick={() => setShowUnassign(true)}
               disabled={isUnassigned}
             >
-              {isUnassigned ? "Unassigned" : "Unassign ELD"}
+              {isUnassigned ? "Unassigned" : "Unassign Camera Device"}
             </Button>
             {vehicle?.status === "Active" ? (
               <Button
@@ -260,7 +222,7 @@ export const EditVehicles = () => {
               variant="danger"
               onClick={() => setShowDelete(true)} // delete button
             >
-              Delete Vehicle
+              Delete Device
             </Button>)}
             <Button variant="primary" type="submit" form="edit-vehicle-form">
               Save Changes
@@ -293,7 +255,7 @@ export const EditVehicles = () => {
           show={showUnassign}
           handleClose={() => setShowUnassign(false)}
           onConfirm={confirmUnassignEld}
-          title="Are you sure you want to unassign the ELD from this vehicle?"
+          title="Are you sure you want to unassign the camera device from this vehicle?"
           confirmText="Unassign"
           confirmVariant="danger"
           iconClass="bi-slash-circle"
@@ -390,6 +352,7 @@ export const EditVehicles = () => {
                     <Form.Label>Year</Form.Label>
                     <Form.Control
                       type="text"
+                      inputMode="numeric"
                       name="year"
                       value={formData.year}
                       onChange={handleChange}
@@ -492,26 +455,16 @@ export const EditVehicles = () => {
             </section>
 
             <section>
-              <div className="main-heading mb-3">ELD Settings</div>
+              <div className="main-heading mb-3">Camera Device</div>
               <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
-                <Form.Group controlId="eldSerialNumber">
-                  <Form.Label>Assign ELD</Form.Label>
-                  <Form.Select
-                    name="eldSerialNumber"
-                    value={formData.eldSerialNumber}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select ELD</option>
-                    {loadings ? (
-                      <option>Loading...</option>
-                    ) : (
-                      eldOptions.map((eld) => (
-                        <option key={eld._id} value={eld.serialNumber}>
-                          {eld.serialNumber} {eld.macAddress ? `(${eld.macAddress})` : ""}
-                        </option>
-                      ))
-                    )}
-                  </Form.Select>
+                <Form.Group controlId="currentEldSerialNumber">
+                  <Form.Label>Assigned Camera Device</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={vehicle?.eldSerialNumber || ""}
+                    placeholder="No camera device assigned"
+                    readOnly
+                  />
                 </Form.Group>
               </div>
             </section>

@@ -7,13 +7,28 @@ import dataTableCustomStyles from "../../../assets/style/dataTableCustomStyles";
 import { NoDataComponent } from "../../../components/NoDataComponent";
 import TableFilter from "../../../components/TableFilter";
 import EditIcon from "../../../assets/images/icons/edit.svg";
-import { fetchEldDevices } from "../../../store/actions/eldDevices";
+import { fetchCameraDevices } from "../../../store/actions/cameraDevices";
 import { ROLES } from '../../../constants';
 
-export const ELDDevice = () => {
+const getVehicleName = (device = {}) => {
+  const vehicle =
+    device.vehicleId ||
+    device.vehcileId ||
+    device.vehicleID ||
+    device.assignedVehicleId ||
+    device.vehicle;
+
+  if (vehicle && typeof vehicle === "object") {
+    return vehicle.vehicleNumber || vehicle.name || vehicle.vehicleName || "N/A";
+  }
+
+  return device.vehicleNumber || device.vehicleName || "N/A";
+};
+
+export const CameraDevice = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { eldDevices, loading } = useSelector((state) => state.eldDevices);
+  const { cameraDevices, loading } = useSelector((state) => state.cameraDevices);
   const { userDetails } = useSelector((state) => state.auth);
   const userRole = userDetails?.role;
 
@@ -21,16 +36,15 @@ export const ELDDevice = () => {
 
   useEffect(() => {
     if (companyId) {
-      dispatch(fetchEldDevices(companyId));
+      dispatch(fetchCameraDevices(companyId));
     }
   }, [dispatch, companyId]);
 
   const columns = [
-    { name: "ELD SN (MAC)", selector: (row) => `${row.serialNumber} (${row.macAddress || ""})`, sortable: true, minWidth: "300px" },
-    { name: "ELD Model", selector: (row) => row.eldModel, sortable: true, minWidth: "150px" },
-    { name: "Assigned Vehicle", selector: (row) => row.assignedVehicleId?.vehicleNumber, sortable: true, minWidth: "170px" },
-    { name: "BLE Version", selector: (row) => row.bleVersion || '1.5.6', sortable: true, minWidth: "150px" },
-    { name: "Firmware Version", selector: (row) => row.firmwareVersion, sortable: true, minWidth: "170px" },
+    { name: "Device Name", selector: (row) => row.deviceName, sortable: true, minWidth: "200px" },
+    { name: "Device Type", selector: (row) => row.deviceType, sortable: true, minWidth: "150px" },
+    { name: "Vehicle Name", selector: getVehicleName, sortable: true, minWidth: "170px" },
+    { name: "Online Status", selector: (row) => row.onlineStatus ? 'Online' : 'Offline', sortable: true, minWidth: "150px" },
     {
       name: "Status",
       minWidth: "120px",
@@ -52,7 +66,7 @@ export const ELDDevice = () => {
           <span
             className="pointer ms-3"
             title="Edit"
-            onClick={() => navigate(`/settings/eld-devices/edit-device/${companyId}/${row._id}`, {
+            onClick={() => navigate(`/settings/camera-devices/edit-device/${companyId}/${row._id}`, {
               state: { companyId: companyId },
             })}
           >
@@ -77,7 +91,7 @@ export const ELDDevice = () => {
     { value: filterStatus, setValue: setFilterStatus, placeholder: "Filter by status", options: ["All", "Active", "Inactive"] },
   ];
 
-  const filteredData = eldDevices.filter((item) => {
+  const filteredData = cameraDevices.filter((item) => {
     const matchesSearch = Object.values(item).some((val) =>
       val?.toString().toLowerCase().includes(searchText.toLowerCase())
     );
@@ -86,21 +100,21 @@ export const ELDDevice = () => {
   });
 
   return (
-    <div className="ELDDevice-page py-3">
+    <div className="CameraDevice-page py-3">
       <div className="container-fluid">
-        <div className="main-heading mb-3">ELD Devices ({eldDevices.length})</div>
+        <div className="main-heading mb-3">Camera Devices ({cameraDevices.length})</div>
         <div className="table-content-wrapper">
           <div className="action-wrapper d-flex flex-column flex-sm-row flex-wrap align-items-sm-start justify-content-between gap-2 mb-4">
             <TableFilter
               searchText={searchText}
               setSearchText={setSearchText}
-              searchPlaceholder="Search by ELD SN or ELD MAC Address"
+              searchPlaceholder="Search by camera serial number or MAC address"
               filters={filters}
               onReset={resetFilters}
             />
             {userRole !== ROLES.Company_Safety_Personal && (
-            <Button variant="primary" onClick={() => navigate(`/settings/eld-devices/add-device/${companyId}`)}>
-              <i className="bi bi-plus-lg fs-16"></i> Add ELD Device
+            <Button variant="primary" onClick={() => navigate(`/settings/camera-devices/add-device/${companyId}`)}>
+              <i className="bi bi-plus-lg fs-16"></i> Add Camera Device
             </Button>)}
           </div>
           <div className="table-responsive table-custom-wrapper">

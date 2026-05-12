@@ -67,14 +67,14 @@ const userRole = userDetails?.role;
       sortable: true,
       minWidth: '160px',
     },
-    {
-      name: 'Co-Driver',
-      selector: (row) => row.coDriverId 
-      ? `${row.coDriverId.firstName} ${row.coDriverId.lastName}`
-      : '',
-      sortable: true,
-      minWidth: '150px',
-    },
+    // {
+    //   name: 'Co-Driver',
+    //   selector: (row) => row.coDriverId 
+    //   ? `${row.coDriverId.firstName} ${row.coDriverId.lastName}`
+    //   : '',
+    //   sortable: true,
+    //   minWidth: '150px',
+    // },
     {
       name: 'App Version',
       minWidth: '110px',

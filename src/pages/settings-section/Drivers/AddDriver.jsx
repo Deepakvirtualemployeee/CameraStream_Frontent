@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { Form, Row, Col, Button, Spinner } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useDispatch, useSelector } from "react-redux";
 import { addDriver, getDriversIssuingState } from "../../../store/actions/drivers";
-import { getAssignableVehicles , getAllActiveVehicles} from "../../../store/actions/vehicles";
+import { getVehicles } from "../../../store/actions/vehicles";
 import { ALPHABATES_NUMERIC } from "../../../constants"; // Import regex
 import { getCompanyInfo } from "../../../store/actions/companies";
+import { toast } from "react-toastify";
 
 export const AddDriver = () => {
     const navigate = useNavigate();
@@ -21,9 +22,8 @@ export const AddDriver = () => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmPassVisible, setconfirmPassVisible] = useState(false);
 
-    const { loading, error, success } = useSelector((state) => state.driverAdd || {});
-    const { assignableVehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
-const { allActiveVehicles } = useSelector((state) => state.vehicles);
+    const { loading, success } = useSelector((state) => state.driverAdd || {});
+    const { vehicles, loading: vehiclesLoading } = useSelector((state) => state.vehicles);
 
 
     const { issuingState, loading: issuingStateLoading } = useSelector((state) => state.drivers);
@@ -118,7 +118,7 @@ const { allActiveVehicles } = useSelector((state) => state.vehicles);
     const handleSubmit = (e) => {
         e.preventDefault();
         if (password !== confirmPassword) {
-            alert('Passwords do not match!');
+            toast.error('Passwords do not match!');
             return;
         }
         console.log("Add driver data:", formData);
@@ -137,10 +137,10 @@ const { allActiveVehicles } = useSelector((state) => state.vehicles);
         }
     }, [companyId, dispatch]);
 
-    // Fetch Assignable Vehicles
+    // Fetch Vehicles from the vehicle list API
     useEffect(() => {
         if (companyId) {
-            dispatch(getAllActiveVehicles(companyId));
+            dispatch(getVehicles(companyId));
         }
     }, [companyId, dispatch]);
 
@@ -162,9 +162,6 @@ const { allActiveVehicles } = useSelector((state) => state.vehicles);
                         </Button>
                     </div>
                 </div>
-
-                {error && <Alert variant="danger">{error}</Alert>}
-                {success && <Alert variant="success">Driver added successfully!</Alert>}
 
                 <div className="form-wrapper">
                     <Form id="add-user-form" onSubmit={handleSubmit}>
@@ -445,7 +442,7 @@ const { allActiveVehicles } = useSelector((state) => state.vehicles);
 >
   <option value="">Select a vehicle</option>
   {vehiclesLoading && <option disabled>Loading...</option>}
-  {allActiveVehicles?.map((v) => (
+  {vehicles?.map((v) => (
     <option key={v._id} value={v._id}>
       {v.vehicleNumber}
     </option>
@@ -457,113 +454,7 @@ const { allActiveVehicles } = useSelector((state) => state.vehicles);
 
                             </div>
                         </section>
-                        <section className="log-section">
-                            <div className="main-heading mb-3">Log Settings</div>
-                            <div className="bg-white w-100 border rounded-4 shadow-sm px-3 px-md-4 py-4">
-                                <Form.Group className="mb-3" controlId="HOSRules">
-                                    <Form.Label>HOS Rules
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="hosRules"
-                                        value={formData.hosRules || "USA 70 Hour / 8 Day"}
-                                        onChange={handleChange}
-                                        placeholder="Enter HOS rules"
-                                        autoComplete='off'
-                                        // required
-                                        disabled
-                                    />
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="CargoType">
-                                    <Form.Label>Cargo Type
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="cargoType"
-                                        value={formData.cargoType || "Property"}
-                                        onChange={handleChange}
-                                        placeholder="Enter cargo type"
-                                        autoComplete='off'
-                                        // required
-                                        disabled
-                                    />
-                                    {/* <Form.Select
-                                        name="cargoType"
-                                        value={formData.cargoType || "Property"}
-                                        onChange={handleChange}
-                                        // required
-                                        disabled
-                                    >
-                                        <option value="" hidden>
-                                            Select Cargo Type
-                                        </option>
-                                        <option value="PROPERTY">PROPERTY</option>
-                                        <option value="PASSENGER">PASSENGER</option>
-                                    </Form.Select> */}
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="Restart">
-                                    <Form.Label>Restart
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="restart"
-                                        value={formData.restart || "34 Hour Restart"}
-                                        onChange={handleChange}
-                                        placeholder="Enter restart"
-                                        autoComplete='off'
-                                        // required
-                                        disabled
-                                    />
-                                </Form.Group>
-                                <Form.Group className="mb-3" controlId="RestBreak">
-                                    <Form.Label>Rest Break
-                                        {/* <span className="text-danger">*</span> */}
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="restBreak"
-                                        value={formData.restBreak || "30 min Break"}
-                                        onChange={handleChange}
-                                        placeholder="Enter rest break"
-                                        autoComplete='off'
-                                        // required
-                                        disabled
-                                    />
-                                </Form.Group>
-                                <Form.Group>
-                                    <div className="checks-wrapper">
-                                        {/* <Form.Check type="checkbox" name="allowShortHaulException" checked={allowShortHaulException} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Short-Haul Exception</div>}
-                                            required
-                                        />
-                                        <Form.Check type="checkbox" name="allowSplitSleeperBerth" checked={allowSplitSleeperBerth} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Split-Sleeper Berth</div>}
-                                        /> */}
-                                        <Form.Check type="checkbox" name="allowPersonalConveyance" checked={allowPersonalConveyance} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Personal Conveyance</div>}
-                                        />
-                                        <Form.Check type="checkbox" name="allowYardMove" checked={allowYardMove} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Yard Move</div>}
-                                        />
-                                        <Form.Check type="checkbox" name="allowManualDriver" checked={allowManualDriver} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Allow Manual Driver</div>}
-                                        />
-                                        {/* <Form.Check type="checkbox" name="restrictDriverFromCreationDateAndTime" checked={restrictDriverFromCreationDateAndTime} onChange={handleChange}
-                                            className="fs-16 mb-1"
-                                            label={<div className="fs-6 text-dark text-opacity-75">Restrict Driver from Creation Date & Time</div>}
-                                        /> */}
-                                    </div>
-                                </Form.Group>
-                            </div>
-                        </section>
+                     
                     </Form>
                 </div>
             </div>
